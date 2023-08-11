@@ -6,11 +6,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 export default function Page() {
-    return (
-        <Container>
-            <ChooseProvider />
-        </Container>
-    )
+    return <ChooseProvider />
 }
 
 export function Container({ children }) {
@@ -33,24 +29,31 @@ export function ChooseProvider() {
     const [provider, setProvider] = useState('')
     const router = useRouter()
     return (
-        <form
-            onSubmit={(e) => {
-                e.preventDefault()
-                router.push(`/tenants/provider/${provider}/step/1`)
-            }}
-            className='flex flex-col gap-12'
-        >
-            <RadioGroup value={provider} onValueChange={setProvider}>
-                {Object.entries(providers).map(([key, value]) => {
-                    return (
-                        <RadioCard icon={value.icon} value={key}>
-                            {value.name}
-                        </RadioCard>
-                    )
-                })}
-            </RadioGroup>
-            <Button type='submit'>Continue</Button>
-        </form>
+        <Container>
+            <form
+                onSubmit={(e) => {
+                    e.preventDefault()
+                    router.push(`/tenants/provider/${provider}/step/1`)
+                }}
+                className='flex w-[600px] self-center flex-col gap-12'
+            >
+                <div className=''>What is your SSO provider?</div>
+                <RadioGroup
+                    description=''
+                    value={provider}
+                    onValueChange={setProvider}
+                >
+                    {Object.entries(providers).map(([key, value]) => {
+                        return (
+                            <RadioCard icon={value.icon} value={key}>
+                                {value.name}
+                            </RadioCard>
+                        )
+                    })}
+                </RadioGroup>
+                <Button type='submit'>Continue</Button>
+            </form>
+        </Container>
     )
 }
 
