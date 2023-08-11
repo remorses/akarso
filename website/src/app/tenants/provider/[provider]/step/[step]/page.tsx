@@ -75,7 +75,7 @@ export default function Page({
                         )
                     })}
                 </div>
-                <div className='flex flex-col gap-6 max-w-[700px]'>
+                <div className='flex flex-col gap-6 leading-relaxed max-w-[700px]'>
                     <h1 className='font-semibold text-2xl'>
                         {p.steps[step - 1].title}
                     </h1>
@@ -93,6 +93,8 @@ export default function Page({
                                     endContent={
                                         <ArrowRightIcon className='w-4' />
                                     }
+                                    // color='success'
+                                    // variant='flat'
                                 >
                                     Next Step
                                 </Button>
