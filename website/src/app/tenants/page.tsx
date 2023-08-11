@@ -1,5 +1,6 @@
 'use client'
 import { Google, Microsoft, Okta } from '@/app/tenants/icons'
+import { providers } from '@/lib/providers'
 import { Radio, cn, Checkbox, RadioGroup, Button } from '@nextui-org/react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -32,15 +33,13 @@ export function ChooseProvider() {
             className='flex flex-col gap-12'
         >
             <RadioGroup value={provider} onValueChange={setProvider}>
-                <RadioCard icon={<Google />} value='google'>
-                    Google Workspace
-                </RadioCard>
-                <RadioCard icon={<Microsoft />} value='microsoft'>
-                    Microsoft
-                </RadioCard>
-                <RadioCard icon={<Okta />} value='okta'>
-                    Okta
-                </RadioCard>
+                {Object.entries(providers).map(([key, value]) => {
+                    return (
+                        <RadioCard icon={value.icon} value={key}>
+                            {value.name}
+                        </RadioCard>
+                    )
+                })}
             </RadioGroup>
             <Button type='submit'>Continue</Button>
         </form>
