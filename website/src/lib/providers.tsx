@@ -1,5 +1,9 @@
 import { Google, Okta } from '@/app/tenants/icons'
+import { useState, useReducer, useRef, ComponentPropsWithoutRef } from 'react'
 import Image from 'next/image'
+import { Button } from '@nextui-org/react'
+import { metadataXml } from '@/lib/atoms'
+import { UploadIcon } from 'lucide-react'
 
 export const providers = {
     google: {
@@ -34,6 +38,7 @@ export const providers = {
             },
             {
                 title: `Upload Identity Provider Metadata`,
+                addsMetadata: true,
                 content: (
                     <>
                         <div>
@@ -42,6 +47,7 @@ export const providers = {
                             "Continue".
                         </div>
                         <Img src={require('@/ssoimg/google/3.png')} />
+                        <UploadButton accept='xml' />
                     </>
                 ),
             },
@@ -196,5 +202,56 @@ export function Img({ src, ...rest }) {
                 />
             </div>
         </div>
+    )
+}
+
+export function UploadButton({
+    accept = '*',
+    children,
+    ...rest
+}: {
+    bg?: string
+    children?: React.ReactNode
+    accept?: string
+} & ComponentPropsWithoutRef<typeof Button>) {
+    const [filename, setFilename] = useState('')
+
+    const inputRef = useRef<any>()
+
+    return (
+        <>
+            <input
+                type='file'
+                onChange={async (e) => {
+                    const target: HTMLInputElement = e.target
+                    const file = target.files?.[0]
+
+                    if (!file) {
+                        console.log('no file')
+                        return
+                    }
+                    setFilename(file.name)
+                    const filename = encodeURIComponent(file.name)
+                    const string = await file.text()
+                    metadataXml.set(string)
+                }}
+                accept={accept}
+                ref={inputRef}
+                style={{ display: 'none' }}
+            />
+            {/* @ts-ignore */}
+            <Button
+                onClick={() => {
+                    inputRef.current.click()
+                }}
+                endContent={<UploadIcon className='w-4' />}
+                className='my-4'
+                {...rest}
+                // isLoading={isLoading}
+            >
+                {children || 'Upload Metadata File'}
+            </Button>
+            {/* <div className="mt-2 text-sm opacity-60">{filename}</div> */}
+        </>
     )
 }

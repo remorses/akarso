@@ -1,4 +1,6 @@
 'use client'
+import { useStore } from '@nanostores/react'
+
 import {
     ArrowRight,
     ArrowRightIcon,
@@ -14,6 +16,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import Link from 'next/link'
 import { Provider, providers } from '@/lib/providers'
+import { metadataXml } from '@/lib/atoms'
 
 export default function Page({
     params: { provider, step },
@@ -27,10 +30,12 @@ export default function Page({
     const p = providers[provider]
     const stepsLength = p.steps.length
     const isEnd = step - 1 !== stepsLength - 1
+    const stepObj = p.steps[step - 1]
+    const metadata = useStore(metadataXml)
     return (
         <Container>
             <div className='flex flex-row-reverse h-full justify-between gap-12'>
-                <div className='flex sticky self-start top-4 flex-col gap-6 min-w-[240px]'>
+                <div className='flex sticky self-start top-4 flex-col gap-6 shrink-0 min-w-[260px]'>
                     <div className='flex gap-3 items-center'>
                         <div className='[&>*]:w-[20px]'>{p.icon}</div>
                         <div className='text-xl font-semibold'>{p.name}</div>
@@ -75,11 +80,9 @@ export default function Page({
                         )
                     })}
                 </div>
-                <div className='flex flex-col gap-4 leading-relaxed max-w-[700px]'>
-                    <h1 className='font-semibold text-2xl'>
-                        {p.steps[step - 1].title}
-                    </h1>
-                    {p.steps[step - 1].content}
+                <div className='flex flex-col gap-4 shrink-0  leading-relaxed w-[700px]'>
+                    <h1 className='font-semibold text-2xl'>{stepObj.title}</h1>
+                    {stepObj.content}
                     <div className='flex'>
                         {/* <div className='grow'></div> */}
                         {isEnd ? (
@@ -93,6 +96,11 @@ export default function Page({
                                     endContent={
                                         <ArrowRightIcon className='w-4' />
                                     }
+                                    className={cn(
+                                        stepObj['addsMetadata'] &&
+                                            !metadata &&
+                                            'pointer-events-none opacity-70',
+                                    )}
                                     // color='success'
                                     // variant='flat'
                                 >

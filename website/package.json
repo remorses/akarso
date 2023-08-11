@@ -10,6 +10,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@nanostores/react": "^0.7.1",
     "@nextui-org/react": "^2.0.14",
     "@nextui-org/theme": "^2.0.4",
     "@types/node": "20.4.9",
@@ -17,8 +18,9 @@
     "@types/react-dom": "18.2.7",
     "autoprefixer": "10.4.14",
     "framer-motion": "^10.15.1",
-    "lucide-react": "^0.250.0",
-    "next": "13.4.13",
+    "lucide-react": "0.265.0",
+    "nanostores": "^0.9.3",
+    "next": "13.4.14-canary.2",
     "postcss": "8.4.27",
     "react": "18.2.0",
     "react-dom": "18.2.0",
