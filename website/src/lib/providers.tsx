@@ -186,7 +186,7 @@ export type Provider = keyof typeof providers
 
 export function Img({ src, ...rest }) {
     return (
-        <div className='p-6 -mx-6 bg-gray-100 rounded-md'>
+        <div className='p-6 -mx-6 my-6 bg-gray-100 rounded-md'>
             <div className='overflow-hidden items-center flex relative rounded-md flex-col'>
                 <Image
                     className='overflow-hidden relative min-w-[105%] shadow '

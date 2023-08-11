@@ -29,8 +29,8 @@ export default function Page({
     const isEnd = step - 1 !== stepsLength - 1
     return (
         <Container>
-            <div className='flex gap-12'>
-                <div className='flex flex-col gap-6 min-w-[240px]'>
+            <div className='flex flex-row-reverse h-full justify-between gap-12'>
+                <div className='flex sticky self-start top-4 flex-col gap-6 min-w-[240px]'>
                     <div className='flex gap-3 items-center'>
                         <div className='[&>*]:w-[20px]'>{p.icon}</div>
                         <div className='text-xl font-semibold'>{p.name}</div>
@@ -75,13 +75,13 @@ export default function Page({
                         )
                     })}
                 </div>
-                <div className='flex flex-col gap-6 leading-relaxed max-w-[700px]'>
+                <div className='flex flex-col gap-4 leading-relaxed max-w-[700px]'>
                     <h1 className='font-semibold text-2xl'>
                         {p.steps[step - 1].title}
                     </h1>
                     {p.steps[step - 1].content}
                     <div className='flex'>
-                        <div className='grow'></div>
+                        {/* <div className='grow'></div> */}
                         {isEnd ? (
                             <Link
                                 legacyBehavior
