@@ -7,7 +7,7 @@ import {
     GetServerSidePropsContext,
     InferGetServerSidePropsType,
 } from 'next'
-import { requireAuth } from 'website/src/lib/ssr'
+import { createAdminUrl, requireAuth } from 'website/src/lib/ssr'
 
 import { RefreshCwIcon } from 'lucide-react'
 import { useRouter } from 'next/router'
@@ -19,10 +19,13 @@ import { generateCodeSnippet, isDev } from 'website/src/lib/utils'
 import { onboarding } from 'website/src/pages/api/functions'
 import { Block, BlockWithStep } from 'website/../beskar/dashboard'
 import { BrowserWindow } from 'website/src/components/BrowserWindow'
+import { updateOrCreateSSOConnection } from 'website/../akarso/dist'
 
 export default function Page({
     sites,
     site,
+    host,
+    url,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
     const router = useRouter()
     const { fn: onSubmit, isLoading } = useThrowingFn({
@@ -33,7 +36,7 @@ export default function Page({
         },
     })
     const iframeRef = useRef<HTMLIFrameElement>(null)
-    const host = `${site.slug}.${env.NEXT_PUBLIC_TENANTS_DOMAIN}`
+
     const [loaded, setLoaded] = useState(false)
     const { callbackCode, redirectCode } = generateCodeSnippet({
         host,
@@ -49,7 +52,7 @@ export default function Page({
             </Block>
             <div className='flex min-h-[500px] flex-col'>
                 <BrowserWindow
-                    host={host}
+                    url={url}
                     onRefresh={() => {
                         const iframe = iframeRef.current
                         if (iframe) {
@@ -75,9 +78,7 @@ export default function Page({
                         width='100%'
                         title='website preview'
                         onLoad={() => setLoaded(true)}
-                        src={`${
-                            isDev ? 'http' : 'https'
-                        }://${host}?previewProps=true`}
+                        src={url}
                     ></iframe>
                     {!loaded && (
                         <div className='flex justify-center items-center inset-0 absolute'>
@@ -130,11 +131,15 @@ export const getServerSideProps = (async (ctx: GetServerSidePropsContext) => {
             notFound: true,
         }
     }
+    let host = `${site.slug}.${env.NEXT_PUBLIC_TENANTS_DOMAIN}`
+    const { url } = await createAdminUrl({ host, secret: site.secret })
 
     return {
         props: {
             sites,
+            host,
             site,
+            url,
         },
     }
 }) satisfies GetServerSideProps

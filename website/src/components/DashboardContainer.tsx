@@ -31,7 +31,7 @@ function SelectOrg({ sites = [] as { slug: string; orgId: string }[], slug }) {
             }}
             className={cn('min-w-[200px] !border-0')}
             endButton={
-                <Link href={'/onboarding'}>
+                <Link className='flex flex-col' href={'/onboarding'}>
                     <Select.SelectButton children='New Admin Portal' />
                 </Link>
             }
@@ -45,17 +45,13 @@ function SelectOrg({ sites = [] as { slug: string; orgId: string }[], slug }) {
     )
 }
 
-function TabLink({ href, ...rest }) {
-    return <Tab key={href} {...rest} />
-}
-
 export function DashboardContainer({ children, sites }) {
     const router = useRouter()
     const user = useUser()
     const { orgId, slug } = router.query as any
     const base = `/org/${orgId}/site/${slug}`
     return (
-        <div className='pb-24'>
+        <div className='pb-24 '>
             {/* <div className='w-full '>
                 <div className='w-full max-w-[1200px] mx-auto'>
                     <MyNavbar />
@@ -69,6 +65,11 @@ export function DashboardContainer({ children, sites }) {
                     <SelectOrg slug={slug} sites={sites} />
                     <Tabs
                         variant='light'
+                        disabledKeys={[
+                            // base + '/customize', //
+                            base + '/settings', //
+                            base + '/domain', //
+                        ]}
                         aria-label='nav'
                         classNames={{
                             tabList: 'w-[200px] items-start flex-col ',
@@ -88,7 +89,7 @@ export function DashboardContainer({ children, sites }) {
                             title={
                                 <div className='flex items-center gap-2'>
                                     <HomeIcon className='w-4' />
-                                    Home
+                                    Setup
                                 </div>
                             }
                         ></Tab>

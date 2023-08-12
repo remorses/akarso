@@ -13,6 +13,7 @@ export default async function Layout({ params: { token, host }, children }) {
         return notFound()
     }
 
+    // console.log({ token })
     const payload = await getPayloadForToken({ token, secret })
     console.log(payload)
     return (

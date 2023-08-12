@@ -2,13 +2,14 @@ import classNames from 'classnames'
 import { RefreshCwIcon } from 'lucide-react'
 import { isDev } from 'website/src/lib/utils'
 
-
 export function BrowserWindow({
     children,
     className = '',
     onRefresh,
-    host = 'example.com',
+
+    url,
 }) {
+    const host = new URL(url).host
     return (
         <figure
             className={classNames(
@@ -35,7 +36,7 @@ export function BrowserWindow({
                     <span className=' bg-gray-600 rounded-full dark:bg-gray-600' />
                 </div>
                 <a
-                    href={`${isDev ? 'http://' : 'https://'}${host}`}
+                    href={url}
                     target='_blank'
                     className={classNames(
                         'truncate text-gray-200 rounded px-40 mx-auto',

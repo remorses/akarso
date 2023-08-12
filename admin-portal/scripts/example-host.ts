@@ -14,7 +14,7 @@ async function main() {
         .setIssuedAt()
         .setExpirationTime('2h')
         .sign(new TextEncoder().encode('secret'))
-    const url = `http://localhost:4040/tenant/localhost/token/${encodeURIComponent(
+    const url = `http://localhost:4040/token/${encodeURIComponent(
         token,
     )}`
     console.log(`example url:`, url)

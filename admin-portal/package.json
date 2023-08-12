@@ -3,7 +3,7 @@
     "version": "0.1.0",
     "private": true,
     "scripts": {
-        "dev": "doppler run -c dev -- pnpm tsx scripts/example-host && pnpm next dev -p 4040",
+        "dev": "doppler run -c dev --command 'pnpm tsx scripts/example-host && pnpm next dev -p 4040'",
         "build": "doppler run -c dev -- next build",
         "images": "tiged --disable-cache --force boxyhq/website/static/img/sso-providers ./src/ssoimg",
         "start": "doppler run -c dev -- next start",

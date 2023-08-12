@@ -17,14 +17,18 @@ export function wrapMethod(fn) {
 }
 
 export async function getTenantDataFromHost({ host }) {
+    host = decodeURIComponent(host)
     const supabase = createSupabaseAdmin()
-    const slug = host.replace(env.NEXT_PUBLIC_TENANTS_DOMAIN, '')
-    const isSlug = host !== slug
+    const slug = host.replace('.' + env.NEXT_PUBLIC_TENANTS_DOMAIN, '')
+    const isSlug = host.includes(env.NEXT_PUBLIC_TENANTS_DOMAIN)
+    // console.log({ slug, isSlug, host })
     const { data: site, error } = isSlug
         ? await supabase.from('Site').select().eq('slug', slug).single()
         : await supabase.from('Site').select().eq('customDomain', host).single()
     if (error) {
-        throw error
+        throw new Error(
+            `failed to get tenant data from host: ${host}: ${error.message}`,
+        )
     }
     if (!site) {
         return { notFound: true as true }
@@ -40,6 +44,8 @@ export async function getTenantDataFromHost({ host }) {
 }
 
 export async function getPayloadForToken({ token, secret }) {
+    secret = decodeURIComponent(secret)
+    // console.log({ secret })
     const verified = await jwtVerify(
         decodeURIComponent(token),
         new TextEncoder().encode(secret),

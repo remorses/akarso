@@ -2,10 +2,11 @@ import { ProviderSetupParams } from '@/lib/hooks'
 import crypto from 'crypto'
 import { createSupabaseAdmin } from 'db/supabase'
 import { createClient } from '@supabase/supabase-js'
-import { jwtVerify } from 'jose'
+import { SignJWT, jwtVerify } from 'jose'
 import { env } from 'db/env'
 import { createPagesServerClient } from '@supabase/auth-helpers-nextjs'
 import { notifyError } from '@/lib/sentry'
+import { isDev } from 'website/src/lib/utils'
 
 export function wrapMethod(fn) {
     return async (...args) => {
@@ -59,4 +60,23 @@ export const generateSecretValue = () => {
     const secretValue = buffer.toString('hex')
 
     return secretValue
+}
+
+export async function createAdminUrl({ secret, host }) {
+    const payload: ProviderSetupParams = {
+        callbackUrl: 'http://localhost:3000/api/auth/callback',
+        domain: 'localhost',
+        metadata: {
+            orgId: 'example',
+        },
+    }
+    const token = await new SignJWT(payload)
+        .setProtectedHeader({ alg: 'HS256' })
+        .setIssuedAt()
+        .setExpirationTime('2h')
+        .sign(new TextEncoder().encode(secret))
+    const url = `${
+        isDev ? 'http://' : 'https://'
+    }${host}/token/${encodeURIComponent(token)}`
+    return { url }
 }
