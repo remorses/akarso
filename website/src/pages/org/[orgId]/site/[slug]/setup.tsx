@@ -38,7 +38,7 @@ export default function Page({
     const iframeRef = useRef<HTMLIFrameElement>(null)
     const host = `${site.slug}.${env.NEXT_PUBLIC_TENANTS_DOMAIN}`
     const [loaded, setLoaded] = useState(false)
-    const { callbackCode, redirectCode } = generateCodeSnippet({
+    const { callbackCode, redirectCode, loginCode } = generateCodeSnippet({
         host,
         secret: site.secret,
     })
@@ -78,10 +78,12 @@ export default function Page({
                     />
                 </BlockWithStep>
                 <BlockWithStep isLast step={4}>
-                    <div className=''>Customize your portal design</div>
-                    <Link href={`/org/${orgId}/site/${slug}/customize`}>
+                    <div className=''>Users can now sign in with SSO</div>
+                    <Code language='js' className='text-sm' code={loginCode} />
+
+                    {/* <Link href={`/org/${orgId}/site/${slug}/customize`}>
                         <Button>Customize Portal</Button>
-                    </Link>
+                    </Link> */}
                 </BlockWithStep>
             </div>
         </DashboardContainer>

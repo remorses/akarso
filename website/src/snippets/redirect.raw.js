@@ -6,6 +6,7 @@ const { url } = await updateOrCreateSSOConnection({
     callbackUrl: `https://example.com/api/sso-callback`,
     domain: 'example.com', // the team SSO domain
     identifier: teamId,
+    // TODO use env var instead
     secret: 'REPLACE_ME_SECRET', // akarso secret
 })
 
