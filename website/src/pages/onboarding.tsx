@@ -125,9 +125,9 @@ export default function Page({}) {
                 >
                     <div className=''>Supabase project</div>
                     <div className=''>
-                        <SimpleSelect.Container className='!w-full'>
+                        <SimpleSelect.Container className='!w-full '>
                             <SimpleSelect.Select
-                                className={cn()}
+                                className={cn('')}
                                 {...register('supabaseProjectRef', {
                                     required: true,
                                 })}
@@ -139,7 +139,9 @@ export default function Page({}) {
                                 ))}
                                 {!projects?.length && (
                                     <option key='last' value={''}>
-                                        loading...
+                                        {isValidating
+                                            ? 'loading...'
+                                            : 'No Projects'}
                                     </option>
                                 )}
                             </SimpleSelect.Select>
