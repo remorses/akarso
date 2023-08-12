@@ -26,6 +26,8 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hot-toast": "^2.4.1",
+    "server-actions-for-next-pages": "^0.0.4",
+    "supabase-management-js": "^0.1.5",
     "tailwindcss": "3.3.3",
     "typescript": "^5.1.6"
   }

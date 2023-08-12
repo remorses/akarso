@@ -15,10 +15,11 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import Link from 'next/link'
 import { Provider, providers } from '@/lib/providers'
-import { metadataXml } from '@/lib/atoms'
+import { metadataUrlAtom, metadataXmlAtom } from '@/lib/atoms'
 import { createStepPath } from '@/lib/utils'
 import { Container } from '@/components/Container'
 import { useSetupParams, useThrowingFn } from '@/lib/hooks'
+import { createSSOProvider } from '@/pages/api/functions'
 
 export default function Page({ params: { provider, step, host, token } }) {
     step = Number(step)
@@ -26,12 +27,14 @@ export default function Page({ params: { provider, step, host, token } }) {
     const stepsLength = p.steps.length
     const isEnd = step - 1 === stepsLength - 1
     const stepObj = p.steps[step - 1]
-    const ssoMetadata = useStore(metadataXml)
+    const metadataXml = useStore(metadataXmlAtom)
     const { callbackUrl } = useSetupParams()
     const callback = new URL(callbackUrl)
+    const metadataUrl = useStore(metadataUrlAtom)
+    
     const { fn: create, isLoading } = useThrowingFn({
         async fn() {
-            alert(`done!`)
+            await createSSOProvider({ token, metadataUrl, metadataXml })
             // TODO add provider in supabase
         },
     })
@@ -60,7 +63,7 @@ export default function Page({ params: { provider, step, host, token } }) {
                                     }
                                     className={cn(
                                         stepObj['addsMetadata'] &&
-                                            !ssoMetadata &&
+                                            !metadataXml &&
                                             'pointer-events-none opacity-70',
                                     )}
                                     // color='success'

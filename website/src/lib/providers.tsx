@@ -10,7 +10,7 @@ import {
 } from 'react'
 import Image from 'next/image'
 import { Button } from '@nextui-org/react'
-import { metadataXml } from '@/lib/atoms'
+import { metadataXmlAtom } from '@/lib/atoms'
 import { UploadIcon } from 'lucide-react'
 import { Google, Okta } from '@/components/icons'
 
@@ -242,7 +242,7 @@ export function UploadButton({
                     setFilename(file.name)
                     const filename = encodeURIComponent(file.name)
                     const string = await file.text()
-                    metadataXml.set(string)
+                    metadataXmlAtom.set(string)
                 }}
                 accept={accept}
                 ref={inputRef}

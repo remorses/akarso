@@ -1,3 +1,4 @@
 import { atom } from 'nanostores'
 
-export const metadataXml = atom<string>('')
+export const metadataXmlAtom = atom<string>('')
+export const metadataUrlAtom = atom<string>('')
