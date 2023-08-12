@@ -47,7 +47,7 @@ export default function Page({
         <DashboardContainer sites={sites}>
             <div className='text-3xl font-bold'>Setup</div>
             <div className='grow [&>*]:!max-w-full -mt-12 w-full  flex flex-col'>
-                <BlockWithStep step={0}>
+                <BlockWithStep step={1}>
                     <div className=''>Install the akarso npm package</div>
                     <Code
                         language='sh'
@@ -55,7 +55,7 @@ export default function Page({
                         code={`npm i akarso`}
                     />
                 </BlockWithStep>
-                <BlockWithStep step={1}>
+                <BlockWithStep step={2}>
                     <div className=''>
                         When the user wants to connect SSO, redirect him to the
                         Akarso Admin Portal
@@ -66,7 +66,7 @@ export default function Page({
                         code={redirectCode}
                     />
                 </BlockWithStep>
-                <BlockWithStep step={2}>
+                <BlockWithStep step={3}>
                     <div className=''>
                         In your callback page, connect the SSO provider to your
                         team entity
@@ -77,7 +77,7 @@ export default function Page({
                         code={callbackCode}
                     />
                 </BlockWithStep>
-                <BlockWithStep isLast step={3}>
+                <BlockWithStep isLast step={4}>
                     <div className=''>Customize your portal design</div>
                     <Link href={`/org/${orgId}/site/${slug}/customize`}>
                         <Button>Customize Portal</Button>
