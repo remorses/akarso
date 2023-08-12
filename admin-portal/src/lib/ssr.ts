@@ -1,4 +1,4 @@
-import { ProviderSetupParams } from '@/lib/hooks'
+import { ProviderSetupParams } from '../lib/hooks'
 import { createSupabaseAdmin } from 'db/supabase'
 import { createClient } from '@supabase/supabase-js'
 import { jwtVerify } from 'jose'
@@ -16,8 +16,10 @@ export function wrapMethod(fn) {
         }
     }
 }
+export type SiteData = Awaited<ReturnType<typeof getSiteDataFromHost>>
 
-export async function getTenantDataFromHost({ host }) {
+
+export async function getSiteDataFromHost({ host }) {
     host = decodeURIComponent(host)
     const supabase = createSupabaseAdmin()
     const slug = host.replace('.' + env.NEXT_PUBLIC_TENANTS_DOMAIN, '')
@@ -34,11 +36,13 @@ export async function getTenantDataFromHost({ host }) {
     if (!site) {
         return { notFound: true as true }
     }
-    const { color, secret, supabaseAccessToken, supabaseProjectRef } = site!
+    const { color, secret, logoUrl, supabaseAccessToken, supabaseProjectRef } =
+        site!
     return {
         notFound: false as false,
         secret,
         color,
+        logoUrl,
         supabaseAccessToken,
         supabaseProjectRef,
     }

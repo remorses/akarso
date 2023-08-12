@@ -22,6 +22,7 @@
         "@types/uuid": "^9.0.2",
         "autoprefixer": "10.4.14",
         "beskar": "workspace:*",
+        "admin-portal": "workspace:*",
         "akarso": "workspace:*",
         "classnames": "^2.3.1",
         "db": "workspace:*",

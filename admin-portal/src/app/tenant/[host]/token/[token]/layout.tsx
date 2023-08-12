@@ -2,12 +2,17 @@ import { ChooseProvider } from '@/app/tenant/[host]/token/[token]/ChooseProvider
 import { cookies } from 'next/headers'
 import { ProviderSetupProvider } from '@/components/context'
 import { ProviderSetupParams, providerSetupContext } from '@/lib/hooks'
-import { getPayloadForToken, getTenantDataFromHost } from '@/lib/ssr'
+import { getPayloadForToken, getSiteDataFromHost } from '@/lib/ssr'
 import { jwtVerify } from 'jose'
 import { notFound } from 'next/navigation'
 
 export default async function Layout({ params: { token, host }, children }) {
-    const { secret, notFound: fourOFour } = await getTenantDataFromHost({
+    const {
+        secret,
+        notFound: fourOFour,
+        color,
+        logoUrl,
+    } = await getSiteDataFromHost({
         host,
     })
     if (fourOFour) {
@@ -20,9 +25,9 @@ export default async function Layout({ params: { token, host }, children }) {
     if (!payload) {
         return notFound()
     }
-    console.log(payload)
+
     return (
-        <ProviderSetupProvider value={payload}>
+        <ProviderSetupProvider value={{ ...payload, color, logoUrl }}>
             {children}
         </ProviderSetupProvider>
     )

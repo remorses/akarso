@@ -2,12 +2,14 @@
 import React from 'react'
 import { createContext, useContext, useEffect } from 'react'
 import toast from 'react-hot-toast'
+import type { SiteData } from 'admin-portal/src/lib/ssr'
 
 export type ProviderSetupParams = {
     callbackUrl: string
     metadata: Record<string, string>
     domain: string
 }
+
 
 export const providerSetupContext = createContext<ProviderSetupParams | null>(
     null,

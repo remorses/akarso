@@ -1,7 +1,7 @@
 'use client'
 import { Toaster } from 'react-hot-toast'
 import { NextUIProvider } from '@nextui-org/react'
-import { providerSetupContext } from '@/lib/hooks'
+import { providerSetupContext, usePreviewProps } from '@/lib/hooks'
 
 export function Providers({ children }) {
     return (
@@ -19,6 +19,7 @@ export function ProviderSetupProvider({
     value
     children: React.ReactNode
 }) {
+    value = usePreviewProps(value)
     return (
         <providerSetupContext.Provider value={value}>
             {children}

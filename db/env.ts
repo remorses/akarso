@@ -11,7 +11,7 @@ export const env = {
     //     process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
     // STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
     // STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
-    NEXT_PUBLIC_TENANTS_DOMAIN: process.env.NEXT_PUBLIC_TENANTS_DOMAIN, 
+    NEXT_PUBLIC_TENANTS_DOMAIN: process.env.NEXT_PUBLIC_TENANTS_DOMAIN,
 }
 
 if (typeof window === 'undefined') {
@@ -28,5 +28,6 @@ for (const k in env) {
         throw new Error(`Missing required client env var '${k}'`)
     }
 }
+export const uploadBucketName = 'user-uploads'
 
-
+export const UPLOADS_BASE_URL = `${env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${uploadBucketName}/`

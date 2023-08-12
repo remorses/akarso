@@ -2,7 +2,7 @@
 import { NextRequest } from 'next/server'
 import {
     getPayloadForToken,
-    getTenantDataFromHost,
+    getSiteDataFromHost,
     wrapMethod,
 } from '@/lib/ssr'
 import { SignJWT } from 'jose'
@@ -29,7 +29,7 @@ export async function createSSOProvider({
     const { req, res } = await getNodejsContext()
     const host = req?.headers.host
     const { secret, notFound, supabaseAccessToken, supabaseProjectRef } =
-        await getTenantDataFromHost({ host })
+        await getSiteDataFromHost({ host })
     if (notFound) {
         throw new Error(`tenant not found`)
     }

@@ -7,6 +7,8 @@ import { SupabaseManagementAPI } from 'supabase-management-js'
 import { prisma } from 'db/prisma'
 import { AppError, KnownError } from 'website/src/lib/errors'
 import { slugKebabCase } from 'website/src/lib/utils'
+import { createSupabaseAdmin } from 'website/../db/supabase'
+import { uploadBucketName } from 'website/../db/env'
 
 export { wrapMethod }
 
@@ -68,4 +70,54 @@ export async function getSupabaseProjects({
     const supabase = new SupabaseManagementAPI({ accessToken })
     const projects = await supabase.getProjects()
     return projects
+}
+
+export async function createUploadUrl({ filename }) {
+    const { req, res } = getNodejsContext()
+    const { userId } = await requireAuth({ req, res })
+    if (!userId) {
+        throw new AppError('Missing userId')
+    }
+    let pathname = `/${userId}/${filename}`
+    console.log('creating upload url', pathname)
+    const supabaseAdmin = createSupabaseAdmin()
+
+    const { data, error } = await supabaseAdmin.storage
+        .from(uploadBucketName)
+        .createSignedUploadUrl(pathname)
+    if (error) {
+        throw error
+    }
+    if (!data) {
+        throw new AppError('Missing createSignedUploadUrl data')
+    }
+    console.log('created upload url', data)
+    return data
+}
+
+export async function updateSite({ logoUrl, slug, color }) {
+    const { req, res } = getNodejsContext()
+    const { userId } = await requireAuth({ req, res })
+    if (!userId) {
+        throw new AppError('Missing userId')
+    }
+
+    await prisma.site.updateMany({
+        where: {
+            slug,
+            org: {
+                users: {
+                    some: {
+                        userId,
+                    },
+                },
+            },
+        },
+        data: {
+            color,
+            logoUrl,
+        },
+    })
+
+    return
 }

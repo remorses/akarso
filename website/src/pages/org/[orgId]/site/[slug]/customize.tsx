@@ -16,10 +16,12 @@ import { env } from 'website/../db/env'
 import { prisma } from 'website/../db/prisma'
 import { DashboardContainer } from 'website/src/components/DashboardContainer'
 import { generateCodeSnippet, isDev } from 'website/src/lib/utils'
-import { onboarding } from 'website/src/pages/api/functions'
+import { onboarding, updateSite } from 'website/src/pages/api/functions'
 import { Block, BlockWithStep } from 'website/../beskar/dashboard'
 import { BrowserWindow } from 'website/src/components/BrowserWindow'
 import { updateOrCreateSSOConnection } from 'website/../akarso/dist'
+import { ProviderSetupParams, SiteData } from 'website/src/lib/hooks'
+import { UploadButton } from 'website/src/components/UploadButton'
 
 export default function Page({
     sites,
@@ -28,11 +30,10 @@ export default function Page({
     url,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
     const router = useRouter()
-    const { fn: onSubmit, isLoading } = useThrowingFn({
+    const { fn: update, isLoading } = useThrowingFn({
         async fn(data) {
             console.log(data)
-            const { orgId, slug } = await onboarding(data)
-            router.push(`/org/${orgId}/site/${slug}`)
+            await updateSite(data)
         },
     })
     const iframeRef = useRef<HTMLIFrameElement>(null)
@@ -43,13 +44,19 @@ export default function Page({
         secret: site.secret,
     })
     const iframeScale = 0.8
+
     // params to take: supabase token, site slug (will also be org name, ), logo, and domain
     return (
         <DashboardContainer sites={sites}>
             <div className='text-3xl font-bold'>Customize</div>
             <Block>
-                <div className=''>Logo</div>
-                <div className=''>Domain</div>
+                <div className=''>Logo on top left</div>
+                <UploadButton
+                    onUploadFinished={({ src: logoUrl }) => {
+                        updatePageProps({ logoUrl }, iframeRef)
+                        update({ logoUrl })
+                    }}
+                />
             </Block>
             <div className='flex min-h-[600px] flex-col'>
                 <BrowserWindow
@@ -62,7 +69,7 @@ export default function Page({
                     }}
                     className={classNames(
                         '!text-sm shrink-0 shadow rounded-xl justify-stretch',
-                        'items-stretch hidden h-full flex-col flex-1 border',
+                        'items-stretch h-full flex-col flex-1 border',
                         'bg-white lg:flex dark:bg-gray-800',
                     )}
                 >
@@ -95,6 +102,17 @@ export default function Page({
                 </BrowserWindow>
             </div>
         </DashboardContainer>
+    )
+}
+
+function updatePageProps(newPageProps: Partial<SiteData>, iframeRef) {
+    if (!iframeRef?.current || !newPageProps) {
+        console.log('updatePageProps: no iframeElement or newPageProps')
+        return
+    }
+    iframeRef?.current?.contentWindow.postMessage(
+        { newPageProps },
+        { targetOrigin: '*' },
     )
 }
 
