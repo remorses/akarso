@@ -11,7 +11,6 @@ async function main() {
     }
     const token = await new SignJWT(payload)
         .setProtectedHeader({ alg: 'HS256' })
-        .setJti('constant')
         .setIssuedAt()
         .setExpirationTime('2h')
         .sign(new TextEncoder().encode('secret'))
