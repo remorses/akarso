@@ -114,7 +114,7 @@ export default function Page({ params: { provider, step, host, token } }) {
                                         active
                                             ? 'bg-gray-900 text-white'
                                             : done
-                                            ? 'bg-green-100 '
+                                            ? 'bg-primary/20 '
                                             : 'bg-gray-100',
                                     )}
                                 >
