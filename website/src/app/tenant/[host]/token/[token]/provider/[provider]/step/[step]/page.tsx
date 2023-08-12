@@ -24,7 +24,7 @@ export default function Page({ params: { provider, step, host, token } }) {
     step = Number(step)
     const p = providers[provider]
     const stepsLength = p.steps.length
-    const isEnd = step - 1 !== stepsLength - 1
+    const isEnd = step - 1 === stepsLength - 1
     const stepObj = p.steps[step - 1]
     const ssoMetadata = useStore(metadataXml)
     const { callbackUrl } = useSetupParams()
