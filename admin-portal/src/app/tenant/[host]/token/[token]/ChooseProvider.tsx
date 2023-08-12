@@ -42,7 +42,9 @@ export function ChooseProvider() {
                         )
                     })}
                 </RadioGroup>
-                <Button type='submit'>Continue</Button>
+                <Button isDisabled={!provider} color='primary' type='submit'>
+                    Continue
+                </Button>
             </form>
         </Container>
     )

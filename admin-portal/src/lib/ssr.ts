@@ -1,4 +1,6 @@
 import { ProviderSetupParams } from '../lib/hooks'
+import { colord } from 'colord'
+
 import { createSupabaseAdmin } from 'db/supabase'
 import { createClient } from '@supabase/supabase-js'
 import { jwtVerify } from 'jose'
@@ -18,7 +20,6 @@ export function wrapMethod(fn) {
 }
 export type SiteData = Awaited<ReturnType<typeof getSiteDataFromHost>>
 
-
 export async function getSiteDataFromHost({ host }) {
     host = decodeURIComponent(host)
     const supabase = createSupabaseAdmin()
@@ -36,12 +37,14 @@ export async function getSiteDataFromHost({ host }) {
     if (!site) {
         return { notFound: true as true }
     }
-    const { color, secret, logoUrl, supabaseAccessToken, supabaseProjectRef } =
+    let { color, secret, logoUrl, supabaseAccessToken, supabaseProjectRef } =
         site!
+   
+    console.log({ color })
     return {
         notFound: false as false,
         secret,
-        color,
+        color: color as string,
         logoUrl,
         supabaseAccessToken,
         supabaseProjectRef,

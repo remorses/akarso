@@ -101,8 +101,7 @@ export async function updateSite({ logoUrl, slug, color }) {
     if (!userId) {
         throw new AppError('Missing userId')
     }
-
-    await prisma.site.updateMany({
+    const site = await prisma.site.findFirst({
         where: {
             slug,
             org: {
@@ -112,6 +111,16 @@ export async function updateSite({ logoUrl, slug, color }) {
                     },
                 },
             },
+        },
+    })
+    if (!site) {
+        throw new AppError(`site not found '${slug}'`)
+    }
+    console.log('updating site', { logoUrl, slug, color })
+
+    const r = await prisma.site.update({
+        where: {
+            slug,
         },
         data: {
             color,

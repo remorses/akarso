@@ -1,10 +1,18 @@
 import { ChooseProvider } from 'admin-portal/src/app/tenant/[host]/token/[token]/ChooseProvider'
 import { cookies } from 'next/headers'
 import { ProviderSetupProvider } from 'admin-portal/src/components/context'
-import { ProviderSetupParams, providerSetupContext } from 'admin-portal/src/lib/hooks'
-import { getPayloadForToken, getSiteDataFromHost } from 'admin-portal/src/lib/ssr'
+import {
+    ProviderSetupParams,
+    providerSetupContext,
+} from 'admin-portal/src/lib/hooks'
+import {
+    getPayloadForToken,
+    getSiteDataFromHost,
+} from 'admin-portal/src/lib/ssr'
 import { jwtVerify } from 'jose'
 import { notFound } from 'next/navigation'
+
+export const revalidate = 0
 
 export default async function Layout({ params: { token, host }, children }) {
     const {
@@ -27,7 +35,7 @@ export default async function Layout({ params: { token, host }, children }) {
     }
 
     return (
-        <ProviderSetupProvider value={{ ...payload, color, logoUrl }}>
+        <ProviderSetupProvider value={{ ...payload, token, color, logoUrl }}>
             {children}
         </ProviderSetupProvider>
     )

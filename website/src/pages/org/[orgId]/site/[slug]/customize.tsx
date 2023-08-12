@@ -1,4 +1,5 @@
 import { Spinner, useThrowingFn } from 'beskar/landing'
+import { colord } from 'colord'
 import { Code } from 'beskar/src/landing/Code'
 import classNames from 'classnames'
 
@@ -9,9 +10,9 @@ import {
 } from 'next'
 import { createAdminUrl, requireAuth } from 'website/src/lib/ssr'
 
-import { RefreshCwIcon } from 'lucide-react'
+import { RefreshCwIcon, SaveIcon } from 'lucide-react'
 import { useRouter } from 'next/router'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { env } from 'db/env'
 import { prisma } from 'db/prisma'
 import { DashboardContainer } from 'website/src/components/DashboardContainer'
@@ -23,6 +24,8 @@ import { updateOrCreateSSOConnection } from 'akarso/dist'
 import { ProviderSetupParams } from 'website/src/lib/hooks'
 import { UploadButton } from 'website/src/components/UploadButton'
 import { SiteData } from 'admin-portal/src/lib/ssr'
+import { ColorPicker } from 'website/src/components/form'
+import { Button } from '@nextui-org/react'
 
 export default function Page({
     sites,
@@ -31,33 +34,62 @@ export default function Page({
     url,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
     const router = useRouter()
+    const { slug, orgId } = router.query as any
     const { fn: update, isLoading } = useThrowingFn({
-        async fn(data) {
-            console.log(data)
-            await updateSite(data)
+        async fn() {
+            await updateSite({ slug, logoUrl, color })
         },
     })
+    const [logoUrl, setLogoUrl] = useState(site.logoUrl)
     const iframeRef = useRef<HTMLIFrameElement>(null)
 
-    const [loaded, setLoaded] = useState(false)
     const { callbackCode, redirectCode } = generateCodeSnippet({
         host,
         secret: site.secret,
     })
     const iframeScale = 0.8
-
+    const [color, setColor] = useState(site.color || '#000000')
+    useEffect(() => {
+        updatePageProps({ logoUrl, color }, iframeRef)
+    }, [color, logoUrl])
     // params to take: supabase token, site slug (will also be org name, ), logo, and domain
     return (
         <DashboardContainer sites={sites}>
             <div className='text-3xl font-bold'>Customize</div>
             <Block>
-                <div className=''>Logo on top left</div>
-                <UploadButton
-                    onUploadFinished={({ src: logoUrl }) => {
-                        updatePageProps({ logoUrl }, iframeRef)
-                        update({ logoUrl })
-                    }}
-                />
+                <div className='space-y-3'>
+                    <div className=''>Logo on top left</div>
+                    <UploadButton
+                        onUploadFinished={({ src: logoUrl }) => {
+                            setLogoUrl(logoUrl)
+                        }}
+                    />
+                    <div className=''>Primary color</div>
+                    <ColorPicker
+                        children='color'
+                        value={color}
+                        defaultValue=''
+                        onChange={(color) => {
+                            if (color) {
+                                color = colord(color).toHslString()
+                            } else {
+                                color = ''
+                            }
+                            setColor(color)
+                        }}
+                    />
+                    <div className='flex'>
+                        <div className='grow'></div>
+                        <Button
+                            endContent={<SaveIcon className='w-4' />}
+                            isLoading={isLoading}
+                            onClick={update}
+                            className=''
+                        >
+                            Save
+                        </Button>
+                    </div>
+                </div>
             </Block>
             <div className='flex min-h-[600px] flex-col'>
                 <BrowserWindow

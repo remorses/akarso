@@ -12,7 +12,11 @@ export type ProviderSetupParams = {
 }
 
 export const providerSetupContext = createContext<
-    (ProviderSetupParams & Pick<SiteData, 'color' | 'logoUrl'>) | null
+    | (ProviderSetupParams & { token: string } & Pick<
+              SiteData,
+              'color' | 'logoUrl'
+          >)
+    | null
 >(null)
 
 export function useSetupParams() {
@@ -83,7 +87,7 @@ export function usePreviewProps<T extends Record<string, any>>(
         function listener(ev: MessageEvent<PagePropsMessage>) {
             // NProgress.start()
             try {
-                console.log('got postMessage', ev)
+                // console.log('got postMessage', ev)
                 if (typeof ev.data !== 'object') return
                 if (ev.data.newPageProps) {
                     setChanges((changes) => {

@@ -70,6 +70,7 @@ export default function Page({ params: { provider, step, host, token } }) {
                                             !metadataXml &&
                                             'pointer-events-none opacity-70',
                                     )}
+                                    color='primary'
                                     // color='success'
                                     // variant='flat'
                                 >
@@ -79,6 +80,7 @@ export default function Page({ params: { provider, step, host, token } }) {
                         ) : (
                             <Button
                                 isLoading={isLoading}
+                                
                                 onClick={create}
                                 endContent={<ArrowRightIcon className='w-4' />}
                             >

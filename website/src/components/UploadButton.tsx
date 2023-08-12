@@ -47,6 +47,7 @@ export function UploadButton({
         <>
             <input
                 type='file'
+                hidden
                 onChange={async (e) => {
                     const target: HTMLInputElement = e.target
                     const file = target.files?.[0]
