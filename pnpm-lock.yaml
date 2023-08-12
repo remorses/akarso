@@ -274,6 +274,9 @@ importers:
       framer-motion:
         specifier: ^10.15.1
         version: 10.15.1(react-dom@18.2.0)(react@18.2.0)
+      htmlrewriter:
+        specifier: ^0.0.3
+        version: 0.0.3
       jose:
         specifier: ^4.14.4
         version: 4.14.4
@@ -286,9 +289,15 @@ importers:
       next:
         specifier: 13.4.14-canary.2
         version: 13.4.14-canary.2(@babel/core@7.22.10)(react-dom@18.2.0)(react@18.2.0)
+      next-superjson-plugin:
+        specifier: ^0.5.9
+        version: 0.5.9(next@13.4.14-canary.2)(superjson@1.13.1)
       nextjs-progressbar:
         specifier: ^0.0.16
         version: 0.0.16(next@13.4.14-canary.2)(react@18.2.0)
+      nprogress:
+        specifier: '*'
+        version: 0.2.0
       postcss:
         specifier: 8.4.27
         version: 8.4.27
@@ -6024,6 +6033,13 @@ packages:
     engines: {node: '>= 0.6'}
     dev: true
 
+  /copy-anything@3.0.5:
+    resolution: {integrity: sha512-yCEafptTtb4bk7GLEQoM8KVJpxAfdBJYaXyzQEgQQQgYrZiDp8SJmGKlYza6CYjEDNstAdNdKA3UuoULlEbS6w==}
+    engines: {node: '>=12.13'}
+    dependencies:
+      is-what: 4.1.15
+    dev: false
+
   /copy-to-clipboard@3.3.3:
     resolution: {integrity: sha512-2KV8NhB5JqC3ky0r9PMCAZKbUHSwtEo4CwCs0KXgruG43gX5PMqDEBbVU4OUzw2MuAWUfsuFmWvEKG5QRfSnJA==}
     dependencies:
@@ -6869,6 +6885,10 @@ packages:
     resolution: {integrity: sha512-mxIDAb9Lsm6DoOJ7xH+5+X4y1LU/4Hi50L9C5sIswK3JzULS4bwk1FvjdBgvYR4bzT4tuUQiC15FE2f5HbLvYw==}
     dev: true
 
+  /htmlrewriter@0.0.3:
+    resolution: {integrity: sha512-wYyClJCkvVLEWHG/hbRaQO41IuUGWwoU07FOEf5tYkujS9rUSsJwL4UaHQcG5ml2SdXFogkWC+OH59zyoLs4sw==}
+    dev: false
+
   /https-proxy-agent@5.0.1:
     resolution: {integrity: sha512-dFcAjpTQFgoLMzC2VwU+C/CbS7uRL0lWmxDITmqm7C+7F0Odmj6s9l6alZc6AELXhrnggM2CeWSXHGOdX2YtwA==}
     engines: {node: '>= 6'}
@@ -7109,6 +7129,11 @@ packages:
     dependencies:
       call-bind: 1.0.2
     dev: true
+
+  /is-what@4.1.15:
+    resolution: {integrity: sha512-uKua1wfy3Yt+YqsD6mTUEa2zSi3G1oPlqTflgaPJ7z63vUGN5pxFpnQfeSLMFnJDEsdvOtkp1rUWkYjB4YfhgA==}
+    engines: {node: '>=12.13'}
+    dev: false
 
   /is-windows@1.0.2:
     resolution: {integrity: sha512-eXK1UInq2bPmjyX6e3VHIzMLobc4J94i4AWn+Hpq3OU5KkrRC96OAcR3PRJ/pGu6m8TRnBHP9dkXQVsT/COVIA==}
@@ -7535,6 +7560,17 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
       uuid: 8.3.2
     dev: true
+
+  /next-superjson-plugin@0.5.9(next@13.4.14-canary.2)(superjson@1.13.1):
+    resolution: {integrity: sha512-xEU+SvrSDk8PGAQ2TrJM/OhkZBcWjWWqSjpUtlxTAI9ovTjKBxxQumcFt7oXzoBLJsRtq0BWTHrcnzL/9izXPQ==}
+    peerDependencies:
+      next: ^13
+      superjson: ^1
+    dependencies:
+      hoist-non-react-statics: 3.3.2
+      next: 13.4.14-canary.2(@babel/core@7.22.10)(react-dom@18.2.0)(react@18.2.0)
+      superjson: 1.13.1
+    dev: false
 
   /next-themes@0.2.1(next@13.4.13)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-B+AKNfYNIzh0vqQQKqQItTS8evEouKD7H5Hj3kmuPERwddR2TxvDSFZuTj6T7Jfn1oyeUyJMydPl1Bkxkh0W7A==}
@@ -8755,6 +8791,13 @@ packages:
       node-fetch: 3.3.2
       tar: 6.1.15
     dev: true
+
+  /superjson@1.13.1:
+    resolution: {integrity: sha512-AVH2eknm9DEd3qvxM4Sq+LTCkSXE2ssfh1t11MHMXyYXFQyQ1HLgVvV+guLTsaQnJU3gnaVo34TohHPulY/wLg==}
+    engines: {node: '>=10'}
+    dependencies:
+      copy-anything: 3.0.5
+    dev: false
 
   /supports-color@5.5.0:
     resolution: {integrity: sha512-QjVjwdXIt408MIiAqCX4oUKsgU2EqAGzs2Ppkm4aQYbjm+ZEWEcW4SfFNTr4uMNZma0ey4f5lgLrkB0aX0QMow==}

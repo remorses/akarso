@@ -18,6 +18,7 @@ import {
 } from 'website/src/pages/api/functions'
 import { toast } from 'react-hot-toast'
 import { slugKebabCase } from 'website/src/lib/utils'
+import { env } from 'website/../db/env'
 
 export default function Page({}) {
     const router = useRouter()
@@ -35,7 +36,7 @@ export default function Page({}) {
         watch,
         trigger,
         reset,
-        formState: { errors, isSubmitting },
+        formState: { errors, isSubmitting, isValid },
     } = useForm({
         defaultValues: {
             supabaseAccessToken: '',
@@ -43,14 +44,19 @@ export default function Page({}) {
             slug: '',
         },
     })
-    const { slug, supabaseAccessToken, supabaseProjectRef } = watch()
+    const data = watch()
+    const { slug, supabaseAccessToken, supabaseProjectRef } = data
     const {
         data: projects,
         isValidating,
+
         error,
     } = useSwr(
         [supabaseAccessToken],
         async ([supabaseAccessToken]) => {
+            if (!supabaseAccessToken) {
+                return []
+            }
             const proj = await getSupabaseProjects({ supabaseAccessToken })
             return proj
         },
@@ -63,63 +69,91 @@ export default function Page({}) {
     // params to take: supabase token, site slug (will also be org name, ), logo, and domain
     return (
         <OnboardingContainer>
+            {/* <pre className=''>{JSON.stringify(data)}</pre> */}
             <form
                 onSubmit={handleSubmit(onSubmit)}
-                className='flex flex-col gap-8'
+                className='flex flex-col self-center gap-2'
             >
                 <BlockWithStep step={1} className=''>
-                    <div className=''>Choose a slug for your team</div>
+                    <div className=''>Choose a slug for your admin portal</div>
                     <Input
+                        endContent={
+                            <div className='pointer-events-none flex items-center'>
+                                <span className='text-default-400 text-small'>
+                                    .{env.NEXT_PUBLIC_TENANTS_DOMAIN}
+                                </span>
+                            </div>
+                        }
+                        isRequired
                         {...register('slug', {
                             required: true,
                             setValueAs(value) {
                                 return slugKebabCase(value)
                             },
+                            // onChange(e) {
+                            //     e.target.value = slugKebabCase(e.target.value)
+                            // },
                         })}
-                        isRequired
-                        placeholder='Holocron'
+                        placeholder='holocron'
                     />
                 </BlockWithStep>
                 <BlockWithStep step={2} className=''>
                     <div className=''>
                         Supabase token, you can generate one{' '}
-                        <Link
+                        <a
                             href={`https://supabase.com/dashboard/account/tokens`}
+                            target='_blank'
                             className='underline'
                         >
                             here
-                        </Link>
+                        </a>
                     </div>
                     <Input
-                        {...register('supabaseAccessToken', { required: true })}
+                        {...register('supabaseAccessToken', {
+                            required: true,
+                            deps: ['supabaseProjectRef'],
+                        })}
                         isRequired
                         type='password'
                         placeholder='xxxxxx'
                     />
                 </BlockWithStep>
-                <BlockWithStep step={3} className=''>
+                <BlockWithStep
+                    disabled={!supabaseAccessToken || !projects?.length}
+                    step={3}
+                    className=''
+                >
                     <div className=''>Supabase project</div>
-                    <SimpleSelect.Container className=''>
-                        <SimpleSelect.Select
-                            {...register('supabaseProjectRef', {
-                                required: true,
-                            })}
-                        >
-                            {projects?.map((t, index) => (
-                                <option key={index} value={t.id}>
-                                    {t.name}
-                                </option>
-                            ))}
-                        </SimpleSelect.Select>
-                        <SimpleSelect.Icon />
-                    </SimpleSelect.Container>
+                    <div className=''>
+                        <SimpleSelect.Container className='!w-full'>
+                            <SimpleSelect.Select
+                                className={cn()}
+                                {...register('supabaseProjectRef', {
+                                    required: true,
+                                })}
+                            >
+                                {projects?.map((t, index) => (
+                                    <option key={index} value={t.id}>
+                                        {t.name}
+                                    </option>
+                                ))}
+                                {!projects?.length && (
+                                    <option key='last' value={''}>
+                                        loading...
+                                    </option>
+                                )}
+                            </SimpleSelect.Select>
+                            <SimpleSelect.Icon />
+                        </SimpleSelect.Container>
+                    </div>
                 </BlockWithStep>
 
-                <BlockWithStep isLast step={2} className=''>
+                <BlockWithStep disabled={!isValid} isLast step={4} className=''>
                     <div className='flex flex-col items-center space-y-4'>
                         <Button
                             className='min-w-[20ch]'
                             type='submit'
+                            isDisabled={!isValid || isValidating}
                             isLoading={isLoading}
                         >
                             Create Admin Portal

@@ -3,7 +3,7 @@
     "version": "0.1.0",
     "private": true,
     "scripts": {
-        "dev": "doppler run -c dev -- pnpm next dev -p 4040",
+        "dev": "doppler run -c dev -- pnpm next dev -p 2020",
         "build": "doppler run -c dev -- next build",
         "start": "doppler run -c dev -- next start",
         "lint": "next lint"
@@ -25,11 +25,14 @@
         "classnames": "^2.3.1",
         "db": "workspace:*",
         "framer-motion": "^10.15.1",
+        "htmlrewriter": "^0.0.3",
         "jose": "^4.14.4",
         "lucide-react": "0.265.0",
         "nanostores": "^0.9.3",
         "next": "13.4.14-canary.2",
+        "next-superjson-plugin": "^0.5.9",
         "nextjs-progressbar": "^0.0.16",
+        "nprogress": "*",
         "postcss": "8.4.27",
         "react": "18.2.0",
         "react-dom": "18.2.0",

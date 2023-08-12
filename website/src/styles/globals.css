@@ -52,6 +52,7 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    background: theme('colors.gray.100');
 }
 
 .scrollbar-hide::-webkit-scrollbar {

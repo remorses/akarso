@@ -23,9 +23,9 @@ Sentry.init({
     },
 })
 
-if (typeof process !== 'undefined' && process.on) {
+if (typeof process !== 'undefined' && process?.on) {
     // https://github.com/nodejs/node/issues/42154
-    global.process.on('uncaughtException', (error) => {
+    process.on('uncaughtException', (error) => {
         const hub = Sentry.getCurrentHub()
         hub.withScope(async (scope) => {
             scope.setLevel('fatal')

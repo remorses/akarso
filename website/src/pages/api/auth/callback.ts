@@ -9,7 +9,7 @@ const handler = async (req, res) => {
     const { code } = req.query
     console.log('query', req.query)
     let { redirectTo }: Parameters<typeof createLoginRedirectUrl>[0] = req.query
-    redirectTo ||= '/editor'
+    redirectTo ||= '/dashboard'
 
     const supabase = createPagesServerClient({ req, res })
 

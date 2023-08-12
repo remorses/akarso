@@ -1,11 +1,12 @@
 "poor man's use server"
 import { v4 } from 'uuid'
-import { requireAuth, wrapMethod } from '@/lib/ssr'
+import { generateSecretValue, requireAuth, wrapMethod } from '@/lib/ssr'
 import { SignJWT, generateSecret } from 'jose'
 import { getNodejsContext } from 'server-actions-for-next-pages/context'
 import { SupabaseManagementAPI } from 'supabase-management-js'
 import { prisma } from 'db/prisma'
 import { AppError, KnownError } from 'website/src/lib/errors'
+import { slugKebabCase } from 'website/src/lib/utils'
 
 export { wrapMethod }
 
@@ -16,6 +17,7 @@ export async function onboarding({
 }) {
     const { req, res } = await getNodejsContext()
     const { userId } = await requireAuth({ req, res })
+    slug = slugKebabCase(slug)
     if (slug.length < 4) {
         throw new AppError(`slug must be at least 4 characters`)
     }
@@ -35,8 +37,8 @@ export async function onboarding({
                 // orgId,
                 sites: {
                     create: {
-                        secret: await generateSecret('HS256'), // TODO is this safe?
                         slug,
+                        secret: generateSecretValue(),
                         supabaseAccessToken,
                         supabaseProjectRef,
                     },

@@ -1,4 +1,5 @@
 import { ProviderSetupParams } from '@/lib/hooks'
+import crypto from 'crypto'
 import { createSupabaseAdmin } from 'db/supabase'
 import { createClient } from '@supabase/supabase-js'
 import { jwtVerify } from 'jose'
@@ -46,4 +47,16 @@ export async function requireAuth({ req, res }) {
     }
 
     return { session, userId, email, supabase }
+}
+
+export const generateSecretValue = () => {
+    const secretLength = 16 // Length of the secret value in bytes
+
+    // Generate random bytes
+    const buffer = crypto.randomBytes(secretLength)
+
+    // Convert the buffer to a hexadecimal string
+    const secretValue = buffer.toString('hex')
+
+    return secretValue
 }

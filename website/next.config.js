@@ -1,11 +1,9 @@
 const { withServerActions } = require('server-actions-for-next-pages')
 const { withSentryConfig } = require('@sentry/nextjs')
 
-
-const piped = pipe(
-    withServerActions(),
+const piped = pipe(withServerActions(), (c) =>
     withSentryConfig(c, {
-        // org: 'knowledg',
+        // org: 'akarso',
         // project: 'website',
         dryRun: process.env.NEXT_PUBLIC_ENV === 'development',
         // You can get an auth token from https://sentry.io/settings/account/api/auth-tokens/
@@ -19,6 +17,7 @@ const piped = pipe(
 const nextConfig = piped({
     experimental: {
         externalDir: true,
+        swcPlugins: [['next-superjson-plugin', {}]],
     },
 })
 

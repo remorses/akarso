@@ -10,20 +10,12 @@ export function OnboardingContainer({ children }) {
     const router = useRouter()
     const user = useUser()
     const { orgId, siteSlug } = router.query
-    const back = (() => {
-        if (orgId && siteSlug) {
-            return `/org/${orgId}/p/${siteSlug}`
-        }
-        if (orgId) {
-            return `/org/${orgId}`
-        }
-        return '/editor'
-    })()
+
     return (
         <div className='w-full max-w-[1200px] mx-auto pb-24'>
             <MyNavbar />
             <div className='flex flex-col gap-6 pt-20 items-center'>
-                {!!user?.user_metadata?.preferredSite?.siteId && (
+                {/* {!!user?.user_metadata?.preferredSite?.siteId && (
                     <Link
                         href={back}
                         className='flex gap-2 text-sm font-semibold'
@@ -31,7 +23,7 @@ export function OnboardingContainer({ children }) {
                         <ArrowLeft className='w-4' />
                         <div className=''>Back to the editor</div>
                     </Link>
-                )}
+                )} */}
                 <div className='flex flex-col items-center h-full '>
                     <div
                         className={cn(

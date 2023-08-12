@@ -8,10 +8,14 @@ const Login = () => {
 
     const supabase = useSupabaseClient()
 
-    const redirectTo = createLoginRedirectUrl({ signupReason: 'editor' })
+    // if (session) {
+    //   return <pre className="">{JSON.stringify(session, null, 2)}</pre>
+    // }
+
+    const redirectTo = createLoginRedirectUrl({ signupReason: 'login' })
     useEffect(() => {
         if (user) {
-            router.replace('/board')
+            router.replace('/editor')
         } else {
             supabase.auth.signInWithOAuth({
                 provider: 'google',
