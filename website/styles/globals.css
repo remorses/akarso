@@ -1,0 +1,63 @@
+:root {
+    --page-max-width: 1200px;
+    --pagePadding: 20px;
+}
+
+/* Fix all that shitty libraries (like chakra) that try to remove scroll bar and layout shift everything */
+html > body {
+    margin-right: 0 !important;
+}
+/* html {
+    padding-right: 0 !important;
+} */
+
+/* do not zoom on ios select */
+select {
+    font-size: 16px;
+}
+
+html {
+    /* min-height: 100%; */
+    height: 100%;
+    background-color: theme('colors.gray.100');
+    /* height: 100vh; */
+    position: relative;
+    overflow-x: hidden !important;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    color: theme('colors.gray.700');
+    touch-action: pan-x pan-y pinch-zoom !important;
+    -webkit-tap-highlight-color: transparent !important;
+    -webkit-touch-callout: none !important;
+}
+
+html.dark {
+    background-color: theme('colors.gray.900');
+    color: theme('colors.gray.200');
+    color-scheme: dark;
+}
+
+#__next {
+    min-height: 100vh !important;
+    display: flex;
+    flex-direction: column;
+    
+    /* margin-right: calc(-1 * (100vw - 100%)); */
+}
+body {
+    min-height: 100%;
+    height: auto !important;
+    position: relative;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+.scrollbar-hide {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+}

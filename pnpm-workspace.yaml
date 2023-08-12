@@ -3,3 +3,4 @@ packages:
   - website
   - admin-portal
   - db
+  - beskar
