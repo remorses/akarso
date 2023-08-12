@@ -1,6 +1,6 @@
 'use client'
 
-import { SiteData } from '@/lib/ssr'
+import { SiteData } from 'admin-portal/src/lib/ssr'
 import React, { useRef, useState } from 'react'
 import { createContext, useContext, useEffect } from 'react'
 import toast from 'react-hot-toast'

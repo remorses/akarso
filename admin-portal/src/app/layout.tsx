@@ -2,7 +2,7 @@ import './globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { NextUIProvider } from '@nextui-org/react'
-import { Providers } from '@/components/context'
+import { Providers } from 'admin-portal/src/components/context'
 
 const inter = Inter({ subsets: ['latin'] })
 

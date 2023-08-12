@@ -1,4 +1,4 @@
-import { ProviderSetupParams } from '@/lib/hooks'
+import { ProviderSetupParams } from 'admin-portal/src/lib/hooks'
 import { SignJWT } from 'jose'
 
 async function main() {

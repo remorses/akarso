@@ -50,6 +50,9 @@ importers:
       '@types/react-dom':
         specifier: 18.2.7
         version: 18.2.7
+      admin-portal:
+        specifier: workspace:*
+        version: 'link:'
       autoprefixer:
         specifier: 10.4.14
         version: 10.4.14(postcss@8.4.27)

@@ -7,8 +7,8 @@ import { SupabaseManagementAPI } from 'supabase-management-js'
 import { prisma } from 'db/prisma'
 import { AppError, KnownError } from 'website/src/lib/errors'
 import { slugKebabCase } from 'website/src/lib/utils'
-import { createSupabaseAdmin } from 'website/../db/supabase'
-import { uploadBucketName } from 'website/../db/env'
+import { createSupabaseAdmin } from 'db/supabase'
+import { uploadBucketName } from 'db/env'
 
 export { wrapMethod }
 

@@ -4,7 +4,7 @@ import {
     getPayloadForToken,
     getSiteDataFromHost,
     wrapMethod,
-} from '@/lib/ssr'
+} from 'admin-portal/src/lib/ssr'
 import { SignJWT } from 'jose'
 import { getNodejsContext } from 'server-actions-for-next-pages/context'
 import { SupabaseManagementAPI } from 'supabase-management-js'

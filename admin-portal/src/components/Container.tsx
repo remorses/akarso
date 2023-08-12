@@ -1,5 +1,5 @@
 'use client'
-import { useSetupParams } from '@/lib/hooks'
+import { useSetupParams } from 'admin-portal/src/lib/hooks'
 
 export function Container({ children }) {
     const { logoUrl, color } = useSetupParams()

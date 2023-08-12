@@ -1,5 +1,5 @@
 import { GetServerSidePropsContext, GetServerSideProps } from 'next'
-import { prisma } from 'website/../db/prisma'
+import { prisma } from 'db/prisma'
 import { requireAuth } from 'website/src/lib/ssr'
 
 export default function Page() {

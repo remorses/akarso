@@ -18,7 +18,7 @@ import {
 } from 'website/src/pages/api/functions'
 import { toast } from 'react-hot-toast'
 import { slugKebabCase } from 'website/src/lib/utils'
-import { env } from 'website/../db/env'
+import { env } from 'db/env'
 
 export default function Page({}) {
     const router = useRouter()

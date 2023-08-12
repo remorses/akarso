@@ -1,8 +1,8 @@
-import { ChooseProvider } from '@/app/tenant/[host]/token/[token]/ChooseProvider'
+import { ChooseProvider } from 'admin-portal/src/app/tenant/[host]/token/[token]/ChooseProvider'
 import { cookies } from 'next/headers'
-import { ProviderSetupProvider } from '@/components/context'
-import { ProviderSetupParams, providerSetupContext } from '@/lib/hooks'
-import { getPayloadForToken, getSiteDataFromHost } from '@/lib/ssr'
+import { ProviderSetupProvider } from 'admin-portal/src/components/context'
+import { ProviderSetupParams, providerSetupContext } from 'admin-portal/src/lib/hooks'
+import { getPayloadForToken, getSiteDataFromHost } from 'admin-portal/src/lib/ssr'
 import { jwtVerify } from 'jose'
 import { notFound } from 'next/navigation'
 

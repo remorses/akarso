@@ -4,7 +4,7 @@ import { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
 import { HTMLRewriter } from 'htmlrewriter'
-import { env } from 'website/../db/env'
+import { env } from 'db/env'
 
 
 

@@ -5,8 +5,8 @@ import { KnownError } from 'website/src/lib/errors'
 import { prisma } from 'db/prisma'
 import { notifyError } from 'website/src/lib/sentry'
 import { NextRequest, NextResponse } from 'next/server'
-import { createSupabaseAdmin } from 'website/../db/supabase'
-import { env } from 'website/../db/env'
+import { createSupabaseAdmin } from 'db/supabase'
+import { env } from 'db/env'
 
 export const config = {
     runtime: 'edge',

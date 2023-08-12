@@ -14,12 +14,12 @@ import { Radio, cn, Checkbox, RadioGroup, Button } from '@nextui-org/react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import Link from 'next/link'
-import { Provider, providers } from '@/lib/providers'
-import { metadataUrlAtom, metadataXmlAtom } from '@/lib/atoms'
-import { createStepPath } from '@/lib/utils'
-import { Container } from '@/components/Container'
-import { useSetupParams, useThrowingFn } from '@/lib/hooks'
-import { createSSOProvider } from '@/pages/api/functions'
+import { Provider, providers } from 'admin-portal/src/lib/providers'
+import { metadataUrlAtom, metadataXmlAtom } from 'admin-portal/src/lib/atoms'
+import { createStepPath } from 'admin-portal/src/lib/utils'
+import { Container } from 'admin-portal/src/components/Container'
+import { useSetupParams, useThrowingFn } from 'admin-portal/src/lib/hooks'
+import { createSSOProvider } from 'admin-portal/src/pages/api/functions'
 
 export default function Page({ params: { provider, step, host, token } }) {
     step = Number(step)

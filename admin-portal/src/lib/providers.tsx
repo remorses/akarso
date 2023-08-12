@@ -10,7 +10,7 @@ import {
 } from 'react'
 import Image from 'next/image'
 import { Button } from '@nextui-org/react'
-import { metadataXmlAtom } from '@/lib/atoms'
+import { metadataXmlAtom } from 'admin-portal/src/lib/atoms'
 import { UploadIcon } from 'lucide-react'
 import {
     Auth0,
@@ -19,7 +19,7 @@ import {
     Keycloak,
     Microsoft,
     Okta,
-} from '@/components/icons'
+} from 'admin-portal/src/components/icons'
 
 export const providers = {
     google: {
@@ -36,7 +36,7 @@ export const providers = {
                             Apps" from the list. On this page, select "Add App"
                             and then "Add custom SAML app".
                         </div>
-                        <Img src={require('@/ssoimg/google/1.png')} />
+                        <Img src={require('admin-portal/src/ssoimg/google/1.png')} />
                     </>
                 ),
             },
@@ -48,7 +48,7 @@ export const providers = {
                             Enter an App name and icon (if applicable) for
                             demo.workos.com, then select "Continue".
                         </div>
-                        <Img src={require('@/ssoimg/google/2.png')} />
+                        <Img src={require('admin-portal/src/ssoimg/google/2.png')} />
                     </>
                 ),
             },
@@ -62,7 +62,7 @@ export const providers = {
                             the metadata file, and upload it below. Click
                             "Continue".
                         </div>
-                        <Img src={require('@/ssoimg/google/3.png')} />
+                        <Img src={require('admin-portal/src/ssoimg/google/3.png')} />
                         <UploadButton accept='xml' />
                     </>
                 ),
@@ -75,7 +75,7 @@ export const providers = {
                             Submit the "ACS URL" and the "Entity ID". Click
                             "Continue"
                         </div>
-                        <Img src={require('@/ssoimg/google/4.png')} />
+                        <Img src={require('admin-portal/src/ssoimg/google/4.png')} />
                     </>
                 ),
             },
@@ -87,7 +87,7 @@ export const providers = {
                             Provide the following Attribute Mappings and select
                             "Finish":
                         </div>
-                        <Img src={require('@/ssoimg/google/5.png')} />
+                        <Img src={require('admin-portal/src/ssoimg/google/5.png')} />
                     </>
                 ),
             },
@@ -99,7 +99,7 @@ export const providers = {
                             In the created SAML applications landing page,
                             select the "User Access Section".
                         </div>
-                        <Img src={require('@/ssoimg/google/6.png')} />
+                        <Img src={require('admin-portal/src/ssoimg/google/6.png')} />
                         <div className=''>
                             Turn this service ON for the correct organizational
                             units in your Google Application. Save any changes.
@@ -107,7 +107,7 @@ export const providers = {
                             propagate these changes, and the connection may be
                             inactive until the changes have propagated.
                         </div>
-                        <Img src={require('@/ssoimg/google/7.png')} />
+                        <Img src={require('admin-portal/src/ssoimg/google/7.png')} />
                     </>
                 ),
             },
@@ -126,7 +126,7 @@ export const providers = {
                             "Applications" in the sidebar. Click "Create App
                             Integration".
                         </div>
-                        <Img src={require('@/ssoimg/okta/1.png')} />
+                        <Img src={require('admin-portal/src/ssoimg/okta/1.png')} />
                     </>
                 ),
             },
@@ -137,7 +137,7 @@ export const providers = {
                         <div>
                             Choose SAML 2.0 from the next screen and click Next.
                         </div>
-                        <Img src={require('@/ssoimg/okta/2.png')} />
+                        <Img src={require('admin-portal/src/ssoimg/okta/2.png')} />
                     </>
                 ),
             },
@@ -148,7 +148,7 @@ export const providers = {
                         <div>
                             Give your application an App Name and click Next.
                         </div>
-                        <Img src={require('@/ssoimg/okta/3.png')} />
+                        <Img src={require('admin-portal/src/ssoimg/okta/3.png')} />
                     </>
                 ),
             },
@@ -163,7 +163,7 @@ export const providers = {
 Audience URI (SP Entity ID)
 Select EmailAddress from the Name ID format dropdown.`}
                         </div>
-                        <Img src={require('@/ssoimg/okta/4.png')} />
+                        <Img src={require('admin-portal/src/ssoimg/okta/4.png')} />
                     </>
                 ),
             },
@@ -175,7 +175,7 @@ Select EmailAddress from the Name ID format dropdown.`}
                             Under the Attribute Statements section, you have to
                             configure the following attributes:
                         </div>
-                        <Img src={require('@/ssoimg/okta/5.png')} />
+                        <Img src={require('admin-portal/src/ssoimg/okta/5.png')} />
                     </>
                 ),
             },
@@ -187,7 +187,7 @@ Select EmailAddress from the Name ID format dropdown.`}
                             On the next screen select I'm an Okta customer
                             adding an internal app and click Finish.
                         </div>
-                        <Img src={require('@/ssoimg/okta/6.png')} />
+                        <Img src={require('admin-portal/src/ssoimg/okta/6.png')} />
                         <div className=''>
                             From your application, click Sign On tab and go to
                             the section SAML Signing Certificates Click the
@@ -196,7 +196,7 @@ Select EmailAddress from the Name ID format dropdown.`}
                             with the metadata XML file, you can copy it to your
                             clipboard.
                         </div>
-                        <Img src={require('@/ssoimg/okta/7.png')} />
+                        <Img src={require('admin-portal/src/ssoimg/okta/7.png')} />
                     </>
                 ),
             },
