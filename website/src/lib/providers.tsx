@@ -1,9 +1,18 @@
-import { Google, Okta } from '@/app/tenants/icons'
-import { useState, useReducer, useRef, ComponentPropsWithoutRef } from 'react'
+'use client'
+
+import {
+    useState,
+    useReducer,
+    useRef,
+    ComponentPropsWithoutRef,
+    createContext,
+    useContext,
+} from 'react'
 import Image from 'next/image'
 import { Button } from '@nextui-org/react'
 import { metadataXml } from '@/lib/atoms'
 import { UploadIcon } from 'lucide-react'
+import { Google, Okta } from '@/components/icons'
 
 export const providers = {
     google: {
@@ -255,3 +264,4 @@ export function UploadButton({
         </>
     )
 }
+

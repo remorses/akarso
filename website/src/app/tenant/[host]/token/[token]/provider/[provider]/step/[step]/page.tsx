@@ -9,29 +9,32 @@ import {
     CheckSquareIcon,
 } from 'lucide-react'
 import Image from 'next/image'
-import { Google, Microsoft, Okta } from '@/app/tenants/icons'
-import { Container } from '@/app/tenants/page'
+
 import { Radio, cn, Checkbox, RadioGroup, Button } from '@nextui-org/react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import Link from 'next/link'
 import { Provider, providers } from '@/lib/providers'
 import { metadataXml } from '@/lib/atoms'
+import { createStepPath } from '@/lib/utils'
+import { Container } from '@/components/Container'
+import { useSetupParams, useThrowingFn } from '@/lib/hooks'
 
-export default function Page({
-    params: { provider, step },
-}: {
-    params: {
-        provider: Provider
-        step: number
-    }
-}) {
+export default function Page({ params: { provider, step, host, token } }) {
     step = Number(step)
     const p = providers[provider]
     const stepsLength = p.steps.length
     const isEnd = step - 1 !== stepsLength - 1
     const stepObj = p.steps[step - 1]
-    const metadata = useStore(metadataXml)
+    const ssoMetadata = useStore(metadataXml)
+    const { callbackUrl } = useSetupParams()
+    const callback = new URL(callbackUrl)
+    const { fn: create, isLoading } = useThrowingFn({
+        async fn() {
+            alert(`done!`)
+            // TODO add provider in supabase
+        },
+    })
     return (
         <Container>
             <div className='flex h-full justify-between gap-12'>
@@ -40,20 +43,24 @@ export default function Page({
                     {stepObj.content}
                     <div className='flex'>
                         {/* <div className='grow'></div> */}
-                        {isEnd ? (
+                        {!isEnd ? (
                             <Link
                                 legacyBehavior
-                                href={`/tenants/provider/${provider}/step/${
-                                    step + 1
-                                }`}
+                                href={createStepPath({
+                                    host,
+                                    provider,
+                                    step: step + 1,
+                                    token,
+                                })}
                             >
                                 <Button
+                                    type='button'
                                     endContent={
                                         <ArrowRightIcon className='w-4' />
                                     }
                                     className={cn(
                                         stepObj['addsMetadata'] &&
-                                            !metadata &&
+                                            !ssoMetadata &&
                                             'pointer-events-none opacity-70',
                                     )}
                                     // color='success'
@@ -63,18 +70,13 @@ export default function Page({
                                 </Button>
                             </Link>
                         ) : (
-                            <Link
-                                legacyBehavior
-                                href={``} // TODO: replace with sign in page
+                            <Button
+                                isLoading={isLoading}
+                                onClick={create}
+                                endContent={<ArrowRightIcon className='w-4' />}
                             >
-                                <Button
-                                    endContent={
-                                        <ArrowRightIcon className='w-4' />
-                                    }
-                                >
-                                    Continue to Sign In
-                                </Button>
-                            </Link>
+                                Finish Setup
+                            </Button>
                         )}
                     </div>
                 </div>
@@ -88,9 +90,12 @@ export default function Page({
                         const active = index === step - 1
                         return (
                             <Link
-                                href={`/tenants/provider/${provider}/step/${
-                                    index + 1
-                                }`}
+                                href={createStepPath({
+                                    host,
+                                    provider,
+                                    step: index + 1,
+                                    token,
+                                })}
                                 className='flex text-sm items-center  gap-2'
                                 key={stepObj.title}
                             >

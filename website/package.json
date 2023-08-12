@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 4040",
+    "dev": "pnpm tsx scripts/example-host && pnpm next dev -p 4040",
     "build": "next build",
     "images": "tiged --disable-cache --force boxyhq/website/static/img/sso-providers ./src/ssoimg",
     "start": "next start",
@@ -18,12 +18,14 @@
     "@types/react-dom": "18.2.7",
     "autoprefixer": "10.4.14",
     "framer-motion": "^10.15.1",
+    "jose": "^4.14.4",
     "lucide-react": "0.265.0",
     "nanostores": "^0.9.3",
     "next": "13.4.14-canary.2",
     "postcss": "8.4.27",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-hot-toast": "^2.4.1",
     "tailwindcss": "3.3.3",
     "typescript": "^5.1.6"
   }
