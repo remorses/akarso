@@ -1,4 +1,4 @@
-import Page, { getServerSideProps } from './home'
+import Page, { getServerSideProps } from './setup'
 
 export default Page
 
