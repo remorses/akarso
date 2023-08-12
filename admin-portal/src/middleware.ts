@@ -22,6 +22,50 @@ export default async function middleware(req: NextRequest) {
     // Get the pathname of the request (e.g. /, /about, /blog/first-post)
     const path = url.pathname
 
-    // rewrite everything else to `/[domain]/[path] dynamic route
-    return NextResponse.rewrite(new URL(`/tenant/${hostname}${path}`, req.url))
+    const parts = path.split('/')
+    const tokenIndex = parts.findIndex((p, i) => {
+        return parts[i - 1] === 'token'
+    })
+    const token = parts[tokenIndex]
+    const hash = token.slice(0, 8)
+
+    if (token.length > 8) {
+        const newPath = path.replace(`/${token}`, '/' + hash)
+        const res = NextResponse.redirect(new URL(newPath, req.url), {
+            status: 307,
+        })
+        res.cookies.set(hash, token, {
+            maxAge: 60 * 60 * 24 * 365 * 10,
+            path: '/',
+        })
+        res.headers.set('cache-control', 'no-store')
+        return res
+    }
+
+    return NextResponse.rewrite(
+        new URL(`/tenant/${hostname}${path}`, req.url),
+        {},
+    )
+    // TODO rewrite to long path after nextjs fixes their shit: https://github.com/vercel/next.js/issues/49442
+    // {
+    //     const token = req.cookies.get(hash)?.value
+
+    //     if (!token) {
+    //         console.log(
+    //             'no token for hash',
+    //             hash,
+    //             req.cookies.getAll().map((x) => x.name),
+    //         )
+    //         return NextResponse.redirect(
+    //             new URL(`/tenant/${hostname}${path}`, req.url),
+    //             {},
+    //         )
+    //     }
+    //     const newPath = path.replace(`/${hash}`, '/' + token)
+
+    //     return NextResponse.rewrite(
+    //         new URL(`/tenant/${hostname}${newPath}`, req.url),
+    //         {},
+    //     )
+    // }
 }

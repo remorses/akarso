@@ -29,7 +29,7 @@ export default function Page({ params: { provider, step, host, token } }) {
     const stepObj = p.steps[step - 1]
     const metadataXml = useStore(metadataXmlAtom)
     const { callbackUrl } = useSetupParams()
-    const callback = new URL(callbackUrl)
+    
     const metadataUrl = useStore(metadataUrlAtom)
 
     const { fn: create, isLoading } = useThrowingFn({

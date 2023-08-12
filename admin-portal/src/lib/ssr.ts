@@ -3,6 +3,7 @@ import { createSupabaseAdmin } from 'db/supabase'
 import { createClient } from '@supabase/supabase-js'
 import { jwtVerify } from 'jose'
 import { env } from 'db/env'
+import { cookies } from 'next/headers'
 
 export function wrapMethod(fn) {
     return async (...args) => {
@@ -43,7 +44,12 @@ export async function getTenantDataFromHost({ host }) {
     }
 }
 
-export async function getPayloadForToken({ token, secret }) {
+export async function getPayloadForToken({ token: hash, cookies, secret }) {
+    const token = cookies().get(hash)?.value
+    if (!token) {
+        console.log('no token for hash', hash, cookies().getAll())
+        return {}
+    }
     secret = decodeURIComponent(secret)
     // console.log({ secret })
     const verified = await jwtVerify(

@@ -1,4 +1,5 @@
 "poor man's use server"
+import { NextRequest } from 'next/server'
 import {
     getPayloadForToken,
     getTenantDataFromHost,
@@ -36,7 +37,13 @@ export async function createSSOProvider({
     const { payload } = await getPayloadForToken({
         token,
         secret,
+        cookies() {
+            return new Map(Object.entries((req as any as NextRequest).cookies))
+        },
     })
+    if (!payload) {
+        throw new Error(`missing payload`)
+    }
     const { callbackUrl, domain, metadata } = payload
     const url = new URL(callbackUrl)
 

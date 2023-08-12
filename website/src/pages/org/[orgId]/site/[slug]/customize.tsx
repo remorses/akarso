@@ -42,6 +42,7 @@ export default function Page({
         host,
         secret: site.secret,
     })
+    const iframeScale = 0.8
     // params to take: supabase token, site slug (will also be org name, ), logo, and domain
     return (
         <DashboardContainer sites={sites}>
@@ -50,7 +51,7 @@ export default function Page({
                 <div className=''>Logo</div>
                 <div className=''>Domain</div>
             </Block>
-            <div className='flex min-h-[500px] flex-col'>
+            <div className='flex min-h-[600px] flex-col'>
                 <BrowserWindow
                     url={url}
                     onRefresh={() => {
@@ -67,24 +68,30 @@ export default function Page({
                 >
                     <iframe
                         ref={iframeRef}
+                        style={{
+                            transform: `scale(${iframeScale})`,
+                            transformOrigin: 'top left',
+                            width: `${Number(100 / iframeScale).toFixed(1)}%`,
+                            height: `${Number(100 / iframeScale).toFixed(1)}%`,
+                        }}
                         className={classNames(
-                            'min-w-full min-h-full inset-0 bg-transparent',
+                            ' inset-0 bg-transparent',
                             'absolute',
                         )}
                         frameBorder={0}
                         allowTransparency
                         name='previewProps' // tell iframe preview props is enabled
-                        height='100%'
+                        height='120%'
                         width='100%'
                         title='website preview'
-                        onLoad={() => setLoaded(true)}
+                        // onLoad={() => setLoaded(true)}
                         src={url}
                     ></iframe>
-                    {!loaded && (
+                    {/* {!loaded && (
                         <div className='flex justify-center items-center inset-0 absolute'>
                             <Spinner className='text-gray-600 text-5xl'></Spinner>
                         </div>
-                    )}
+                    )} */}
                 </BrowserWindow>
             </div>
         </DashboardContainer>
