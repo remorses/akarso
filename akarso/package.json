@@ -1,0 +1,25 @@
+{
+    "name": "akarso",
+    "version": "0.0.0",
+    "description": "",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "repository": "https://github.com/remorses/akarso",
+    "scripts": {
+        "build": "tsc",
+        "watch": "tsc -w"
+    },
+    "files": [
+        "dist",
+        "src",
+        "esm"
+    ],
+    "keywords": [],
+    "author": "Tommaso De Rossi, morse <beats.by.morse@gmail.com>",
+    "license": "",
+    "dependencies": {
+        "jose": "^4.14.4",
+        "native-fetch": "^4.0.2",
+        "undici": "^5.23.0"
+    }
+}

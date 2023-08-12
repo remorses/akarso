@@ -27,7 +27,7 @@ export function OnboardingContainer({ children }) {
                 <div className='flex flex-col items-center h-full '>
                     <div
                         className={cn(
-                            'rounded-lg border p-6 items-stretch flex-col',
+                            'rounded-lg border bg-white dark:bg-gray-800 p-6 items-stretch flex-col',
                             'flex gap-8 min-w-[700px] max-w-full',
                         )}
                     >
