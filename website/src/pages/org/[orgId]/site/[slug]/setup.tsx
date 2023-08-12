@@ -47,6 +47,14 @@ export default function Page({
         <DashboardContainer sites={sites}>
             <div className='text-3xl font-bold'>Setup</div>
             <div className='grow [&>*]:!max-w-full -mt-12 w-full  flex flex-col'>
+                <BlockWithStep step={0}>
+                    <div className=''>Install the akarso npm package</div>
+                    <Code
+                        language='sh'
+                        className='text-sm'
+                        code={`npm i akarso`}
+                    />
+                </BlockWithStep>
                 <BlockWithStep step={1}>
                     <div className=''>
                         When the user wants to connect SSO, redirect him to the

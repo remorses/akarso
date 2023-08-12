@@ -5,7 +5,9 @@ export const RadioCard = (props) => {
 
     return (
         <Radio
+            
             {...otherProps}
+            
             classNames={{
                 base: cn(
                     'flex m-0 bg-content2 min-w-full hover:bg-content2 items-center justify-between',

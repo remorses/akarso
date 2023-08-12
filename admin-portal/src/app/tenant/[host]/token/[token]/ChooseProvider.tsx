@@ -16,7 +16,9 @@ export function ChooseProvider() {
             <form
                 onSubmit={(e) => {
                     e.preventDefault()
-                    router.push(createStepPath({ host, provider, step: 1, token }))
+                    router.push(
+                        createStepPath({ host, provider, step: 1, token }),
+                    )
                 }}
                 className='flex w-[600px] self-center flex-col gap-12'
             >
@@ -27,8 +29,14 @@ export function ChooseProvider() {
                     onValueChange={setProvider}
                 >
                     {Object.entries(providers).map(([key, value]) => {
+                        const disabled = 'inactive' in value && value.inactive
                         return (
-                            <RadioCard key={key} icon={value.icon} value={key}>
+                            <RadioCard
+                                isDisabled={disabled}
+                                key={key}
+                                icon={value.icon}
+                                value={key}
+                            >
                                 {value.name}
                             </RadioCard>
                         )
@@ -39,5 +47,3 @@ export function ChooseProvider() {
         </Container>
     )
 }
-
-

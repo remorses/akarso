@@ -12,7 +12,14 @@ import Image from 'next/image'
 import { Button } from '@nextui-org/react'
 import { metadataXmlAtom } from '@/lib/atoms'
 import { UploadIcon } from 'lucide-react'
-import { Google, Okta } from '@/components/icons'
+import {
+    Auth0,
+    Cloudflare,
+    Google,
+    Keycloak,
+    Microsoft,
+    Okta,
+} from '@/components/icons'
 
 export const providers = {
     google: {
@@ -195,6 +202,26 @@ Select EmailAddress from the Name ID format dropdown.`}
             },
         ],
     },
+    microsoft: {
+        inactive: true,
+        name: 'Microsoft Azure',
+        icon: <Microsoft />,
+    },
+    auth0: {
+        inactive: true,
+        name: 'Auth0',
+        icon: <Auth0 />,
+    },
+    keycloak: {
+        inactive: true,
+        name: 'Keycloak',
+        icon: <Keycloak />,
+    },
+    cloudflare: {
+        inactive: true,
+        name: 'Cloudflare',
+        icon: <Cloudflare />,
+    },
 } as const
 
 export type Provider = keyof typeof providers
@@ -264,4 +291,3 @@ export function UploadButton({
         </>
     )
 }
-
