@@ -1,0 +1,27 @@
+{
+    "name": "db",
+    "version": "0.0.0",
+    "private": true,
+    "description": "db",
+    "scripts": {
+        "postinstall": "prisma generate",
+        "studio": "doppler run -- prisma studio",
+        "gen:supabase": "doppler run --command 'pnpm supabase gen types typescript --db-url $DATABASE_URL > supabase.types.ts'",
+        "push": "doppler run -c dev --command 'prisma db push && prisma generate'",
+        "push:prod": "doppler run -c production -- prisma db push && prisma generate",
+        "pull": "doppler run -c dev -- prisma db pull && prisma generate",
+        "pull:prod": "doppler run -c production -- prisma db pull && prisma generate"
+    },
+    "keywords": [],
+    "author": "remorses <beats.by.morse@gmail.com>",
+    "license": "ISC",
+    "dependencies": {
+        "@prisma/client": "^5.1.1",
+        "postgres": "^3.3.4",
+        "prisma": "^5.1.1"
+    },
+    "devDependencies": {
+        "@types/node": "^20.2.1",
+        "supabase": "^1.83.7"
+    }
+}

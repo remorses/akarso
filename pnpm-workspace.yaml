@@ -2,3 +2,4 @@ packages:
   - akarso
   - website
   - admin-portal
+  - db
