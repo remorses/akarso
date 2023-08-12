@@ -1,5 +1,9 @@
 "poor man's use server"
-import { getPayloadForToken, wrapMethod } from '@/lib/ssr'
+import {
+    getPayloadForToken,
+    getTenantDataFromHost,
+    wrapMethod,
+} from '@/lib/ssr'
 import { SignJWT } from 'jose'
 import { getNodejsContext } from 'server-actions-for-next-pages/context'
 import { SupabaseManagementAPI } from 'supabase-management-js'
@@ -23,14 +27,21 @@ export async function createSSOProvider({
     }
     const { req, res } = await getNodejsContext()
     const host = req?.headers.host
+    const { secret, supabaseAccessToken, supabaseProjectRef } =
+        await getTenantDataFromHost({ host })
     // token is used as authentication, if user has this token it means he can setup sso for this domain, this means generated urls should expire and should not be shared in public, otherwise anyone could override an SSO connection
-    const { payload, secret } = await getPayloadForToken({ token, host })
+    const { payload } = await getPayloadForToken({
+        token,
+        host,
+        secret,
+    })
     const { callbackUrl, domain, metadata } = payload
     const url = new URL(callbackUrl)
-    const accessToken = ''
-    const projectRef = ''
-    const client = new SupabaseManagementAPI({ accessToken })
-    const ssoProv = await client.createSSOProvider(projectRef, {
+
+    const client = new SupabaseManagementAPI({
+        accessToken: supabaseAccessToken,
+    })
+    const ssoProv = await client.createSSOProvider(supabaseProjectRef, {
         type: 'saml',
         domains: [domain],
         metadata_xml: metadataXml,

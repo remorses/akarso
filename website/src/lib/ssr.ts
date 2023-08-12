@@ -13,12 +13,11 @@ export function wrapMethod(fn) {
     }
 }
 
-export function getJwtSecretKey({ host }) {
-    return 'secret'
+export async function getTenantDataFromHost({ host }) {
+    return { secret: 'secret', supabaseAccessToken: '', supabaseProjectRef: '' }
 }
 
-export async function getPayloadForToken({ token, host }) {
-    const secret = await getJwtSecretKey({ host })
+export async function getPayloadForToken({ token, secret, host }) {
     const verified = await jwtVerify(
         decodeURIComponent(token),
         new TextEncoder().encode(secret),
