@@ -10,3 +10,13 @@ export function createLoginRedirectUrl({ signupReason = '', redirectTo = '' }) {
     url.searchParams.set('redirectTo', redirectTo)
     return url.toString()
 }
+
+export function slugKebabCase(str) {
+    return str
+        .toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/\//g, '-')
+        .replace(/\./g, '-')
+        .replace(/-+/g, '-')
+        .toLowerCase()
+}
