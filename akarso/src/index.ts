@@ -1,7 +1,7 @@
 import { fetch } from 'native-fetch'
 import { SignJWT, jwtVerify } from 'jose'
 
-export async function getCallback({ token, secret }) {
+export async function getSSOCallbackResult({ token, secret }) {
     const { payload } = await jwtVerify(
         decodeURIComponent(token),
         new TextEncoder().encode(secret),

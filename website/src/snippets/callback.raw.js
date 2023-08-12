@@ -1,8 +1,8 @@
-import { getCallback } from 'akarso'
+import { getSSOCallbackResult } from 'akarso'
 
 app.get('/api/sso-callback', async (req, res) => {
     const { token } = req.query
-    const { identifier, ssoProviderId } = await getCallback({
+    const { identifier, ssoProviderId } = await getSSOCallbackResult({
         token,
         secret: 'REPLACE_ME_SECRET',
     })
