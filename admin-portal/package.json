@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "pnpm tsx scripts/example-host && pnpm next dev -p 4040",
-    "build": "next build",
+    "dev": "doppler run -c dev -- pnpm tsx scripts/example-host && pnpm next dev -p 4040",
+    "build": "doppler run -c dev -- next build",
     "images": "tiged --disable-cache --force boxyhq/website/static/img/sso-providers ./src/ssoimg",
-    "start": "next start",
+    "start": "doppler run -c dev -- next start",
     "lint": "next lint"
   },
   "dependencies": {
