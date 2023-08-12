@@ -1,9 +1,16 @@
-import { cn } from '@nextui-org/react'
+import { Tab, Tabs, cn } from '@nextui-org/react'
+// import { TabLink } from 'beskar/src/Tabs'
 
 import { Select } from 'beskar/src/Select'
 import { useUser } from '@supabase/auth-helpers-react'
 
-import { ArrowLeft } from 'lucide-react'
+import {
+    ArrowLeft,
+    HomeIcon,
+    Link2Icon,
+    ScissorsIcon,
+    Settings2Icon,
+} from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { MyNavbar } from 'website/src/components/specific'
@@ -38,24 +45,84 @@ function SelectOrg({ sites = [] as { slug: string; orgId: string }[], slug }) {
     )
 }
 
+function TabLink({ href, ...rest }) {
+    return <Tab key={href} {...rest} />
+}
+
 export function DashboardContainer({ children, sites }) {
     const router = useRouter()
     const user = useUser()
     const { orgId, slug } = router.query as any
+    const base = `/org/${orgId}/site/${slug}`
     return (
-        <div className='w-full max-w-[1200px] mx-auto pb-24'>
-            <MyNavbar />
-            <div className='flex'>
-                <SelectOrg slug={slug} sites={sites} />
-                <div className='grow'></div>
-            </div>
-            <div className='flex flex-col gap-6 pt-20 items-stretch'>
-                <div
-                    className={cn(
-                        'rounded-lg items-stretch flex-col',
-                        'flex gap-8 min-w-[700px] max-w-full w-',
-                    )}
-                >
+        <div className='pb-24'>
+            {/* <div className='w-full '>
+                <div className='w-full max-w-[1200px] mx-auto'>
+                    <MyNavbar />
+                </div>
+            </div> */}
+            <div className='w-full flex max-w-[1200px] pt-24 gap-12 mx-auto'>
+                <div className='flex flex-col w-[220px] gap-6 shrink-0 relative '>
+                    <div className='text-2xl absolute -top-12 font-bold'>
+                        akarso.
+                    </div>
+                    <SelectOrg slug={slug} sites={sites} />
+                    <Tabs
+                        variant='light'
+                        aria-label='nav'
+                        classNames={{
+                            tabList: 'w-[200px] items-start flex-col ',
+
+                            cursor: 'w-full bg-gray-200 text-gray-900 shadow-none',
+
+                            tab: 'justify-start ',
+                            // tabContent: '',
+                        }}
+                        selectedKey={router.asPath}
+                        onSelectionChange={(x) => {
+                            router.push(x)
+                        }}
+                    >
+                        <Tab
+                            key={base}
+                            title={
+                                <div className='flex items-center gap-2'>
+                                    <HomeIcon className='w-4' />
+                                    Home
+                                </div>
+                            }
+                        ></Tab>
+                        <Tab
+                            key={base + '/customize'}
+                            title={
+                                <div className='flex items-center gap-2'>
+                                    <ScissorsIcon className='w-4' />
+                                    Customize
+                                </div>
+                            }
+                        ></Tab>
+
+                        <Tab
+                            key={base + '/domain'}
+                            title={
+                                <div className='flex items-center gap-2'>
+                                    <Link2Icon className='w-4' />
+                                    Custom Domain
+                                </div>
+                            }
+                        ></Tab>
+                        <Tab
+                            key={base + '/settings'}
+                            title={
+                                <div className='flex items-center gap-2'>
+                                    <Settings2Icon className='w-4' />
+                                    Settings
+                                </div>
+                            }
+                        ></Tab>
+                    </Tabs>
+                </div>
+                <div className='flex grow flex-col items-stretch -mt-1 gap-6'>
                     {children}
                 </div>
             </div>

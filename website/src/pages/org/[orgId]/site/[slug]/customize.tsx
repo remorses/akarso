@@ -19,8 +19,6 @@ import { generateCodeSnippet, isDev } from 'website/src/lib/utils'
 import { onboarding } from 'website/src/pages/api/functions'
 import { Block, BlockWithStep } from 'website/../beskar/dashboard'
 import { BrowserWindow } from 'website/src/components/BrowserWindow'
-import { Button } from '@nextui-org/react'
-import Link from 'next/link'
 
 export default function Page({
     sites,
@@ -34,7 +32,6 @@ export default function Page({
             router.push(`/org/${orgId}/site/${slug}`)
         },
     })
-    const { slug, orgId } = router.query as any
     const iframeRef = useRef<HTMLIFrameElement>(null)
     const host = `${site.slug}.${env.NEXT_PUBLIC_TENANTS_DOMAIN}`
     const [loaded, setLoaded] = useState(false)
@@ -45,36 +42,49 @@ export default function Page({
     // params to take: supabase token, site slug (will also be org name, ), logo, and domain
     return (
         <DashboardContainer sites={sites}>
-            <div className='text-3xl font-bold'>Setup</div>
-            <div className='grow [&>*]:!max-w-full -mt-12 w-full  flex flex-col'>
-                <BlockWithStep step={1}>
-                    <div className=''>
-                        When the user wants to connect SSO, redirect him to the
-                        Akarso Admin Portal
-                    </div>
-                    <Code
-                        language='js'
-                        className='text-sm'
-                        code={redirectCode}
-                    />
-                </BlockWithStep>
-                <BlockWithStep step={2}>
-                    <div className=''>
-                        In your callback page, connect the SSO provider to your
-                        team entity
-                    </div>
-                    <Code
-                        language='js'
-                        className='text-sm'
-                        code={callbackCode}
-                    />
-                </BlockWithStep>
-                <BlockWithStep isLast step={3}>
-                    <div className=''>Customize your portal design</div>
-                    <Link href={`/org/${orgId}/site/${slug}/customize`}>
-                        <Button>Customize Portal</Button>
-                    </Link>
-                </BlockWithStep>
+            <div className='text-3xl font-bold'>Customize</div>
+            <Block>
+                <div className=''>Logo</div>
+                <div className=''>Domain</div>
+            </Block>
+            <div className='flex min-h-[500px] flex-col'>
+                <BrowserWindow
+                    host={host}
+                    onRefresh={() => {
+                        const iframe = iframeRef.current
+                        if (iframe) {
+                            iframe.src += ''
+                        }
+                    }}
+                    className={classNames(
+                        '!text-sm shrink-0 shadow rounded-xl justify-stretch',
+                        'items-stretch hidden h-full flex-col flex-1 border',
+                        'bg-white lg:flex dark:bg-gray-800',
+                    )}
+                >
+                    <iframe
+                        ref={iframeRef}
+                        className={classNames(
+                            'min-w-full min-h-full inset-0 bg-transparent',
+                            'absolute',
+                        )}
+                        frameBorder={0}
+                        allowTransparency
+                        name='previewProps' // tell iframe preview props is enabled
+                        height='100%'
+                        width='100%'
+                        title='website preview'
+                        onLoad={() => setLoaded(true)}
+                        src={`${
+                            isDev ? 'http' : 'https'
+                        }://${host}?previewProps=true`}
+                    ></iframe>
+                    {!loaded && (
+                        <div className='flex justify-center items-center inset-0 absolute'>
+                            <Spinner className='text-gray-600 text-5xl'></Spinner>
+                        </div>
+                    )}
+                </BrowserWindow>
             </div>
         </DashboardContainer>
     )

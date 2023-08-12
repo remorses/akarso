@@ -32,3 +32,5 @@ export function generateCodeSnippet({ host, secret }) {
 
     return { redirectCode, callbackCode }
 }
+
+export const isDev = process.env.NODE_ENV === 'development'

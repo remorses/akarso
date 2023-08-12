@@ -7,7 +7,7 @@ export function MyNavbar({}) {
     const supabase = useSupabaseClient()
     let canLogout = !!session
     return (
-        <div className='flex gap-12 py-8 items-center '>
+        <div className='flex gap-12 py-5 items-center '>
             <Link href='/' className='font-bold text-2xl'>
                 akarso.
             </Link>
