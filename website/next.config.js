@@ -19,6 +19,13 @@ const nextConfig = piped({
         externalDir: true,
         swcPlugins: [['next-superjson-plugin', {}]],
     },
+    webpack: (config, { dev }) => {
+        config.module.rules.push({
+            test: /\.raw\.js$/,
+            use: 'raw-loader',
+        })
+        return config
+    },
 })
 
 function pipe(...fns) {

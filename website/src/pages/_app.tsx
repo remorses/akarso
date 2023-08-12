@@ -1,4 +1,5 @@
 import { NextUIProvider } from '@nextui-org/react'
+import 'prismjs/themes/prism-tomorrow.css'
 import 'website/src/styles/index.css'
 
 import { createPagesBrowserClient } from '@supabase/auth-helpers-nextjs'

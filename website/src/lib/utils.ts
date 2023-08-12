@@ -20,3 +20,13 @@ export function slugKebabCase(str) {
         .replace(/-+/g, '-')
         .toLowerCase()
 }
+
+// @ts-ignore
+import redirectJsCode from 'website/src/snippets/redirect.raw.js'
+
+export function generateCodeSnippet({ host, secret }) {
+    let code = redirectJsCode
+        .replaceAll('REPLACE_ME_SECRET', secret)
+        .replaceAll('REPLACE_ME_HOST', host)
+    return code
+}

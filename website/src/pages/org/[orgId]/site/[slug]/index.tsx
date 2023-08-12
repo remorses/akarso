@@ -1,4 +1,5 @@
 import { Spinner, useThrowingFn } from 'beskar/landing'
+import { Code } from 'beskar/src/landing/Code'
 import classNames from 'classnames'
 import useSwr from 'swr'
 import { BlockWithStep } from 'beskar/dashboard'
@@ -23,7 +24,7 @@ import {
     onboarding,
 } from 'website/src/pages/api/functions'
 import { toast } from 'react-hot-toast'
-import { slugKebabCase } from 'website/src/lib/utils'
+import { generateCodeSnippet, slugKebabCase } from 'website/src/lib/utils'
 import { prisma } from 'website/../db/prisma'
 import { DashboardContainer } from 'website/src/components/DashboardContainer'
 import { env } from 'website/../db/env'
@@ -48,7 +49,16 @@ export default function Page({
     return (
         <DashboardContainer sites={sites}>
             <div className='flex self-stretch w-full gap-12'>
-                <div className="grow"></div>
+                <div className='grow max-w-[50%]'>
+                    <Code
+                        language='js'
+                        className='text-sm'
+                        code={generateCodeSnippet({
+                            host,
+                            secret: site.secret,
+                        })}
+                    />
+                </div>
                 <div className='flex min-h-[500px] flex-col'>
                     <BrowserWindow
                         host={host}
