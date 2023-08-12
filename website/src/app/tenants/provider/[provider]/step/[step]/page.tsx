@@ -34,7 +34,50 @@ export default function Page({
     const metadata = useStore(metadataXml)
     return (
         <Container>
-            <div className='flex flex-row-reverse h-full justify-between gap-12'>
+            <div className='flex h-full justify-between gap-12'>
+                <div className='flex flex-col gap-4 shrink-0  leading-relaxed w-[700px]'>
+                    <h1 className='font-semibold text-2xl'>{stepObj.title}</h1>
+                    {stepObj.content}
+                    <div className='flex'>
+                        {/* <div className='grow'></div> */}
+                        {isEnd ? (
+                            <Link
+                                legacyBehavior
+                                href={`/tenants/provider/${provider}/step/${
+                                    step + 1
+                                }`}
+                            >
+                                <Button
+                                    endContent={
+                                        <ArrowRightIcon className='w-4' />
+                                    }
+                                    className={cn(
+                                        stepObj['addsMetadata'] &&
+                                            !metadata &&
+                                            'pointer-events-none opacity-70',
+                                    )}
+                                    // color='success'
+                                    // variant='flat'
+                                >
+                                    Next Step
+                                </Button>
+                            </Link>
+                        ) : (
+                            <Link
+                                legacyBehavior
+                                href={``} // TODO: replace with sign in page
+                            >
+                                <Button
+                                    endContent={
+                                        <ArrowRightIcon className='w-4' />
+                                    }
+                                >
+                                    Continue to Sign In
+                                </Button>
+                            </Link>
+                        )}
+                    </div>
+                </div>
                 <div className='flex sticky self-start top-4 flex-col gap-6 shrink-0 min-w-[260px]'>
                     <div className='flex gap-3 items-center'>
                         <div className='[&>*]:w-[20px]'>{p.icon}</div>
@@ -79,49 +122,6 @@ export default function Page({
                             </Link>
                         )
                     })}
-                </div>
-                <div className='flex flex-col gap-4 shrink-0  leading-relaxed w-[700px]'>
-                    <h1 className='font-semibold text-2xl'>{stepObj.title}</h1>
-                    {stepObj.content}
-                    <div className='flex'>
-                        {/* <div className='grow'></div> */}
-                        {isEnd ? (
-                            <Link
-                                legacyBehavior
-                                href={`/tenants/provider/${provider}/step/${
-                                    step + 1
-                                }`}
-                            >
-                                <Button
-                                    endContent={
-                                        <ArrowRightIcon className='w-4' />
-                                    }
-                                    className={cn(
-                                        stepObj['addsMetadata'] &&
-                                            !metadata &&
-                                            'pointer-events-none opacity-70',
-                                    )}
-                                    // color='success'
-                                    // variant='flat'
-                                >
-                                    Next Step
-                                </Button>
-                            </Link>
-                        ) : (
-                            <Link
-                                legacyBehavior
-                                href={``} // TODO: replace with sign in page
-                            >
-                                <Button
-                                    endContent={
-                                        <ArrowRightIcon className='w-4' />
-                                    }
-                                >
-                                    Continue to Sign In
-                                </Button>
-                            </Link>
-                        )}
-                    </div>
                 </div>
             </div>
         </Container>
