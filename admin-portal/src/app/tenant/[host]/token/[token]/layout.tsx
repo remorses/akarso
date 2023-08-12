@@ -3,10 +3,17 @@ import { ProviderSetupProvider } from '@/components/context'
 import { ProviderSetupParams, providerSetupContext } from '@/lib/hooks'
 import { getPayloadForToken, getTenantDataFromHost } from '@/lib/ssr'
 import { jwtVerify } from 'jose'
+import { notFound } from 'next/navigation'
 
 export default async function Layout({ params: { token, host }, children }) {
-    const { secret } = await getTenantDataFromHost({ host })
-    const payload = await getPayloadForToken({ token, host, secret })
+    const { secret, notFound: fourOFour } = await getTenantDataFromHost({
+        host,
+    })
+    if (fourOFour) {
+        return notFound()
+    }
+
+    const payload = await getPayloadForToken({ token, secret })
     console.log(payload)
     return (
         <ProviderSetupProvider value={payload}>

@@ -17,6 +17,7 @@
     "license": "ISC",
     "dependencies": {
         "@prisma/client": "^5.1.1",
+        "@supabase/supabase-js": "^2.32.0",
         "postgres": "^3.3.4",
         "prisma": "^5.1.1"
     },

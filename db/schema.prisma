@@ -300,6 +300,7 @@ model OrgsUsers {
 enum UserRole {
     ADMIN
     MEMBER
+
     @@schema("public")
 }
 
@@ -365,12 +366,17 @@ enum SubscriptionStatus {
 
 model Site {
     siteId String @id @default(uuid())
-    name   String
 
-    createdAt DateTime @default(now())
-
-    orgId String
-    org   Org    @relation(fields: [orgId], references: [orgId], onDelete: Cascade)
+    createdAt           DateTime @default(now())
+    supabaseAccessToken String?
+    supabaseProjectRef  String?
+    secret              String
+    orgId               String
+    org                 Org      @relation(fields: [orgId], references: [orgId], onDelete: Cascade)
+    slug                String   @unique
+    customDomain        String?  @unique
+    logoUrl             String?
+    color               String?
 
     @@schema("public")
 }

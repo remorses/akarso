@@ -104,22 +104,40 @@ export interface Database {
       }
       Site: {
         Row: {
+          color: string | null
           createdAt: string
-          name: string
+          customDomain: string | null
+          logoUrl: string | null
           orgId: string
+          secret: string
           siteId: string
+          slug: string
+          supabaseAccessToken: string | null
+          supabaseProjectRef: string | null
         }
         Insert: {
+          color?: string | null
           createdAt?: string
-          name: string
+          customDomain?: string | null
+          logoUrl?: string | null
           orgId: string
+          secret: string
           siteId: string
+          slug: string
+          supabaseAccessToken?: string | null
+          supabaseProjectRef?: string | null
         }
         Update: {
+          color?: string | null
           createdAt?: string
-          name?: string
+          customDomain?: string | null
+          logoUrl?: string | null
           orgId?: string
+          secret?: string
           siteId?: string
+          slug?: string
+          supabaseAccessToken?: string | null
+          supabaseProjectRef?: string | null
         }
         Relationships: [
           {

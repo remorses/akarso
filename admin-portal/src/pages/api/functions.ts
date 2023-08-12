@@ -27,17 +27,25 @@ export async function createSSOProvider({
     }
     const { req, res } = await getNodejsContext()
     const host = req?.headers.host
-    const { secret, supabaseAccessToken, supabaseProjectRef } =
+    const { secret, notFound, supabaseAccessToken, supabaseProjectRef } =
         await getTenantDataFromHost({ host })
+    if (notFound) {
+        throw new Error(`tenant not found`)
+    }
     // token is used as authentication, if user has this token it means he can setup sso for this domain, this means generated urls should expire and should not be shared in public, otherwise anyone could override an SSO connection
     const { payload } = await getPayloadForToken({
         token,
-        host,
         secret,
     })
     const { callbackUrl, domain, metadata } = payload
     const url = new URL(callbackUrl)
 
+    if (!supabaseAccessToken) {
+        throw new Error(`missing supabaseAccessToken`)
+    }
+    if (!supabaseProjectRef) {
+        throw new Error(`missing supabaseProjectRef`)
+    }
     const client = new SupabaseManagementAPI({
         accessToken: supabaseAccessToken,
     })
