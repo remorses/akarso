@@ -23,6 +23,7 @@ export async function createSSOProvider({
     }
     const { req, res } = await getNodejsContext()
     const host = req?.headers.host
+    // token is used as authentication, if user has this token it means he can setup sso for this domain, this means generated urls should expire and should not be shared in public, otherwise anyone could override an SSO connection
     const { payload, secret } = await getPayloadForToken({ token, host })
     const { callbackUrl, domain, metadata } = payload
     const url = new URL(callbackUrl)

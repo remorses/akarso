@@ -31,11 +31,15 @@ export default function Page({ params: { provider, step, host, token } }) {
     const { callbackUrl } = useSetupParams()
     const callback = new URL(callbackUrl)
     const metadataUrl = useStore(metadataUrlAtom)
-    
+
     const { fn: create, isLoading } = useThrowingFn({
         async fn() {
-            await createSSOProvider({ token, metadataUrl, metadataXml })
-            // TODO add provider in supabase
+            const { url } = await createSSOProvider({
+                token,
+                metadataUrl,
+                metadataXml,
+            })
+            window.location.href = url
         },
     })
     return (
