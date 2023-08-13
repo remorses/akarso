@@ -29,7 +29,7 @@ export default function Page({
     const { fn: setup, isLoading: isLoadingSSO } = useThrowingFn({
         async fn() {
             const url = await setupSSO({ orgId, slug })
-            window.open(url, '_blank')
+            window.location.href = url
         },
     })
     const { fn: rotate, isLoading: isLoadingSecret } = useThrowingFn({
