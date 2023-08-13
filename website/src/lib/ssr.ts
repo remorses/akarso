@@ -66,7 +66,7 @@ export async function createSessionUrl({
     secret,
     callbackUrl,
     identifier,
-    slug,
+
     metadata = {},
 }) {
     if (!secret) {
@@ -92,7 +92,7 @@ export async function createSessionUrl({
             callbackUrl,
             expiresAt: expiresAt.toISOString(),
             identifier,
-            slug,
+            slug: site.slug,
             hash,
             metadata,
         })

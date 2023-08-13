@@ -32,7 +32,6 @@ const handler = async (req: NextRequest) => {
             secret,
             callbackUrl,
             identifier,
-            slug,
             metadata,
         })
 

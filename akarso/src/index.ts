@@ -19,14 +19,9 @@ export async function updateOrCreateSSOConnection({
     callbackUrl,
     secret,
 }: SetupParams & { secret: string }) {
-    const payload = {
-        metadata,
-        identifier,
-        callbackUrl,
-    }
-    const res = await fetch(`https://akarso.co/api/session`, {
+    const res = await fetch(`https://akarso.co/api/portal-session`, {
         method: 'POST',
-        body: JSON.stringify({ secret }),
+        body: JSON.stringify({ secret, metadata, identifier, callbackUrl }),
     })
     if (!res.ok) {
         throw new Error(
@@ -35,9 +30,8 @@ export async function updateOrCreateSSOConnection({
             } ${await res.text()}`,
         )
     }
-    const { host, hash } = await res.json()
+    const { host, url, hash } = await res.json()
 
-    const url = `https://${host}/session/${hash}`
     return { url }
 }
 

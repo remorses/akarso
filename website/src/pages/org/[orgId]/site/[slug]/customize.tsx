@@ -191,7 +191,6 @@ export const getServerSideProps = (async (ctx: GetServerSidePropsContext) => {
         secret: site.secret,
         callbackUrl: new URL(`/`, env.NEXT_PUBLIC_URL).toString(),
         identifier: '',
-        slug,
     })
 
     return {
