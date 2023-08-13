@@ -27,7 +27,18 @@ export function Container({ children }) {
                 <div className=''>Link</div> */}
             </div>
             {children}
+            <PoweredBy />
+
             <div className='pt-24'></div>
+        </div>
+    )
+}
+
+export function PoweredBy() {
+    return (
+        <div className='flex text-sm gap-1'>
+            Powered by
+            <span className='font-bold'>Akarso</span>
         </div>
     )
 }
