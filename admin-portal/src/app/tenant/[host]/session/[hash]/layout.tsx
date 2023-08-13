@@ -2,10 +2,7 @@ import { ChooseProvider } from '@/components/ChooseProvider'
 import { cookies } from 'next/headers'
 import { ProviderSetupProvider } from 'admin-portal/src/components/context'
 import { TokenData, providerSetupContext } from 'admin-portal/src/lib/hooks'
-import {
-    getPortalSession,
-    getSiteDataFromHost,
-} from 'admin-portal/src/lib/ssr'
+import { getPortalSession, getSiteDataFromHost } from 'admin-portal/src/lib/ssr'
 import { jwtVerify } from 'jose'
 import { notFound, redirect } from 'next/navigation'
 import { SessionExpired } from '@/components/SessionExpired'
@@ -38,6 +35,7 @@ export default async function Layout({
     } = await getPortalSession({
         hash,
         secret,
+        host,
     })
     const context = { ...payload, ...publicSiteData, hash }
     if (expired) {

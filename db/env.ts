@@ -12,6 +12,7 @@ export const env = {
     // STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
     // STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
     NEXT_PUBLIC_TENANTS_DOMAIN: process.env.NEXT_PUBLIC_TENANTS_DOMAIN,
+    REVALIDATE_SECRET: process.env.REVALIDATE_SECRET,
 }
 
 if (typeof window === 'undefined') {

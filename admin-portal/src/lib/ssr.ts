@@ -25,7 +25,7 @@ export type SiteData = Awaited<ReturnType<typeof getSiteDataFromHost>> & {
 
 export async function getSiteDataFromHost({ host }) {
     host = decodeURIComponent(host)
-    const supabase = createSupabaseAdmin()
+    const supabase = createSupabaseAdmin({ cacheTags: [host] })
     const slug = host.replace('.' + env.NEXT_PUBLIC_TENANTS_DOMAIN, '')
     const isSlug = host.includes(env.NEXT_PUBLIC_TENANTS_DOMAIN)
     // console.log({ slug, isSlug, host })
@@ -48,10 +48,10 @@ export async function getSiteDataFromHost({ host }) {
     }
 }
 
-export async function getPortalSession({ hash, secret }) {
+export async function getPortalSession({ hash, host, secret }) {
     secret = decodeURIComponent(secret)
     // console.log({ secret })
-    const supabase = createSupabaseAdmin()
+    const supabase = createSupabaseAdmin({ cacheTags: [host] })
     const { data, error } = await supabase
         .from('PortalSession')
         .select()

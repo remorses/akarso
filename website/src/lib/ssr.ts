@@ -7,6 +7,7 @@ import { env } from 'db/env'
 import { createPagesServerClient } from '@supabase/auth-helpers-nextjs'
 import { notifyError } from '@/lib/sentry'
 import { isDev } from 'website/src/lib/utils'
+import { prisma } from 'db/prisma'
 
 export function wrapMethod(fn) {
     return async (...args) => {
@@ -109,5 +110,45 @@ export async function createSessionUrl({
         ...data,
         url,
         host,
+    }
+}
+
+export async function revalidateSiteSSGCache({ slug = '', host = '' }) {
+    console.info('Revalidating site', slug)
+    const isPreview = process.env.NODE_ENV === ('preview' as any)
+    try {
+        let hosts = [host].filter(Boolean)
+        if (!host) {
+            const [site] = await Promise.all([
+                prisma.site.findFirst({ where: { slug } }),
+            ])
+            host = site?.slug + '.' + env.NEXT_PUBLIC_TENANTS_DOMAIN
+
+            if (site?.customDomain) hosts.push(...site?.customDomain)
+        }
+        const url = new URL(
+            '/api/revalidate',
+            `${isDev ? 'http://' : 'https://'}${host}`,
+        ).toString()
+        console.log(`asking revalidation to ${url}`)
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                secret: env.REVALIDATE_SECRET,
+                tags: hosts,
+            }),
+        })
+        if (!res.ok) {
+            throw new Error(
+                `Failed to revalidate site ${slug}: ${res.status} ${(
+                    await res.text()
+                ).slice(0, 100)}`,
+            )
+        }
+    } catch (e) {
+        notifyError(e, 'revalidateSiteSSGCache')
     }
 }

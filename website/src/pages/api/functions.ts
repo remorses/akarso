@@ -1,6 +1,11 @@
 "poor man's use server"
 import { v4 } from 'uuid'
-import { generateSecretValue, requireAuth, wrapMethod } from '@/lib/ssr'
+import {
+    generateSecretValue,
+    requireAuth,
+    revalidateSiteSSGCache,
+    wrapMethod,
+} from '@/lib/ssr'
 import { SignJWT, generateSecret } from 'jose'
 import { getNodejsContext } from 'server-actions-for-next-pages/context'
 import { SupabaseManagementAPI } from 'supabase-management-js'
@@ -135,15 +140,18 @@ export async function updateSite({ logoUrl, slug, color }) {
     }
     console.log('updating site', { logoUrl, slug, color })
 
-    const r = await prisma.site.update({
-        where: {
-            slug,
-        },
-        data: {
-            color,
-            logoUrl,
-        },
-    })
+    const r = await Promise.all([
+        prisma.site.update({
+            where: {
+                slug,
+            },
+            data: {
+                color,
+                logoUrl,
+            },
+        }),
+        revalidateSiteSSGCache({ slug }),
+    ])
 
     return
 }

@@ -44,6 +44,7 @@ export async function createSSOProvider({
     const { payload, expired, notFound } = await getPortalSession({
         hash,
         secret,
+        host,
     })
     if (expired) {
         throw new Error(`Admin portal session expired, create a new one`)
