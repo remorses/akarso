@@ -11,7 +11,7 @@ Akarso is an alternative to the [WorkOS Admin Portal](https://workos.com/admin-p
 
 ## Why
 
-If you want to let your users sign in with SSO via Supabase currently you have to:
+Currently if you want to let your customers sign in with SSO via Supabase you have to:
 
 -   Ask the user to create an application in their SSO provider (Google, Azure, etc)
 -   Ask them to send the metadata file or url
@@ -24,7 +24,7 @@ By instead using Akarso you can just add a button `Setup SSO` in your app that r
 
 Akarso will guide the user thorough the whole process and will collect the required information to setup SSO in Supabase.
 
-Then akarso will redirect to your application with the SSO provider details (`ssoProviderId` and `identifier`) in the params, here you can update your team database entity with the SSO provider id.
+Then akarso will redirect to your application with the SSO provider details (`ssoProviderId` and `identifier`) in the params, here you can update your team entity in the database with the SSO provider id.
 
 ## How to use Akarso
 
