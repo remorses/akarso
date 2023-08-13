@@ -4,7 +4,7 @@ import { createOrUpdateSSOConnection } from 'akarso'
 const { url } = await createOrUpdateSSOConnection({
     // TODO: replace with your own url
     callbackUrl: `https://example.com/api/sso-callback`,
-    identifier: teamId,
+    identifier: teamId, // your team entity identifier
     // TODO use env var instead
     secret: 'REPLACE_ME_SECRET', // your akarso secret
 })
