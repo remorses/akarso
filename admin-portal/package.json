@@ -19,6 +19,7 @@
         "@types/node": "20.4.9",
         "@types/react": "18.2.20",
         "@types/react-dom": "18.2.7",
+        "@types/uuid": "^9.0.2",
         "admin-portal": "workspace:*",
         "akarso": "workspace:*",
         "autoprefixer": "10.4.14",
@@ -38,6 +39,7 @@
         "react-medium-image-zoom": "^5.1.8",
         "server-actions-for-next-pages": "^0.0.4",
         "supabase-management-js": "^0.1.5",
-        "tailwindcss": "3.3.3"
+        "tailwindcss": "3.3.3",
+        "uuid": "^9.0.0"
     }
 }

@@ -110,6 +110,7 @@ export interface Database {
           hash: string
           identifier: string
           metadata: Json
+          orgId: string
           secret: string
           slug: string
         }
@@ -120,6 +121,7 @@ export interface Database {
           hash: string
           identifier: string
           metadata?: Json
+          orgId: string
           secret: string
           slug: string
         }
@@ -130,10 +132,17 @@ export interface Database {
           hash?: string
           identifier?: string
           metadata?: Json
+          orgId?: string
           secret?: string
           slug?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "PortalSession_orgId_fkey"
+            columns: ["orgId"]
+            referencedRelation: "Org"
+            referencedColumns: ["orgId"]
+          },
           {
             foreignKeyName: "PortalSession_slug_fkey"
             columns: ["slug"]
@@ -200,6 +209,37 @@ export interface Database {
         Relationships: [
           {
             foreignKeyName: "Site_orgId_fkey"
+            columns: ["orgId"]
+            referencedRelation: "Org"
+            referencedColumns: ["orgId"]
+          }
+        ]
+      }
+      SSOConnection: {
+        Row: {
+          domain: string
+          id: string
+          identifier: string
+          orgId: string
+          ssoProviderId: string
+        }
+        Insert: {
+          domain: string
+          id: string
+          identifier: string
+          orgId: string
+          ssoProviderId: string
+        }
+        Update: {
+          domain?: string
+          id?: string
+          identifier?: string
+          orgId?: string
+          ssoProviderId?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "SSOConnection_orgId_fkey"
             columns: ["orgId"]
             referencedRelation: "Org"
             referencedColumns: ["orgId"]

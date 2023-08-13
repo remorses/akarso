@@ -80,6 +80,7 @@ export async function getPortalSession({ hash, host, secret }) {
     return {
         payload: session,
         hash: hash,
+        
         expired: false as false,
         notFound: false as false,
     }

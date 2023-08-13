@@ -1,4 +1,5 @@
 "poor man's use server"
+import { v4 } from 'uuid'
 import { AkarsoCallbackParams } from 'akarso/src'
 import { NextRequest } from 'next/server'
 import {
@@ -10,6 +11,7 @@ import { SignJWT } from 'jose'
 import { getEdgeContext } from 'server-actions-for-next-pages/context'
 import { SupabaseManagementAPI } from 'supabase-management-js'
 import { DEMO_SITE_SECRET } from 'db/env'
+import { createSupabaseAdmin } from 'db/supabase'
 
 export { wrapMethod }
 
@@ -65,7 +67,7 @@ export async function createSSOProvider({
     if (!payload) {
         throw new Error(`missing payload`)
     }
-    const { callbackUrl, identifier, metadata } = payload
+    const { callbackUrl, identifier, metadata, orgId } = payload
     // TODO check if this domain is already used by another tenant, if yes and has different identifier, throw error
     // TODO think about dynamic code evaluation, tenants could find ways to talk with my database if they manage to run code here
     const url = new URL(callbackUrl)
@@ -79,17 +81,77 @@ export async function createSSOProvider({
     const client = new SupabaseManagementAPI({
         accessToken: supabaseAccessToken,
     })
-    const ssoProv = await client.createSSOProvider(supabaseProjectRef, {
-        type: 'saml',
-        domains: [domain],
-        metadata_xml: metadataXml,
-        metadata_url: metadataUrl,
-        // attribute_mapping: attributeMappings,
+    const supabase = createSupabaseAdmin()
+
+    const ssoProviderId = await Promise.resolve().then(async () => {
+        try {
+            const ssoProv = await client.createSSOProvider(supabaseProjectRef, {
+                type: 'saml',
+                domains: [domain],
+                metadata_xml: metadataXml,
+                metadata_url: metadataUrl,
+
+                // attribute_mapping: attributeMappings,
+            })
+            if (!ssoProv) {
+                throw new Error(`failed to create sso provider`)
+            }
+            const ssoProviderId = ssoProv.id
+            return ssoProviderId
+        } catch (error: any) {
+            if (!error.message.includes('already exists')) {
+                throw error
+            }
+
+            const { data: connections, error: connError } = await supabase
+                .from('SSOConnection')
+                .select()
+                .eq('domain', domain)
+                .eq('orgId', orgId)
+                .eq('identifier', identifier)
+                .limit(1)
+            if (connError) {
+                throw new Error(
+                    `failed to get akarso sso connection: ${error.message}`,
+                )
+            }
+            const [connection] = connections || []
+            if (!connection) {
+                throw new Error(
+                    `sso provider already exists but it was not created with akaraso or it has a different identifier`,
+                )
+            }
+            console.log(`sso provider already exists, updating`)
+            const providers = await client.getSSOProviders(supabaseProjectRef)
+            // TODO find previous SSO provider using passed down ssoProviderId instead of domain?
+            const prov = providers?.items.find(
+                (p) => p.domains?.find((x) => x.domain === domain),
+            )
+            if (!prov) {
+                throw new Error(`sso provider to update not found`)
+            }
+            const ssoProv = await client.updateSSOProvider(
+                supabaseProjectRef,
+                prov.id,
+                {
+                    metadata_xml: metadataXml,
+                    metadata_url: metadataUrl,
+                    // attribute_mapping: attributeMappings,
+                },
+            )
+            return prov.id
+        }
     })
-    if (!ssoProv) {
+    if (!ssoProviderId) {
         throw new Error(`failed to create sso provider`)
     }
-    const ssoProviderId = ssoProv.id
+    await supabase.from('SSOConnection').upsert({
+        domain,
+        id: v4(),
+        identifier,
+        orgId,
+        ssoProviderId,
+    })
 
     const callbackPayload: AkarsoCallbackParams = {
         metadata: (metadata as any) || {},

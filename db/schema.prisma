@@ -327,7 +327,9 @@ model Org {
     ssoProviderId String? @unique @db.Uuid
     sites         Site[]
 
-    ssoProvider sso_providers? @relation(fields: [ssoProviderId], references: [id], onDelete: Cascade)
+    ssoProvider       sso_providers?  @relation(fields: [ssoProviderId], references: [id], onDelete: Cascade)
+    portalConnections SSOConnection[]
+    portalSessions    PortalSession[]
 
     @@schema("public")
 }
@@ -397,9 +399,23 @@ model PortalSession {
     callbackUrl String
     identifier  String
     secret      String
+    orgId       String
+    org         Org      @relation(fields: [orgId], references: [orgId], onDelete: Cascade)
     metadata    Json     @default("{}")
     slug        String
     site        Site     @relation(fields: [slug], references: [slug], onDelete: Cascade)
 
+    @@schema("public")
+}
+
+model SSOConnection {
+    id            String @id @default(uuid())
+    domain        String
+    identifier    String
+    ssoProviderId String @unique
+    orgId         String
+    org           Org    @relation(fields: [orgId], references: [orgId], onDelete: Cascade)
+
+    @@unique([domain, identifier])
     @@schema("public")
 }
