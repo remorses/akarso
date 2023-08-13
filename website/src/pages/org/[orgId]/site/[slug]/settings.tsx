@@ -1,7 +1,5 @@
 import { useThrowingFn } from 'beskar/landing'
 import { getServerSideProps as commonServerProps } from './setup'
-import classNames from 'classnames'
-import { colord } from 'colord'
 
 import {
     GetServerSideProps,
@@ -11,24 +9,14 @@ import {
 import { requireAuth } from 'website/src/lib/ssr'
 
 import { Button, Input } from '@nextui-org/react'
-import { SiteData } from 'admin-portal/src/lib/ssr'
 import { Block } from 'beskar/dashboard'
 import { env } from 'db/env'
-import { prisma } from 'db/prisma'
-import { EyeIcon, FileLock2Icon, LockIcon, SaveIcon } from 'lucide-react'
+import { EyeIcon, LockIcon } from 'lucide-react'
 import { useRouter } from 'next/router'
-import { useEffect, useRef, useState } from 'react'
-import { BrowserWindow } from 'website/src/components/BrowserWindow'
+import { useState } from 'react'
 import { DashboardContainer } from 'website/src/components/DashboardContainer'
-import { UploadButton } from 'website/src/components/UploadButton'
-import { ColorPicker } from 'website/src/components/form'
-import { generateCodeSnippet } from 'website/src/lib/utils'
-import {
-    rotateSecret,
-    setupSSO,
-    updateSite,
-} from 'website/src/pages/api/functions'
 import { createSessionUrl } from 'website/src/lib/ssr-edge'
+import { rotateSecret, setupSSO } from 'website/src/pages/api/functions'
 
 export default function Page({
     sites,
