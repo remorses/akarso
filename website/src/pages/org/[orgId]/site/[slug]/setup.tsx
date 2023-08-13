@@ -17,7 +17,7 @@ import { prisma } from 'db/prisma'
 import { DashboardContainer } from 'website/src/components/DashboardContainer'
 import { generateCodeSnippet, isDev } from 'website/src/lib/utils'
 import { onboarding } from 'website/src/pages/api/functions'
-import { Block, BlockWithStep } from 'beskar/dashboard'
+import { Alert, Block, BlockWithStep } from 'beskar/dashboard'
 import { BrowserWindow } from 'website/src/components/BrowserWindow'
 import { Button } from '@nextui-org/react'
 import Link from 'next/link'
@@ -67,6 +67,16 @@ export default function Page({
                         When the user wants to connect SSO, redirect him to the
                         Akarso Admin Portal
                     </div>
+                    <Alert
+                        // type='warn'
+                        // @ts-ignore
+                        title={
+                            <div className='font-normal'>
+                                You should call the akarso functions only on
+                                server side
+                            </div>
+                        }
+                    />
                     <Code
                         language='js'
                         className='text-sm'
