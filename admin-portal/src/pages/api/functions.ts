@@ -6,11 +6,13 @@ import {
     wrapMethod,
 } from 'admin-portal/src/lib/ssr'
 import { SignJWT } from 'jose'
-import { getNodejsContext } from 'server-actions-for-next-pages/context'
+import { getEdgeContext } from 'server-actions-for-next-pages/context'
 import { SupabaseManagementAPI } from 'supabase-management-js'
 import { DEMO_SITE_SECRET } from 'db/env'
 
 export { wrapMethod }
+
+export const config = { runtime: 'edge' }
 
 export async function createSSOProvider({
     hash,
@@ -34,8 +36,8 @@ export async function createSSOProvider({
     if (!metadataUrl) {
         metadataUrl = undefined
     }
-    const { req, res } = await getNodejsContext()
-    const host = req?.headers.host
+    const { req, res } = await getEdgeContext()
+    const host = req?.headers.get('host')
     const sess = await getSiteDataFromHost({ host })
     if (sess.notFound) {
         throw new Error(`tenant not found`)
