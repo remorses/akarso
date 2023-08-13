@@ -15,12 +15,12 @@ If you want to let your users sign in with SSO via Supabase currently you have t
 
 -   Ask the user to create an application in their SSO provider (Google, Azure, etc)
 -   Ask them to send the metadata file or url
--   Run `supabase sso add` with their SSO metadata
+-   Execute the `supabase sso add` command with their SSO metadata
 -   Ask them to try to sign in
--   Troubleshoot why their SSO integration is not working (there are 100 reasons why it could not work)
--   Spend hours of support trying to fix their SSO integration, going back and forth
+-   Troubleshoot why their SSO integration is not working (there are 100 reasons why it could not work, wrong mappings, wrong ACS url, forgot to check an option in Google, etc)
+-   Spend hours of support trying to fix their SSO integration, going back and forth in support chat
 
-By instead using Akarso you can just add a button `Setup SSO` in your application that redirects to the Akarso Admin Portal where your users can setup SSO in a few clicks.
+By instead using Akarso you can just add a button `Setup SSO` in your app that redirects to the Akarso Admin Portal where your customers can setup SSO in a few clicks.
 
 Akarso will guide the user thorough the whole process and will collect the required information to setup SSO in Supabase.
 
@@ -45,3 +45,9 @@ Then akarso will redirect to your application with the SSO provider details (`ss
 
 -   Akarso will generate a `secret` for your Akarso account, Akarso can create Admin Portals only if you have this secret
 -   Akarso will redirect to your `callbackUrl` with a jwt `token` in the search params, you can use the `akarso` npm package to verify the token against your `secret` to make sure the request comes from Akarso. The token payload contains the SSO provider id and custom `identifier`
+
+## TODO
+
+-   [ ] support for boxyhq
+-   [ ] ability to update the SSO connection metadata if it already exists
+-   [ ] add function to delete the SSO connection to `akarso` npm package
