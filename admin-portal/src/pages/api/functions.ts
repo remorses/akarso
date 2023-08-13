@@ -13,6 +13,7 @@ export { wrapMethod }
 
 export async function createSSOProvider({
     token,
+    domain,
     metadataXml = undefined as string | undefined,
     metadataUrl = undefined as string | undefined,
     attributeMappings = {},
@@ -47,7 +48,9 @@ export async function createSSOProvider({
     if (!payload) {
         throw new Error(`missing payload`)
     }
-    const { callbackUrl, domain, metadata } = payload
+    const { callbackUrl, identifier, metadata } = payload
+    // TODO check if this domain is already used by another tenant, if yes and has different identifier, throw error
+    // TODO think about dynamic code evaluation, tenants could find ways to talk with my database if they manage to run code here
     const url = new URL(callbackUrl)
 
     if (!supabaseAccessToken) {

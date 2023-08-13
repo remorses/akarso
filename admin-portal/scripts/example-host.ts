@@ -1,8 +1,8 @@
-import { ProviderSetupParams } from 'admin-portal/src/lib/hooks'
+import { TokenData } from 'admin-portal/src/lib/hooks'
 import { SignJWT } from 'jose'
 
 async function main() {
-    const payload: ProviderSetupParams = {
+    const payload: TokenData = {
         callbackUrl: 'http://localhost:3000/api/sso-callback',
         domain: 'localhost',
         metadata: {

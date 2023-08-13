@@ -15,7 +15,11 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import Link from 'next/link'
 import { Provider, providers } from 'admin-portal/src/lib/providers'
-import { metadataUrlAtom, metadataXmlAtom } from 'admin-portal/src/lib/atoms'
+import {
+    domainAtom,
+    metadataUrlAtom,
+    metadataXmlAtom,
+} from 'admin-portal/src/lib/atoms'
 import { createStepPath } from 'admin-portal/src/lib/utils'
 import { Container } from 'admin-portal/src/components/Container'
 import { useSetupParams, useThrowingFn } from 'admin-portal/src/lib/hooks'
@@ -29,7 +33,7 @@ export default function Page({ params: { provider, step, host, token } }) {
     const stepObj = p.steps[step - 1]
     const metadataXml = useStore(metadataXmlAtom)
     const { callbackUrl } = useSetupParams()
-    
+
     const metadataUrl = useStore(metadataUrlAtom)
 
     const { fn: create, isLoading } = useThrowingFn({
@@ -37,6 +41,7 @@ export default function Page({ params: { provider, step, host, token } }) {
             const { url } = await createSSOProvider({
                 token,
                 metadataUrl,
+                domain: domainAtom.get(),
                 metadataXml,
             })
             window.location.href = url
@@ -80,7 +85,6 @@ export default function Page({ params: { provider, step, host, token } }) {
                         ) : (
                             <Button
                                 isLoading={isLoading}
-                                
                                 onClick={create}
                                 endContent={<ArrowRightIcon className='w-4' />}
                             >

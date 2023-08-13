@@ -2,7 +2,7 @@ import { ChooseProvider } from '@/components/ChooseProvider'
 import { cookies } from 'next/headers'
 import { ProviderSetupProvider } from 'admin-portal/src/components/context'
 import {
-    ProviderSetupParams,
+    TokenData,
     providerSetupContext,
 } from 'admin-portal/src/lib/hooks'
 import {

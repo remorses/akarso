@@ -29,11 +29,11 @@ export function Domain() {
                     e.preventDefault()
                     router.push(`/token/${token}/select-provider`)
                 }}
-                className='flex w-[600px] self-center flex-col gap-6'
+                className='flex w-[500px] self-center flex-col gap-6'
             >
                 <div className=''>What is your SSO domain?</div>
                 <Input
-                    onValueChange={(x) => domainAtom.set(x)}
+                    onValueChange={(x) => domainAtom.set(x)} // TODO validate domain
                     value={domain}
                     type='text'
                     placeholder='example.com'

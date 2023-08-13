@@ -5,14 +5,14 @@ import React, { useRef, useState } from 'react'
 import { createContext, useContext, useEffect } from 'react'
 import toast from 'react-hot-toast'
 
-export type ProviderSetupParams = {
+export type TokenData = {
     callbackUrl: string
+    identifier: string
     metadata: Record<string, string>
-    domain: string
 }
 
 export const providerSetupContext = createContext<
-    | (ProviderSetupParams & { token: string } & Pick<
+    | (TokenData & { token: string } & Pick<
               SiteData,
               'color' | 'logoUrl'
           >)
