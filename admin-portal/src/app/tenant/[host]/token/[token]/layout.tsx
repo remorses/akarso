@@ -16,25 +16,24 @@ export default async function Layout({
     params: { token: hash, host },
     children,
 }) {
+    const data = await getSiteDataFromHost({
+        host,
+    })
+    if (data.notFound) {
+        return notFound()
+    }
     const {
         secret,
         notFound: fourOFour,
         supabaseAccessToken,
         supabaseProjectRef,
         ...publicSiteData
-    } = await getSiteDataFromHost({
-        host,
-    })
-    if (fourOFour) {
-        return notFound()
-    }
+    } = data
 
     // console.log({ token })
-
     const { payload, token, expired } = await getPayloadForToken({
         hash,
         secret,
-        cookies,
     })
     const context = { ...payload, ...publicSiteData, hash, token }
     if (expired) {

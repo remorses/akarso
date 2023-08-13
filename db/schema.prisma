@@ -384,7 +384,22 @@ model Site {
     relayState String? @default("")
     startUrl   String  @default("")
 
-    ssoMappings Json @default("{}")
+    ssoMappings   Json            @default("{}")
+    PortalSession PortalSession[]
+
+    @@schema("public")
+}
+
+model PortalSession {
+    hash        String   @id @default(cuid())
+    createdAt   DateTime @default(now())
+    expiresAt   DateTime
+    callbackUrl String
+    identifier  String
+    secret      String
+    metadata    Json     @default("{}")
+    slug        String
+    site        Site     @relation(fields: [slug], references: [slug], onDelete: Cascade)
 
     @@schema("public")
 }

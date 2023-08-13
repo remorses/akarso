@@ -19,7 +19,9 @@ export function wrapMethod(fn) {
         }
     }
 }
-export type SiteData = Awaited<ReturnType<typeof getSiteDataFromHost>>
+export type SiteData = Awaited<ReturnType<typeof getSiteDataFromHost>> & {
+    notFound: false
+}
 
 export async function getSiteDataFromHost({ host }) {
     host = decodeURIComponent(host)
@@ -27,73 +29,43 @@ export async function getSiteDataFromHost({ host }) {
     const slug = host.replace('.' + env.NEXT_PUBLIC_TENANTS_DOMAIN, '')
     const isSlug = host.includes(env.NEXT_PUBLIC_TENANTS_DOMAIN)
     // console.log({ slug, isSlug, host })
-    const { data: site, error } = isSlug
-        ? await supabase.from('Site').select().eq('slug', slug).single()
-        : await supabase.from('Site').select().eq('customDomain', host).single()
+    const { data, error } = isSlug
+        ? await supabase.from('Site').select().eq('slug', slug).limit(1)
+        : await supabase.from('Site').select().eq('customDomain', host).limit(1)
+    const [site] = data || []
     if (error) {
         throw new Error(
-            `failed to get tenant data from host: ${host}: ${error.message}`,
+            `failed to get tenant data from host: ${host} and ${slug}: ${error.message}`,
         )
     }
     if (!site) {
-        return { notFound: true as true }
+        return { notFound: true as const }
     }
-    let {
-        color,
-        secret,
-        acsUrl,
-        entityId,
-        startUrl,
-        websiteUrl,
-        relayState,
-        logoUrl,
-        supabaseAccessToken,
-        supabaseProjectRef,
-    } = site!
 
     return {
-        notFound: false as false,
-        secret,
-        color: color as string,
-        logoUrl,
-        supabaseAccessToken,
-        supabaseProjectRef,
-        acsUrl,
-        entityId,
-        startUrl,
-        websiteUrl,
-        relayState,
+        notFound: false as const,
+        ...site!,
     }
 }
 
-export async function getPayloadForToken({ hash, cookies, secret }) {
-    const token = cookies().get(hash)?.value
-    if (!token) {
-        throw new Error(
-            `cannot find token for ${hash} in cookies ${[...cookies().keys()]}`,
-        )
-    }
+export async function getPayloadForToken({ hash, secret }) {
     secret = decodeURIComponent(secret)
     // console.log({ secret })
-    try {
-        const verified = await jwtVerify(
-            decodeURIComponent(token),
-            new TextEncoder().encode(secret),
-        )
-        // console.log({ verified })
-        const payload: TokenData = verified.payload as any
-        return { payload, token, secret, hash, expired: false }
-    } catch (error: any) {
-        if (error.message.includes('"exp"')) {
-            const payload = decodeJwt<TokenData>(token)
-
-            return {
-                expired: true,
-                token,
-                hash,
-                payload,
-            }
-        }
-        throw error
+    const supabase = createSupabaseAdmin()
+    const { data, error } = await supabase
+        .from('PortalSession')
+        .select()
+        .eq('hash', hash)
+        .limit(1)
+    if (error) {
+        throw new Error(`failed to get payload for hash: ${error.message}`)
     }
+    const [session] = data || []
+
+    if (!session || new Date(session.expiresAt) < new Date()) {
+        return {
+            expired: true as true,
+        }
+    }
+    return { payload: session, token: hash, expired: false as false }
 }

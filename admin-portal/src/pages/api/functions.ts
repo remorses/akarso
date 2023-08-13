@@ -35,24 +35,15 @@ export async function createSSOProvider({
     }
     const { req, res } = await getNodejsContext()
     const host = req?.headers.host
-    const { secret, notFound, supabaseAccessToken, supabaseProjectRef } =
-        await getSiteDataFromHost({ host })
-    if (notFound) {
+    const sess = await getSiteDataFromHost({ host })
+    if (sess.notFound) {
         throw new Error(`tenant not found`)
     }
+    const { secret, notFound, supabaseAccessToken, supabaseProjectRef } = sess
     // token is used as authentication, if user has this token it means he can setup sso for this domain, this means generated urls should expire and should not be shared in public, otherwise anyone could override an SSO connection
     const { payload, expired } = await getPayloadForToken({
         hash,
         secret,
-        cookies() {
-            return new Map(
-                Object.entries((req as any as NextRequest).cookies).map(
-                    ([key, value]) => {
-                        return [key, { value }]
-                    },
-                ),
-            )
-        },
     })
     if (expired) {
         throw new Error(`Admin portal session expired, create a new one`)

@@ -102,6 +102,46 @@ export interface Database {
           }
         ]
       }
+      PortalSession: {
+        Row: {
+          callbackUrl: string
+          createdAt: string
+          expiresAt: string
+          hash: string
+          identifier: string
+          metadata: Json
+          secret: string
+          slug: string
+        }
+        Insert: {
+          callbackUrl: string
+          createdAt?: string
+          expiresAt: string
+          hash: string
+          identifier: string
+          metadata?: Json
+          secret: string
+          slug: string
+        }
+        Update: {
+          callbackUrl?: string
+          createdAt?: string
+          expiresAt?: string
+          hash?: string
+          identifier?: string
+          metadata?: Json
+          secret?: string
+          slug?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "PortalSession_slug_fkey"
+            columns: ["slug"]
+            referencedRelation: "Site"
+            referencedColumns: ["slug"]
+          }
+        ]
+      }
       Site: {
         Row: {
           acsUrl: string
