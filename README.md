@@ -7,7 +7,7 @@
     <br/>
 </div>
 
-Akarso is an alternative to the [WorkOS admin portal](https://workos.com/admin-portal) built on top of Supabase.
+Akarso is an alternative to the [WorkOS Admin Portal](https://workos.com/admin-portal) built on top of Supabase.
 
 ## Why
 
@@ -31,4 +31,4 @@ Then akarso will redirect to your application with the SSO provider details (`ss
 -   Sign up at https://akarso.co
 -   Create and Admin Portal, choosing a slug and adding your supabase access token
 -   Akarso will host an admin portal at `slug.tenants.akarso.co` where your users can setup SSO with your app
--   You can redirect to the Admin Portal from your application with the `akarso` npm package, read how to setup it [here]()
+-   You can redirect to the Admin Portal from your application with the `akarso` npm package, read how to setup it [here](https://akarso.co)
