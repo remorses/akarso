@@ -52,11 +52,11 @@ export default function Page({
     return (
         <DashboardContainer sites={sites}>
             <div className='text-3xl font-bold'>Settings</div>
-            <Block>
+            <Block className='space-y-6'>
                 <Button onClick={setup} isLoading={isLoadingSSO}>
                     Setup SSO
                 </Button>
-
+                <hr className='w-full' />
                 <div className=''>Your Akarso Secret</div>
                 <div className='space-y-4'>
                     <Input
@@ -78,6 +78,7 @@ export default function Page({
                         }
                     />
                 </div>
+                <hr className='w-full' />
                 <div className=''>Update Akarso Secret</div>
                 <Alert
                     type='warn'
