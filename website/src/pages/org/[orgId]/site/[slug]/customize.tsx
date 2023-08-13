@@ -80,6 +80,7 @@ export default function Page({
                         <div className='grow'></div>
                         <Button
                             endContent={<SaveIcon className='w-4' />}
+                            color='primary'
                             isLoading={isLoading}
                             onClick={update}
                             className=''
