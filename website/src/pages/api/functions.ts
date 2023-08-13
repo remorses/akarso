@@ -110,7 +110,7 @@ export async function getSupabaseProjects({
     )
 }
 
-export async function setupSSO({ orgId }) {
+export async function setupSSO({ orgId, slug }) {
     const { req, res } = await getNodejsContext()
     const { userId } = await requireAuth({ req, res })
     if (!userId) {
@@ -135,7 +135,7 @@ export async function setupSSO({ orgId }) {
         callbackUrl: `${env.NEXT_PUBLIC_URL}/api/akarso-callback`,
         identifier: orgId,
         secret: env.AKARSO_SECRET!,
-        metadata: { userId },
+        metadata: { userId, slug },
     })
     return url
 }

@@ -28,7 +28,7 @@ export default function Page({
     const { slug, orgId } = router.query as any
     const { fn: setup, isLoading: isLoadingSSO } = useThrowingFn({
         async fn() {
-            const url = await setupSSO({ orgId })
+            const url = await setupSSO({ orgId, slug })
             window.open(url, '_blank')
         },
     })
