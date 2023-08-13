@@ -8,6 +8,7 @@ import {
 import { SignJWT } from 'jose'
 import { getNodejsContext } from 'server-actions-for-next-pages/context'
 import { SupabaseManagementAPI } from 'supabase-management-js'
+import { DEMO_SITE_SECRET } from 'db/env'
 
 export { wrapMethod }
 
@@ -40,6 +41,12 @@ export async function createSSOProvider({
         throw new Error(`tenant not found`)
     }
     const { secret, supabaseAccessToken, supabaseProjectRef } = sess
+    if (secret == DEMO_SITE_SECRET) {
+        console.warn(`DEMO_SITE_SECRET, returning`)
+        return {
+            url: 'https://akarso.co',
+        }
+    }
     // hash is used as authentication, if user has this hash it means he can setup sso for this domain, this means generated urls should expire and should not be shared in public, otherwise anyone could override an SSO connection
     const { payload, expired, notFound } = await getPortalSession({
         hash,

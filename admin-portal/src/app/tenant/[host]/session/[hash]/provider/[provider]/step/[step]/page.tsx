@@ -31,7 +31,8 @@ export default function Page({ params: { provider, step, host, hash: hash } }) {
     const p = providers[provider]
     const stepsLength = p.steps.length
     const isEnd = step - 1 === stepsLength - 1
-    const stepObj = p.steps[step - 1]
+    const stepObj = p.steps[step - 1] || {}
+
     const metadataXml = useStore(metadataXmlAtom)
     const metadataUrl = useStore(metadataUrlAtom)
     const { callbackUrl } = useSetupParams()
@@ -59,6 +60,9 @@ export default function Page({ params: { provider, step, host, hash: hash } }) {
             !metadataUrl
         setDisabled(disabled)
     }, [metadataUrl, metadataXml])
+    if (!stepObj) {
+        return null
+    }
     // console.log({ disabled, metadataUrl, metadataXml })
     return (
         <Container>
@@ -75,7 +79,7 @@ export default function Page({ params: { provider, step, host, hash: hash } }) {
                 <div className='flex h-full justify-between gap-12'>
                     <div className='flex flex-col gap-6 shrink-0 leading-relaxed max-w-[800px]'>
                         <h1 className='font-semibold text-2xl'>
-                            {stepObj.title}
+                            {stepObj?.title}
                         </h1>
                         {stepObj.content}
                         <div className='flex'>

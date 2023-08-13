@@ -13,6 +13,7 @@ export const env = {
     // STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
     NEXT_PUBLIC_TENANTS_DOMAIN: process.env.NEXT_PUBLIC_TENANTS_DOMAIN,
     REVALIDATE_SECRET: process.env.REVALIDATE_SECRET,
+    DEMO_ORG_ID: process.env.DEMO_ORG_ID,
 }
 
 if (typeof window === 'undefined') {
@@ -32,3 +33,5 @@ for (const k in env) {
 export const uploadBucketName = 'user-uploads'
 
 export const UPLOADS_BASE_URL = `${env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${uploadBucketName}/`
+
+export const DEMO_SITE_SECRET = 'DEMO_SITE_SECRET'

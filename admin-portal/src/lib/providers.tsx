@@ -335,8 +335,7 @@ export function Img({ src, ...rest }) {
                     zoomMargin={40}
                     // wrapStyle={style}
                 >
-                    <Image
-                        as={NextImage}
+                    <NextImage
                         className={classNames(
                             'overflow-hidden relative shadow-xl',
                             url.includes('boxy') && ' min-w-[105%]',

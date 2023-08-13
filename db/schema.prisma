@@ -370,7 +370,7 @@ model Site {
     createdAt           DateTime @default(now())
     supabaseAccessToken String?
     supabaseProjectRef  String?
-    secret              String
+    secret              String   @unique
     orgId               String
     org                 Org      @relation(fields: [orgId], references: [orgId], onDelete: Cascade)
     slug                String   @unique

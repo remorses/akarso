@@ -6,8 +6,6 @@ import { NextResponse } from 'next/server'
 import { HTMLRewriter } from 'htmlrewriter'
 import { env } from 'db/env'
 
-
-
 function rewriterForFramerSite(siteUrl, canonicalPath) {
     return function (req: NextRequest) {
         return new HTMLRewriter()
@@ -21,8 +19,8 @@ function rewriterForFramerSite(siteUrl, canonicalPath) {
 
                     if (
                         ![
-                            'preview.holocron.so',
                             'preview.akarso.co',
+                            'akarso.co',
                             new URL(siteUrl).host,
                         ].some((host) => past.host === host)
                     ) {
@@ -46,8 +44,8 @@ function rewriterForFramerSite(siteUrl, canonicalPath) {
                         window.addEventListener('load', () => {
                             setTimeout(() => {
                                     document.querySelectorAll('a[href="https://framer.com/"]').forEach((el) => {
-                                    el.remove()
-                                })
+                                        el.href = 'https://framer.com?via=morse';
+                                    })
                             }, 100)
                         })
                     </script>
@@ -73,7 +71,7 @@ function rewriterForFramerSite(siteUrl, canonicalPath) {
     }
 }
 
-const landingPageFramerUrl = 'https://impatient-benefits-535602.framer.app/'
+const landingPageFramerUrl = 'https://excited-favorites-324288.framer.app'
 const framerSites = {
     [landingPageFramerUrl]: {
         rewriter: rewriterForFramerSite(landingPageFramerUrl, '/'),
@@ -107,7 +105,6 @@ export default async function middleware(req: NextRequest, ev: NextFetchEvent) {
     try {
         const { pathname = '', search, host } = req.nextUrl
 
-        
         if (pathname === '/home') {
             const rewriter = rewriterForFramerSite(landingPageFramerUrl, '/')
             const res = await fetch(
@@ -116,7 +113,6 @@ export default async function middleware(req: NextRequest, ev: NextFetchEvent) {
             )
             return rewriter(req).transform(res)
         }
-
 
         const isBrowserEntry =
             req.method === 'GET' &&
