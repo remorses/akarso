@@ -14,6 +14,7 @@ export const env = {
     NEXT_PUBLIC_TENANTS_DOMAIN: process.env.NEXT_PUBLIC_TENANTS_DOMAIN,
     REVALIDATE_SECRET: process.env.REVALIDATE_SECRET,
     DEMO_ORG_ID: process.env.DEMO_ORG_ID,
+    AKARSO_SECRET: process.env.AKARSO_SECRET,
 }
 
 if (typeof window === 'undefined') {

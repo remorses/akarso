@@ -70,7 +70,7 @@ export function DashboardContainer({ children, sites }) {
                         variant='light'
                         disabledKeys={[
                             // base + '/customize', //
-                            base + '/settings', //
+                            // base + '/settings', //
                             base + '/domain', //
                         ]}
                         aria-label='nav'

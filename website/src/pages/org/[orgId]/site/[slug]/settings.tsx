@@ -1,5 +1,128 @@
-import Page, { getServerSideProps } from './setup'
+import { useThrowingFn } from 'beskar/landing'
+import { getServerSideProps as commonServerProps } from './setup'
+import classNames from 'classnames'
+import { colord } from 'colord'
 
-export default Page
+import {
+    GetServerSideProps,
+    GetServerSidePropsContext,
+    InferGetServerSidePropsType,
+} from 'next'
+import { requireAuth } from 'website/src/lib/ssr'
 
-export { getServerSideProps }
+import { Button, Input } from '@nextui-org/react'
+import { SiteData } from 'admin-portal/src/lib/ssr'
+import { Block } from 'beskar/dashboard'
+import { env } from 'db/env'
+import { prisma } from 'db/prisma'
+import { EyeIcon, FileLock2Icon, LockIcon, SaveIcon } from 'lucide-react'
+import { useRouter } from 'next/router'
+import { useEffect, useRef, useState } from 'react'
+import { BrowserWindow } from 'website/src/components/BrowserWindow'
+import { DashboardContainer } from 'website/src/components/DashboardContainer'
+import { UploadButton } from 'website/src/components/UploadButton'
+import { ColorPicker } from 'website/src/components/form'
+import { generateCodeSnippet } from 'website/src/lib/utils'
+import {
+    rotateSecret,
+    setupSSO,
+    updateSite,
+} from 'website/src/pages/api/functions'
+import { createSessionUrl } from 'website/src/lib/ssr-edge'
+
+export default function Page({
+    sites,
+    site,
+    host,
+    url,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
+    const router = useRouter()
+    const { slug, orgId } = router.query as any
+    const { fn: setup, isLoading: isLoadingSSO } = useThrowingFn({
+        async fn() {
+            const url = await setupSSO({ orgId })
+            window.open(url, '_blank')
+        },
+    })
+    const { fn: rotate, isLoading: isLoadingSecret } = useThrowingFn({
+        async fn() {
+            const { secret } = await rotateSecret({ slug, orgId })
+            setSecret(secret)
+            setIsVisible(true)
+        },
+    })
+    const [secret, setSecret] = useState(site.secret)
+    const [isVisible, setIsVisible] = useState(false)
+
+    const toggleVisibility = () => setIsVisible(!isVisible)
+
+    // params to take: supabase token, site slug (will also be org name, ), logo, and domain
+    return (
+        <DashboardContainer sites={sites}>
+            <div className='text-3xl font-bold'>Settings</div>
+            <Block>
+                <Button onClick={setup} isLoading={isLoadingSSO}>
+                    Setup SSO
+                </Button>
+
+                <div className=''>Your Akarso Secret</div>
+                <div className='space-y-4'>
+                    <Input
+                        isReadOnly
+                        type={isVisible ? 'text' : 'password'}
+                        value={secret}
+                        endContent={
+                            <button
+                                className='focus:outline-none'
+                                type='button'
+                                onClick={toggleVisibility}
+                            >
+                                {isVisible ? (
+                                    <LockIcon className='text-2xl text-default-400 pointer-events-none' />
+                                ) : (
+                                    <EyeIcon className='text-2xl text-default-400 pointer-events-none' />
+                                )}
+                            </button>
+                        }
+                    />
+                </div>
+                <div className=''>Update Akarso Secret</div>
+                <Button onClick={rotate} isLoading={isLoadingSecret}>
+                    Rotate Secret
+                </Button>
+            </Block>
+        </DashboardContainer>
+    )
+}
+
+export const getServerSideProps = (async (ctx: GetServerSidePropsContext) => {
+    const { supabase, session } = await requireAuth(ctx)
+    const userId = session?.user?.id
+    const { orgId, slug } = ctx.query as any
+
+    const { props, notFound, redirect: red } = await commonServerProps(ctx)
+    if (red) {
+        return { redirect: red }
+    }
+    if (notFound) {
+        return { notFound }
+    }
+    const { site, sites } = props
+
+    let host = `${site.slug}.${env.NEXT_PUBLIC_TENANTS_DOMAIN}`
+    const { url } = await createSessionUrl({
+        secret: site.secret,
+        callbackUrl: new URL(`/`, env.NEXT_PUBLIC_URL).toString(),
+        identifier: '',
+    })
+
+    // console.log('host', host, url)
+    return {
+        props: {
+            sites,
+            host,
+            site,
+            url,
+        },
+    }
+}) satisfies GetServerSideProps

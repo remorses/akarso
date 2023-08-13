@@ -1,4 +1,8 @@
 "poor man's use server"
+import {
+    createAkarsoAdminPortalSession,
+    getAkarsoCallbackResult,
+} from 'akarso/src'
 import { v4 } from 'uuid'
 import {
     generateSecretValue,
@@ -13,7 +17,7 @@ import { prisma } from 'db/prisma'
 import { AppError, KnownError } from 'website/src/lib/errors'
 import { slugKebabCase } from 'website/src/lib/utils'
 import { createSupabaseAdmin } from 'db/supabase'
-import { uploadBucketName } from 'db/env'
+import { env, uploadBucketName } from 'db/env'
 
 export { wrapMethod }
 
@@ -104,6 +108,71 @@ export async function getSupabaseProjects({
             }
         }) || []
     )
+}
+
+export async function setupSSO({ orgId }) {
+    const { req, res } = await getNodejsContext()
+    const { userId } = await requireAuth({ req, res })
+    if (!userId) {
+        throw new AppError('Missing userId')
+    }
+    const org = await prisma.org.findFirst({
+        where: {
+            orgId,
+            users: {
+                some: {
+                    userId,
+                    role: 'ADMIN',
+                },
+            },
+        },
+    })
+    if (!org) {
+        throw new AppError(`org not found '${orgId}'`)
+    }
+
+    const { url } = await createAkarsoAdminPortalSession({
+        callbackUrl: `${env.NEXT_PUBLIC_URL}/api/akarso-callback`,
+        identifier: orgId,
+        secret: env.AKARSO_SECRET!,
+        metadata: { userId },
+    })
+    return url
+}
+
+export async function rotateSecret({ orgId, slug }) {
+    const { req, res } = await getNodejsContext()
+    const { userId } = await requireAuth({ req, res })
+    if (!userId) {
+        throw new AppError('Missing userId')
+    }
+    const site = await prisma.site.findFirst({
+        where: {
+            slug,
+            org: {
+                orgId,
+                users: {
+                    some: {
+                        userId,
+                        role: 'ADMIN',
+                    },
+                },
+            },
+        },
+    })
+    if (!site) {
+        throw new AppError(`site not found '${orgId}'`)
+    }
+    const secret = generateSecretValue()
+    await prisma.site.update({
+        where: {
+            slug,
+        },
+        data: {
+            secret,
+        },
+    })
+    return { secret }
 }
 
 export async function createUploadUrl({ filename }) {

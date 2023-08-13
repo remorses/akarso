@@ -148,12 +148,10 @@ function updatePageProps(newPageProps: Partial<SiteData>, iframeRef) {
 }
 
 export const getServerSideProps = (async (ctx: GetServerSidePropsContext) => {
-    const { supabase, session, redirect } = await requireAuth(ctx)
+    const { supabase, session } = await requireAuth(ctx)
     const userId = session?.user?.id
     const { orgId, slug } = ctx.query as any
-    if (redirect) {
-        return { redirect }
-    }
+
     const { props, notFound, redirect: red } = await commonServerProps(ctx)
     if (red) {
         return { redirect: red }
