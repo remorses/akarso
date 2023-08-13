@@ -45,7 +45,13 @@ export async function createSSOProvider({
         hash,
         secret,
         cookies() {
-            return new Map(Object.entries((req as any as NextRequest).cookies))
+            return new Map(
+                Object.entries((req as any as NextRequest).cookies).map(
+                    ([key, value]) => {
+                        return [key, { value }]
+                    },
+                ),
+            )
         },
     })
     if (expired) {

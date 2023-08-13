@@ -69,8 +69,9 @@ export async function getSiteDataFromHost({ host }) {
 export async function getPayloadForToken({ hash, cookies, secret }) {
     const token = cookies().get(hash)?.value
     if (!token) {
-        console.log('no token for hash', hash, cookies()?.getAll?.())
-        return {}
+        throw new Error(
+            `cannot find token for ${hash} in cookies ${[...cookies().keys()]}`,
+        )
     }
     secret = decodeURIComponent(secret)
     // console.log({ secret })
@@ -79,6 +80,7 @@ export async function getPayloadForToken({ hash, cookies, secret }) {
             decodeURIComponent(token),
             new TextEncoder().encode(secret),
         )
+        // console.log({ verified })
         const payload: TokenData = verified.payload as any
         return { payload, token, secret, hash, expired: false }
     } catch (error: any) {

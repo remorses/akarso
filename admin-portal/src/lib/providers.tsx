@@ -204,9 +204,11 @@ export const providers = {
                 title: `Configure Application`,
                 content: (
                     <>
-                        <div>
+                        <div className=''>
                             Enter the following values in the SAML Settings
                             section on the next screen:
+                        </div>
+                        <div className='space-y-3'>
                             <Field k='acsUrl' label='Single sign on URL' />
                             <Field
                                 label='Audience URI (SP Entity ID)'
@@ -215,15 +217,26 @@ export const providers = {
                             <Field label='Default RelayState' k='relayState' />
                             <Field
                                 label='Use this for Recipient URL and Destination URL'
+                                noCopy
                                 value='✔️'
                             />
-                            <Field label='Default RelayState' k='relayState' />
+                            <Field
+                                noCopy
+                                label='Default RelayState'
+                                k='relayState'
+                            />
                             <Field
                                 label='Name ID format'
+                                noCopy
                                 value='EmailAddress'
                             />
-                            <Field label='Application username' value='Email' />
                             <Field
+                                noCopy
+                                label='Application username'
+                                value='Email'
+                            />
+                            <Field
+                                noCopy
                                 label='Update application username on'
                                 value='Create and update'
                             />

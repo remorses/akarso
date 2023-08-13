@@ -4,7 +4,7 @@ import { Lexend } from 'next/font/google'
 import { NextUIProvider } from '@nextui-org/react'
 import { Providers } from 'admin-portal/src/components/context'
 
-const font = Lexend({ subsets: ['latin'] })
+const font = Lexend({ subsets: ['latin'], weight: ['400', '500', '600'] })
 
 export const metadata: Metadata = {
     title: 'SSO Admin Portal',

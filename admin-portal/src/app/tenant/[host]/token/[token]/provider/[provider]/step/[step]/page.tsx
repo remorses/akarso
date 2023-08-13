@@ -12,7 +12,7 @@ import Image from 'next/image'
 
 import { Radio, cn, Checkbox, RadioGroup, Button } from '@nextui-org/react'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Provider, providers } from 'admin-portal/src/lib/providers'
 import {
@@ -51,16 +51,20 @@ export default function Page({
             window.location.href = url
         },
     })
-    const disabled =
-        'addsMetadata' in stepObj &&
-        stepObj.addsMetadata &&
-        !metadataXml &&
-        !metadataUrl
-    const buttonClass = disabled && 'pointer-events-none opacity-70'
+    const [disabled, setDisabled] = useState(true)
+    useEffect(() => {
+        const disabled =
+            'addsMetadata' in stepObj &&
+            stepObj.addsMetadata &&
+            !metadataXml &&
+            !metadataUrl
+        setDisabled(disabled)
+    }, [metadataUrl, metadataXml])
+    // console.log({ disabled, metadataUrl, metadataXml })
     return (
         <Container>
             <div className='flex h-full justify-between gap-12'>
-                <div className='flex flex-col gap-4 shrink-0  leading-relaxed max-w-[800px]'>
+                <div className='flex flex-col gap-6 shrink-0 leading-relaxed max-w-[800px]'>
                     <h1 className='font-semibold text-2xl'>{stepObj.title}</h1>
                     {stepObj.content}
                     <div className='flex'>
@@ -80,7 +84,8 @@ export default function Page({
                                     endContent={
                                         <ArrowRightIcon className='w-4' />
                                     }
-                                    className={cn(buttonClass)}
+                                    key={disabled}
+                                    isDisabled={disabled}
                                     color='primary'
                                     // color='success'
                                     // variant='flat'
@@ -92,7 +97,9 @@ export default function Page({
                             <Button
                                 isLoading={isLoading}
                                 onClick={create}
-                                className={cn(buttonClass)}
+                                color='primary'
+                                key={disabled}
+                                isDisabled={disabled}
                                 endContent={<ArrowRightIcon className='w-4' />}
                             >
                                 Finish Setup
