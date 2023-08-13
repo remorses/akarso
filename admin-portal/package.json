@@ -13,8 +13,8 @@
     "dependencies": {
         "@nanostores/persistent": "^0.9.1",
         "@nanostores/react": "^0.7.1",
-        "@nextui-org/react": "^2.0.14",
-        "@nextui-org/theme": "^2.0.4",
+        "@nextui-org/react": "^2.0.18",
+        "@nextui-org/theme": "^2.0.5",
         "@supabase/supabase-js": "^2.32.0",
         "@types/node": "20.4.9",
         "@types/react": "18.2.20",

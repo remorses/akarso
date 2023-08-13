@@ -5,14 +5,14 @@
     "scripts": {
         "dev": "doppler run -c dev -- pnpm next dev -p 2020",
         "build": "doppler run -c dev -- next build",
-"vercel-build": "next build",
+        "vercel-build": "next build",
         "start": "doppler run -c dev -- next start",
         "lint": "next lint"
     },
     "dependencies": {
         "@nanostores/react": "^0.7.1",
-        "@nextui-org/react": "^2.0.14",
-        "@nextui-org/theme": "^2.0.4",
+        "@nextui-org/react": "^2.0.18",
+        "@nextui-org/theme": "^2.0.5",
         "@sentry/nextjs": "^7.63.0",
         "@supabase/auth-helpers-nextjs": "^0.7.4",
         "@supabase/auth-helpers-react": "^0.4.2",
