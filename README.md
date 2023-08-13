@@ -29,9 +29,9 @@ Then akarso will redirect to your application with the SSO provider details (`ss
 ## How to use Akarso
 
 -   Sign up at https://akarso.co
--   Create and Admin Portal, choosing a slug and adding your supabase access token
--   Akarso will host an admin portal at `slug.tenants.akarso.co` where your users can setup SSO with your app
--   You can redirect to the Admin Portal from your application with the `akarso` npm package, read how to setup it [here](https://akarso.co)
+-   Create and Admin Portal, choose a slug and add your supabase access token
+-   Akarso will host an admin portal at `slug.tenants.akarso.co` where your users can setup SSO to your app
+-   You can redirect to the Admin Portal from your application with the `akarso` npm package, read how to setup it [in the dashboard](https://akarso.co)
 
 ## How it works
 
