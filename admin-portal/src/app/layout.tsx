@@ -6,6 +6,8 @@ import { Providers } from 'admin-portal/src/components/context'
 
 const font = Lexend({ subsets: ['latin'], weight: ['400', '500', '600'] })
 
+export const runtime = 'edge'
+
 export const metadata: Metadata = {
     title: 'SSO Admin Portal',
     description: 'Manage your SSO connection',
