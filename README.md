@@ -2,7 +2,7 @@
     <br/>
     <br/>
     <h3>akarso</h3>
-    <p>Admin portal to make it easy for you user to setup SSO</p>
+    <p>Admin portal to make it easy for you users to setup SSO</p>
     <br/>
     <br/>
 </div>
