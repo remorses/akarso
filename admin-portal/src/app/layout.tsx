@@ -1,10 +1,10 @@
 import './globals.css'
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Lexend } from 'next/font/google'
 import { NextUIProvider } from '@nextui-org/react'
 import { Providers } from 'admin-portal/src/components/context'
 
-const inter = Inter({ subsets: ['latin'] })
+const font = Lexend({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
     title: 'SSO Admin Portal',
@@ -17,7 +17,7 @@ export default function RootLayout({
     children: React.ReactNode
 }) {
     return (
-        <html lang='en'>
+        <html lang='en' className={font.className}>
             <body>
                 <Providers>{children}</Providers>
             </body>

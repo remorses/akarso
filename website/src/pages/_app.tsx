@@ -1,6 +1,7 @@
 import { NextUIProvider } from '@nextui-org/react'
 import 'prismjs/themes/prism-tomorrow.css'
 import 'website/src/styles/index.css'
+import { Lexend } from 'next/font/google'
 
 import { createPagesBrowserClient } from '@supabase/auth-helpers-nextjs'
 import {
@@ -8,12 +9,15 @@ import {
     useSession,
 } from '@supabase/auth-helpers-react'
 
+const font = Lexend({ subsets: ['latin'] })
+
 import NextNprogress from 'nextjs-progressbar'
 
 import { useRouter } from 'next/router'
 import Script from 'next/script'
 import { useEffect, useState } from 'react'
 import { Toaster } from 'react-hot-toast'
+import classNames from 'classnames'
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }) {
     const router = useRouter()
@@ -48,29 +52,31 @@ export default MyApp
 function CommonProviders({ children, pageProps }) {
     const [supabase] = useState(() => createPagesBrowserClient({}))
     return (
-        <SessionContextProvider
-            supabaseClient={supabase}
-            initialSession={pageProps.initialSession}
-        >
-            <NextUIProvider>
-                <Script async src='https://cdn.splitbee.io/sb.js'></Script>
-                {!pageProps.disableNprogress && (
-                    <NextNprogress
-                        color='#f59e0b'
-                        startPosition={0.3}
-                        stopDelayMs={200}
-                        height={4}
-                        options={{ showSpinner: false }}
-                        showOnShallow={true}
+        <div className={classNames(font.className, 'w-full h-full')}>
+            <SessionContextProvider
+                supabaseClient={supabase}
+                initialSession={pageProps.initialSession}
+            >
+                <NextUIProvider>
+                    <Script async src='https://cdn.splitbee.io/sb.js'></Script>
+                    {!pageProps.disableNprogress && (
+                        <NextNprogress
+                            color='#f59e0b'
+                            startPosition={0.3}
+                            stopDelayMs={200}
+                            height={4}
+                            options={{ showSpinner: false }}
+                            showOnShallow={true}
+                        />
+                    )}
+                    <Toaster
+                        containerStyle={{ zIndex: 10000 }}
+                        position='top-center'
                     />
-                )}
-                <Toaster
-                    containerStyle={{ zIndex: 10000 }}
-                    position='top-center'
-                />
 
-                {children}
-            </NextUIProvider>
-        </SessionContextProvider>
+                    {children}
+                </NextUIProvider>
+            </SessionContextProvider>
+        </div>
     )
 }
