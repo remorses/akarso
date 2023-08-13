@@ -81,7 +81,7 @@ export function DashboardContainer({ children, sites }) {
                         }}
                         selectedKey={router.asPath}
                         onSelectionChange={(x) => {
-                            router.push(x)
+                            router.push(x as any)
                         }}
                     >
                         <Tab
