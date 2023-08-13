@@ -81,7 +81,7 @@ export default function Page({
                 <div className=''>Update Akarso Secret</div>
                 <Alert
                     type='warn'
-                    title='If you rotate the secret you will need to update the secret in your code'
+                    title='If you rotate the secret you will also need to update it in your code'
                 />
                 <Button onClick={rotate} isLoading={isLoadingSecret}>
                     Rotate Secret
