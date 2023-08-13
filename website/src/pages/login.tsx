@@ -77,6 +77,7 @@ const Login = () => {
                 >
                     <div className='text-sm self-center'>Or Login With SSO</div>
                     <Input
+                        isDisabled // TODO wait for https://github.com/supabase/gotrue/pull/1137
                         onValueChange={setEmail}
                         value={email}
                         placeholder='tommy@example.com'
