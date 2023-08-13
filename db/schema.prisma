@@ -315,7 +315,7 @@ model OrgInviteLink {
 }
 
 model Org {
-    orgId            String          @id @default(uuid())
+    orgId            String          @id @default(cuid())
     name             String          @default("")
     users            OrgsUsers[]
     createdAt        DateTime        @default(now())
