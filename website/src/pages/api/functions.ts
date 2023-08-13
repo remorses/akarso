@@ -118,6 +118,9 @@ export async function createUploadUrl({ filename }) {
 }
 
 export async function updateSite({ logoUrl, slug, color }) {
+    if (!color) {
+        color = undefined
+    }
     const { req, res } = getNodejsContext()
     const { userId } = await requireAuth({ req, res })
     if (!userId) {
@@ -140,7 +143,7 @@ export async function updateSite({ logoUrl, slug, color }) {
     }
     console.log('updating site', { logoUrl, slug, color })
 
-    const r = await Promise.all([
+    const [r] = await Promise.all([
         prisma.site.update({
             where: {
                 slug,

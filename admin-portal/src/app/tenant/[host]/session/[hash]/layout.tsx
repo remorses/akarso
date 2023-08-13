@@ -7,7 +7,7 @@ import { jwtVerify } from 'jose'
 import { notFound, redirect } from 'next/navigation'
 import { SessionExpired } from '@/components/SessionExpired'
 
-export const revalidate = 0
+export const revalidate = 1
 
 export default async function Layout({
     params: { hash: hash, host },

@@ -45,9 +45,9 @@ export default function Page({
         secret: site.secret,
     })
     const iframeScale = 0.8
-    const [color, setColor] = useState(site.color || '#000000')
+    const [color, setColor] = useState(site.color || '')
     useEffect(() => {
-        updatePageProps({ logoUrl, color }, iframeRef)
+        updatePageProps({ logoUrl, color: color || undefined }, iframeRef)
     }, [color, logoUrl])
     // params to take: supabase token, site slug (will also be org name, ), logo, and domain
     return (
@@ -70,10 +70,8 @@ export default function Page({
                         onChange={(color) => {
                             if (color) {
                                 color = colord(color).toHslString()
-                            } else {
-                                color = ''
+                                setColor(color)
                             }
-                            setColor(color)
                         }}
                     />
                     <div className='flex'>
