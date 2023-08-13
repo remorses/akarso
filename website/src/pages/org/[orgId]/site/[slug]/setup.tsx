@@ -42,11 +42,18 @@ export default function Page({
         host,
         secret: site.secret,
     })
+    const exampleLink = `https://github.com/remorses/akarso/blob/62bedda2347bfc387a0c4846c6a41ea8e6aba7af/website/src/pages/api/functions.ts#L113`
     // params to take: supabase token, site slug (will also be org name, ), logo, and domain
     return (
         <DashboardContainer sites={sites}>
             <div className='text-3xl font-bold'>Setup</div>
-            <div className='grow [&>*]:!max-w-full -mt-12 w-full  flex flex-col'>
+            <div className=''>
+                You can see a full example application written in Next.js{' '}
+                <a className='underline' href={exampleLink} target='_blank'>
+                    here
+                </a>
+            </div>
+            <div className='grow [&>*]:!max-w-full w-full  flex flex-col'>
                 <BlockWithStep step={1}>
                     <div className=''>Install the akarso npm package</div>
                     <Code

@@ -1,4 +1,4 @@
-import { Tab, Tabs, cn } from '@nextui-org/react'
+import { Button, Tab, Tabs, cn } from '@nextui-org/react'
 // import { TabLink } from 'beskar/src/Tabs'
 
 import { Select } from 'beskar/src/Select'
@@ -13,7 +13,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { MyNavbar } from 'website/src/components/specific'
+import { MyFooter, MyNavbar } from 'website/src/components/specific'
 
 function SelectOrg({ sites = [] as { slug: string; orgId: string }[], slug }) {
     const router = useRouter()
@@ -51,14 +51,14 @@ export function DashboardContainer({ children, sites }) {
     const { orgId, slug } = router.query as any
     const base = `/org/${orgId}/site/${slug}`
     return (
-        <div className='pb-24 '>
+        <div className='pb-24 flex flex-col min-h-screen'>
             {/* <div className='w-full '>
                 <div className='w-full max-w-[1200px] mx-auto'>
                     <MyNavbar />
                 </div>
             </div> */}
             <div className='w-full flex max-w-[1200px] pt-24 gap-12 mx-auto'>
-                <div className='flex flex-col w-[220px] sticky top-4 gap-6 shrink-0 self-start'>
+                <div className='flex flex-col w-[220px] h-full sticky top-4 gap-6 shrink-0 self-start'>
                     <Link
                         href='/home'
                         className='text-2xl absolute -top-12 font-bold'
@@ -125,11 +125,14 @@ export function DashboardContainer({ children, sites }) {
                             }
                         ></Tab>
                     </Tabs>
+                    <div className='grow'></div>
                 </div>
                 <div className='flex grow flex-col items-stretch -mt-1 gap-6'>
                     {children}
                 </div>
             </div>
+            <hr className='mt-24 grow border-b'></hr>
+            <MyFooter />
         </div>
     )
 }
