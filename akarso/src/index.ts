@@ -18,7 +18,7 @@ export async function createAkarsoAdminPortalSession({
     identifier,
     callbackUrl,
     secret,
-}: SetupParams & { secret: string }) {
+}: SessionParams) {
     const res = await fetch(`https://akarso.co/api/portal-session`, {
         method: 'POST',
         body: JSON.stringify({ secret, metadata, identifier, callbackUrl }),
@@ -35,10 +35,11 @@ export async function createAkarsoAdminPortalSession({
     return { url }
 }
 
-export type SetupParams = {
+export type SessionParams = {
     callbackUrl: string
     identifier: string
     metadata?: Record<string, string>
+    secret: string
 }
 
 export type CallbackParams = {

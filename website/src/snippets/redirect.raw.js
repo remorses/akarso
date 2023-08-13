@@ -1,7 +1,7 @@
-import { createOrUpdateSSOConnection } from 'akarso'
+import { createAkarsoAdminPortalSession } from 'akarso'
 
 // IMPORTANT: this code must run on the server
-const { url } = await createOrUpdateSSOConnection({
+const { url } = await createAkarsoAdminPortalSession({
     // TODO: replace with your own url
     callbackUrl: `https://example.com/api/sso-callback`,
     identifier: teamId, // your team entity identifier
