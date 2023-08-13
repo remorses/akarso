@@ -26,9 +26,7 @@ import { Container } from 'admin-portal/src/components/Container'
 import { useSetupParams, useThrowingFn } from 'admin-portal/src/lib/hooks'
 import { createSSOProvider } from 'admin-portal/src/pages/api/functions'
 
-export default function Page({
-    params: { provider, step, host, token: hash },
-}) {
+export default function Page({ params: { provider, step, host, hash: hash } }) {
     step = Number(step)
     const p = providers[provider]
     const stepsLength = p.steps.length
@@ -36,7 +34,7 @@ export default function Page({
     const stepObj = p.steps[step - 1]
     const metadataXml = useStore(metadataXmlAtom)
     const metadataUrl = useStore(metadataUrlAtom)
-    const { callbackUrl, token } = useSetupParams()
+    const { callbackUrl } = useSetupParams()
 
     const { fn: create, isLoading } = useThrowingFn({
         async fn() {
@@ -68,7 +66,7 @@ export default function Page({
                 <div className=''>
                     <Link
                         className='flex items-center hover:underline text-sm gap-2'
-                        href={`/token/${token}/select-provider`}
+                        href={`/hash/${hash}/select-provider`}
                     >
                         <ArrowLeftIcon className='w-3' />
                         Back to providers

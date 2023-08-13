@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react'
 
 export function Domain() {
     const domain = useStore(domainAtom)
-    const { host, token } = useParams()!
+    const { host, hash } = useParams()!
     const router = useRouter()
     const [error, setError] = useState<string>('')
     const [disabled, setDisabled] = useState(true)
@@ -22,7 +22,7 @@ export function Domain() {
             <form
                 onSubmit={(e) => {
                     e.preventDefault()
-                    router.push(`/token/${token}/select-provider`)
+                    router.push(`/hash/${hash}/select-provider`)
                 }}
                 className='flex w-[500px] self-center flex-col gap-6'
             >
@@ -41,7 +41,7 @@ export function Domain() {
                     placeholder='example.com'
                 />
                 {error && <div className='text-red-400 text-sm'>{error}</div>}
-                <Link legacyBehavior href={`/token/${token}/select-provider`}>
+                <Link legacyBehavior href={`/hash/${hash}/select-provider`}>
                     <Button isDisabled={disabled} color='primary' type='submit'>
                         Continue
                     </Button>

@@ -12,11 +12,7 @@ export type TokenData = {
 }
 
 export const providerSetupContext = createContext<
-    | (TokenData & { token: string; hash: string } & Omit<
-              SiteData,
-              'secret'
-          > & {})
-    | null
+    (TokenData & { hash: string } & Omit<SiteData, 'secret'> & {}) | null
 >(null)
 
 export function useSetupParams() {

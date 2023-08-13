@@ -67,5 +67,5 @@ export async function getPayloadForToken({ hash, secret }) {
             expired: true as true,
         }
     }
-    return { payload: session, token: hash, expired: false as false }
+    return { payload: session, hash: hash, expired: false as false }
 }

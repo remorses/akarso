@@ -40,7 +40,7 @@ export async function createSSOProvider({
         throw new Error(`tenant not found`)
     }
     const { secret, notFound, supabaseAccessToken, supabaseProjectRef } = sess
-    // token is used as authentication, if user has this token it means he can setup sso for this domain, this means generated urls should expire and should not be shared in public, otherwise anyone could override an SSO connection
+    // hash is used as authentication, if user has this hash it means he can setup sso for this domain, this means generated urls should expire and should not be shared in public, otherwise anyone could override an SSO connection
     const { payload, expired } = await getPayloadForToken({
         hash,
         secret,

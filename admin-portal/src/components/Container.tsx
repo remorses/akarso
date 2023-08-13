@@ -3,7 +3,7 @@ import { useSetupParams } from 'admin-portal/src/lib/hooks'
 import Link from 'next/link'
 
 export function Container({ children }) {
-    let { logoUrl, token, hash, color = '' } = useSetupParams()
+    let { logoUrl, hash, color = '' } = useSetupParams()
     color = color.replace('hsl(', '').replace(')', '').replace(/,/g, '')
 
     return (
@@ -18,7 +18,7 @@ export function Container({ children }) {
                 </style>
             )}
             <div className='flex py-6 gap-12 items-center'>
-                <Link href={`/token/${token}`} className='font-bold text-3xl'>
+                <Link href={`/hash/${hash}`} className='font-bold text-3xl'>
                     {logoUrl && <img src={logoUrl} className='h-8' />}
                 </Link>
                 <div className='grow'></div>
