@@ -98,8 +98,18 @@ export const providers = {
                             Submit the "ACS URL" and the "Entity ID". Click
                             "Continue"
                         </div>
-                        <Copyable k={'acsUrl'} />
-                        <Copyable k={'entityId'} />
+                        <Field k={'acsUrl'} />
+                        <Field k={'entityId'} />
+                        <Field
+                            noCopy
+                            label='Name ID format'
+                            value='PERSISTENT'
+                        />
+                        <Field
+                            noCopy
+                            label='Name ID'
+                            value='Basic Information > Primary email'
+                        />
                         <Img
                             src={require('admin-portal/src/img/supa/sso-gsuite-step-05.png')}
                         />
@@ -353,20 +363,27 @@ export function UploadButton({
     )
 }
 
-export function Copyable({ k = '' as keyof SiteData, label = '' }) {
+export function Field({
+    k = '' as keyof SiteData,
+    value = '',
+    label = '',
+    noCopy = false,
+}) {
     const data = useSetupParams()
     // console.log({ data, k })
     if (!label) {
         label = camel2title(k)
     }
-    const value = data[k]
+    if (!value) {
+        value = data[k]
+    }
     return (
-        <div className='space-y-2 my-4 '>
+        <div className='space-y-2 my-1 '>
             <div className=''>{label}</div>
             <Input
                 className='font-mono  text-sm'
                 labelPlacement='outside'
-                endContent={<CopyButton text={value} />}
+                endContent={!noCopy && <CopyButton text={value} />}
                 value={value}
                 // label={label}
                 isReadOnly

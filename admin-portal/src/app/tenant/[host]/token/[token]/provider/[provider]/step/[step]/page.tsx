@@ -50,7 +50,7 @@ export default function Page({ params: { provider, step, host, token } }) {
     return (
         <Container>
             <div className='flex h-full justify-between gap-12'>
-                <div className='flex flex-col gap-4 shrink-0  leading-relaxed w-[700px]'>
+                <div className='flex flex-col gap-4 shrink-0  leading-relaxed max-w-[800px]'>
                     <h1 className='font-semibold text-2xl'>{stepObj.title}</h1>
                     {stepObj.content}
                     <div className='flex'>
@@ -93,7 +93,7 @@ export default function Page({ params: { provider, step, host, token } }) {
                         )}
                     </div>
                 </div>
-                <div className='flex sticky self-start top-4 flex-col gap-6 shrink-0 min-w-[260px]'>
+                <div className='flex sticky self-start top-4 flex-col mt-1 gap-6 shrink-0 min-w-[260px]'>
                     <div className='flex gap-3 items-center'>
                         <div className='[&>*]:w-[20px]'>{p.icon}</div>
                         <div className='text-xl font-semibold'>{p.name}</div>
