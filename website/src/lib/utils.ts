@@ -1,7 +1,7 @@
 import { env } from 'db/env'
 
 export function createStepPath({ host, token, provider, step }) {
-    return `/tenant/${host}/token/${token}/provider/${provider}/step/${step}`
+    return `/tenant/${host}/hash/${token}/provider/${provider}/step/${step}`
 }
 
 export function createLoginRedirectUrl({ signupReason = '', redirectTo = '' }) {
