@@ -5,14 +5,18 @@ import { Button, Input } from '@nextui-org/react'
 import { Container } from 'admin-portal/src/components/Container'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export function Domain() {
     const domain = useStore(domainAtom)
     const { host, token } = useParams()!
     const router = useRouter()
     const [error, setError] = useState<string>('')
-
+    const [disabled, setDisabled] = useState(true)
+    useEffect(() => {
+        const disabled = error || !domain
+        setDisabled(!!disabled)
+    }, [domain, error])
     return (
         <Container>
             <form
@@ -38,11 +42,7 @@ export function Domain() {
                 />
                 {error && <div className='text-red-400 text-sm'>{error}</div>}
                 <Link legacyBehavior href={`/token/${token}/select-provider`}>
-                    <Button
-                        isDisabled={!domain || !!error}
-                        color='primary'
-                        type='submit'
-                    >
+                    <Button isDisabled={disabled} color='primary' type='submit'>
                         Continue
                     </Button>
                 </Link>
