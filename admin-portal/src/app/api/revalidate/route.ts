@@ -7,6 +7,8 @@ if (typeof window !== 'undefined') {
     throw new Error('This file can only be run in the server')
 }
 
+export const runtime = 'edge'
+
 export async function POST(req: NextRequest) {
     const body = (await req.json()) as {
         secret?: string
