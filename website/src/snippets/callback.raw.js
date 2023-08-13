@@ -11,7 +11,7 @@ app.get('/api/sso-callback', async (req, res) => {
 
     // connect SSO provider to the team entity
     await prisma.team.update({
-        where: { id: identifier },
+        where: { teamId: identifier },
         data: { ssoProviderId, ssoDomain: domain },
     })
 
