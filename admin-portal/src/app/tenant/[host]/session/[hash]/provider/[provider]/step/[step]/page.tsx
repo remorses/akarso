@@ -78,7 +78,7 @@ export default function Page({ params: { provider, step, host, hash: hash } }) {
                     </Link>
                 </div>
                 <div className='flex h-full justify-between gap-12'>
-                    <div className='flex flex-col gap-6 shrink-0 leading-relaxed max-w-[800px]'>
+                    <div className='flex flex-col gap-6 shrink-0 leading-relaxed max-w-[720px]'>
                         <h1 className='font-semibold text-2xl'>
                             {stepObj?.title}
                         </h1>
