@@ -39,7 +39,13 @@ export function ChooseProvider() {
                         const disabled = 'inactive' in value && value.inactive
                         if (disabled) {
                             return (
-                                <Tooltip showArrow key={key} content='Coming Soon'>
+                                <Tooltip
+                                    delay={400}
+                                    closeDelay={0}
+                                    showArrow
+                                    key={key}
+                                    content='Coming Soon'
+                                >
                                     <div className=''>
                                         <RadioCard
                                             isDisabled={disabled}

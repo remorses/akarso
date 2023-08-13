@@ -7,7 +7,7 @@ export function Container({ children }) {
     color = color.replace('hsl(', '').replace(')', '').replace(/,/g, '')
 
     return (
-        <div className='flex light gap-12 flex-col justify-center h-full w-full items-stretch max-w-[1300px] mx-auto px-16'>
+        <div className='flex min-h-screen light gap-12 flex-col justify-start h-full w-full items-stretch max-w-[1300px] mx-auto px-16'>
             {color && (
                 <style>
                     {`
@@ -27,18 +27,21 @@ export function Container({ children }) {
                 <div className=''>Link</div> */}
             </div>
             {children}
-            <PoweredBy />
 
-            <div className='pt-24'></div>
+            <div className=' grow'></div>
+            <PoweredBy />
+            <div className=''></div>
         </div>
     )
 }
 
 export function PoweredBy() {
     return (
-        <div className='flex text-sm gap-1'>
+        <div className='flex self-center opacity-80 tracking-wide text-[12px] gap-1'>
             Powered by
-            <span className='font-bold'>Akarso</span>
+            <a href='https://akarso.co' target='_blank' className='font-bold'>
+                Akarso
+            </a>
         </div>
     )
 }
