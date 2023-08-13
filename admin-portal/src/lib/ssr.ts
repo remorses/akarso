@@ -40,7 +40,6 @@ export async function getSiteDataFromHost({ host }) {
     let { color, secret, logoUrl, supabaseAccessToken, supabaseProjectRef } =
         site!
    
-    console.log({ color })
     return {
         notFound: false as false,
         secret,

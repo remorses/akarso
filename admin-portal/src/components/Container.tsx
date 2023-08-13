@@ -5,7 +5,7 @@ import Link from 'next/link'
 export function Container({ children }) {
     let { logoUrl, token, color = '' } = useSetupParams()
     color = color.replace('hsl(', '').replace(')', '').replace(/,/g, '')
-    console.log({ color })
+    
     return (
         <div className='flex light gap-12 flex-col justify-center h-full w-full items-stretch max-w-[1300px] mx-auto px-16'>
             {color && (
