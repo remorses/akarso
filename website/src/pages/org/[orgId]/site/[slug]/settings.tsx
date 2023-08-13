@@ -34,6 +34,10 @@ export default function Page({
     })
     const { fn: rotate, isLoading: isLoadingSecret } = useThrowingFn({
         async fn() {
+            const ok = confirm(
+                `Are you sure you want to rotate the secret? You will need to update your code`,
+            )
+            if (!ok) return
             const { secret } = await rotateSecret({ slug, orgId })
             setSecret(secret)
             setIsVisible(true)
