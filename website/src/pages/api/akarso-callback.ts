@@ -1,4 +1,4 @@
-import { getAkarsoCallbackResult } from 'akarso'
+import { getAkarsoCallbackResult } from 'akarso/src'
 import { env } from 'db/env'
 import { createSupabaseAdmin } from 'db/supabase'
 
@@ -18,11 +18,10 @@ const handler = async (req: NextRequest) => {
         })
     }
     try {
-        const callbackData =
-            await getAkarsoCallbackResult({
-                secret: env.AKARSO_SECRET,
-                token,
-            })
+        const callbackData = await getAkarsoCallbackResult({
+            secret: env.AKARSO_SECRET,
+            token,
+        })
         console.log('callbackData', callbackData)
         const { identifier, domain, ssoProviderId, metadata } = callbackData
         console.log(
