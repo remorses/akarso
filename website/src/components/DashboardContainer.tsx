@@ -132,7 +132,7 @@ export function DashboardContainer({ children, sites }) {
                     {children}
                 </div>
             </div>
-            <hr className='mt-24 grow border-b'></hr>
+            <div className='mt-24 grow border-b'></div>
             <MyFooter />
         </div>
     )
