@@ -9,7 +9,7 @@ import {
 import { requireAuth } from 'website/src/lib/ssr'
 
 import { Button, Input } from '@nextui-org/react'
-import { Block } from 'beskar/dashboard'
+import { Alert, Block } from 'beskar/dashboard'
 import { env } from 'db/env'
 import { EyeIcon, LockIcon } from 'lucide-react'
 import { useRouter } from 'next/router'
@@ -66,15 +66,19 @@ export default function Page({
                                 onClick={toggleVisibility}
                             >
                                 {isVisible ? (
-                                    <LockIcon className='text-2xl text-default-400 pointer-events-none' />
+                                    <LockIcon className='w-5 text-default-400 pointer-events-none' />
                                 ) : (
-                                    <EyeIcon className='text-2xl text-default-400 pointer-events-none' />
+                                    <EyeIcon className='w-5 text-default-400 pointer-events-none' />
                                 )}
                             </button>
                         }
                     />
                 </div>
                 <div className=''>Update Akarso Secret</div>
+                <Alert
+                    type='warn'
+                    title='If you rotate the secret you will need to update the secret in your code'
+                />
                 <Button onClick={rotate} isLoading={isLoadingSecret}>
                     Rotate Secret
                 </Button>
