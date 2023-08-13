@@ -50,7 +50,6 @@ export default function Page({
 
     const toggleVisibility = () => setIsVisible(!isVisible)
 
-    // params to take: supabase token, site slug (will also be org name, ), logo, and domain
     return (
         <DashboardContainer sites={sites}>
             <div className='text-3xl font-bold'>Settings</div>

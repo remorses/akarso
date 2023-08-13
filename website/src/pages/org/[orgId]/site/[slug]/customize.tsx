@@ -42,16 +42,11 @@ export default function Page({
     const [logoUrl, setLogoUrl] = useState(site.logoUrl)
     const iframeRef = useRef<HTMLIFrameElement>(null)
 
-    const { callbackCode, redirectCode } = generateCodeSnippet({
-        host,
-        secret: site.secret,
-    })
     const iframeScale = 0.8
     const [color, setColor] = useState(site.color || '')
     useEffect(() => {
         updatePageProps({ logoUrl, color: color || undefined }, iframeRef)
     }, [color, logoUrl])
-    // params to take: supabase token, site slug (will also be org name, ), logo, and domain
     return (
         <DashboardContainer sites={sites}>
             <div className='text-3xl font-bold'>Customize</div>

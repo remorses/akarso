@@ -27,23 +27,15 @@ export default function Page({
     site,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
     const router = useRouter()
-    const { fn: onSubmit, isLoading } = useThrowingFn({
-        async fn(data) {
-            console.log(data)
-            const { orgId, slug } = await onboarding(data)
-            router.push(`/org/${orgId}/site/${slug}`)
-        },
-    })
+
     const { slug, orgId } = router.query as any
-    const iframeRef = useRef<HTMLIFrameElement>(null)
+
     const host = `${site.slug}.${env.NEXT_PUBLIC_TENANTS_DOMAIN}`
-    const [loaded, setLoaded] = useState(false)
     const { callbackCode, redirectCode, loginCode } = generateCodeSnippet({
         host,
         secret: site.secret,
     })
     const exampleLink = `https://github.com/remorses/akarso/blob/62bedda2347bfc387a0c4846c6a41ea8e6aba7af/website/src/pages/api/functions.ts#L113`
-    // params to take: supabase token, site slug (will also be org name, ), logo, and domain
     return (
         <DashboardContainer sites={sites}>
             <div className='text-3xl font-bold'>Setup</div>
