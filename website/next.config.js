@@ -3,8 +3,8 @@ const { withSentryConfig } = require('@sentry/nextjs')
 
 const piped = pipe(withServerActions(), (c) =>
     withSentryConfig(c, {
-        // org: 'akarso',
-        // project: 'website',
+        org: 'akarso',
+        project: 'website',
         dryRun: process.env.NEXT_PUBLIC_ENV === 'development',
         // You can get an auth token from https://sentry.io/settings/account/api/auth-tokens/
         // The token must have `project:releases` and `org:read` scopes for uploading source maps
