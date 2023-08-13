@@ -29,14 +29,7 @@ export async function createSessionUrl({
     if (!site) {
         throw new Error('Site not found')
     }
-
-    const [{ data: org }] = await Promise.all([
-        supabase.from('Org').select().eq('orgId', site.orgId).single(),
-    ])
-    if (!org) {
-        throw new Error('Org not found')
-    }
-    let orgId = org?.orgId!
+    let orgId = site?.orgId!
     const expiresAt = new Date()
     expiresAt.setHours(expiresAt.getHours() + 1)
     const hash = Math.random().toString(36).substring(2, 15)
