@@ -51,7 +51,7 @@ export function DashboardContainer({ children, sites }) {
     const { orgId, slug } = router.query as any
     const base = `/org/${orgId}/site/${slug}`
     return (
-        <div className='pb-24 flex flex-col min-h-screen'>
+        <div className='pb-6 flex flex-col min-h-screen'>
             {/* <MyNavbar /> */}
             {/* <div className='w-full '>
                 <div className='w-full max-w-[1200px] mx-auto'>
