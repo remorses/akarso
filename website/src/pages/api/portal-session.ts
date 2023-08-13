@@ -7,7 +7,7 @@ import { notifyError } from 'website/src/lib/sentry'
 import { NextRequest, NextResponse } from 'next/server'
 import { createSupabaseAdmin } from 'db/supabase'
 import { env } from 'db/env'
-import { createSessionUrl } from 'website/src/lib/ssr'
+import { createSessionUrl } from 'website/src/lib/ssr-edge'
 
 export const config = {
     runtime: 'edge',

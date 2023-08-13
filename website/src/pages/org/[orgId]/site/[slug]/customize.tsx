@@ -7,7 +7,7 @@ import {
     GetServerSidePropsContext,
     InferGetServerSidePropsType,
 } from 'next'
-import { createSessionUrl, requireAuth } from 'website/src/lib/ssr'
+import { requireAuth } from 'website/src/lib/ssr'
 
 import { Button } from '@nextui-org/react'
 import { SiteData } from 'admin-portal/src/lib/ssr'
@@ -23,6 +23,7 @@ import { UploadButton } from 'website/src/components/UploadButton'
 import { ColorPicker } from 'website/src/components/form'
 import { generateCodeSnippet } from 'website/src/lib/utils'
 import { updateSite } from 'website/src/pages/api/functions'
+import { createSessionUrl } from 'website/src/lib/ssr-edge'
 
 export default function Page({
     sites,

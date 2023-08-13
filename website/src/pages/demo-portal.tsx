@@ -1,7 +1,8 @@
 import { DEMO_SITE_SECRET, env } from 'db/env'
 import { prisma } from 'db/prisma'
 import { GetServerSidePropsContext, GetServerSideProps } from 'next'
-import { createSessionUrl, requireAuth } from 'website/src/lib/ssr'
+import { requireAuth } from 'website/src/lib/ssr'
+import { createSessionUrl } from 'website/src/lib/ssr-edge'
 
 export default function Page() {
     return null

@@ -63,56 +63,6 @@ export const generateSecretValue = () => {
     return secretValue
 }
 
-export async function createSessionUrl({
-    secret,
-    callbackUrl,
-    identifier,
-
-    metadata = {},
-}) {
-    if (!secret) {
-        throw new Error('Missing secret')
-    }
-    const supabase = createSupabaseAdmin()
-    const [{ data: site, error: siteErr }] = await Promise.all([
-        supabase.from('Site').select().eq('secret', secret).single(),
-    ])
-    if (siteErr) {
-        throw siteErr
-    }
-    if (!site) {
-        throw new Error('Site not found')
-    }
-    const expiresAt = new Date()
-    expiresAt.setHours(expiresAt.getHours() + 1)
-    const hash = Math.random().toString(36).substring(7)
-    const { data, error } = await supabase
-        .from('PortalSession')
-        .insert({
-            secret,
-            callbackUrl,
-            expiresAt: expiresAt.toISOString(),
-            identifier,
-            slug: site.slug,
-            hash,
-            metadata,
-        })
-        .select()
-    if (error) {
-        throw error
-    }
-    const host =
-        site.customDomain || `${site.slug}.${env.NEXT_PUBLIC_TENANTS_DOMAIN}`
-    const url = `${
-        isDev ? 'http://' : 'https://'
-    }${host}/session/${encodeURIComponent(hash)}`
-    return {
-        ...data,
-        url,
-        host,
-    }
-}
-
 export async function revalidateSiteSSGCache({ slug = '', host = '' }) {
     console.info('Revalidating site', slug)
     const isPreview = process.env.NODE_ENV === ('preview' as any)
