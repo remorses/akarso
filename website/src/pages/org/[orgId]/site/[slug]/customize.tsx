@@ -57,6 +57,7 @@ export default function Page({
                 <div className='space-y-3'>
                     <div className=''>Logo on top left</div>
                     <UploadButton
+                        children='Upload Logo Image'
                         onUploadFinished={({ src: logoUrl }) => {
                             setLogoUrl(logoUrl)
                         }}
