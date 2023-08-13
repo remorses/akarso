@@ -7,7 +7,7 @@ import {
     GetServerSidePropsContext,
     InferGetServerSidePropsType,
 } from 'next'
-import { createAdminUrl, requireAuth } from 'website/src/lib/ssr'
+import { createSessionUrl, requireAuth } from 'website/src/lib/ssr'
 
 import { Button } from '@nextui-org/react'
 import { SiteData } from 'admin-portal/src/lib/ssr'
@@ -187,7 +187,12 @@ export const getServerSideProps = (async (ctx: GetServerSidePropsContext) => {
         }
     }
     let host = `${site.slug}.${env.NEXT_PUBLIC_TENANTS_DOMAIN}`
-    const { url } = await createAdminUrl({ host, secret: site.secret })
+    const { url } = await createSessionUrl({
+        secret: site.secret,
+        callbackUrl: new URL(`/`, env.NEXT_PUBLIC_URL).toString(),
+        identifier: '',
+        slug,
+    })
 
     return {
         props: {
