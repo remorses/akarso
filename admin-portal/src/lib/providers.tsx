@@ -397,6 +397,7 @@ export function UploadButton({
                 onClick={() => {
                     inputRef.current.click()
                 }}
+                color='primary'
                 endContent={<UploadIcon className='w-4' />}
                 className='my-4'
                 {...rest}

@@ -12,20 +12,23 @@ import {
     cn,
 } from '@nextui-org/react'
 import { useParams, useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
 
 export function ChooseProvider() {
     const [provider, setProvider] = useState('')
     const { host, hash: hash } = useParams()!
+    const [pending, startTransition] = useTransition()
     const router = useRouter()
     return (
         <Container>
             <form
                 onSubmit={(e) => {
                     e.preventDefault()
-                    router.push(
-                        createStepPath({ host, provider, step: 1, hash }),
-                    )
+                    startTransition(() => {
+                        router.push(
+                            createStepPath({ host, provider, step: 1, hash }),
+                        )
+                    })
                 }}
                 className='flex w-[600px] self-center flex-col gap-12'
             >
@@ -65,7 +68,12 @@ export function ChooseProvider() {
                         )
                     })}
                 </RadioGroup>
-                <Button isDisabled={!provider} color='primary' type='submit'>
+                <Button
+                    isDisabled={!provider}
+                    isLoading={pending}
+                    color='primary'
+                    type='submit'
+                >
                     Continue
                 </Button>
             </form>

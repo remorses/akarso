@@ -25,6 +25,7 @@ import { createStepPath } from 'admin-portal/src/lib/utils'
 import { Container } from 'admin-portal/src/components/Container'
 import { useSetupParams, useThrowingFn } from 'admin-portal/src/lib/hooks'
 import { createSSOProvider } from 'admin-portal/src/pages/api/functions'
+import { ButtonLink } from '@/components/form'
 
 export default function Page({ params: { provider, step, host, hash: hash } }) {
     step = Number(step)
@@ -85,28 +86,24 @@ export default function Page({ params: { provider, step, host, hash: hash } }) {
                         <div className='flex'>
                             {/* <div className='grow'></div> */}
                             {!isEnd ? (
-                                <Link
-                                    legacyBehavior
+                                <ButtonLink
                                     href={createStepPath({
                                         host,
                                         provider,
                                         step: step + 1,
                                         hash,
                                     })}
+                                    type='button'
+                                    endContent={
+                                        <ArrowRightIcon className='w-4' />
+                                    }
+                                    isDisabled={disabled}
+                                    color='primary'
+                                    // color='success'
+                                    // variant='flat'
                                 >
-                                    <Button
-                                        type='button'
-                                        endContent={
-                                            <ArrowRightIcon className='w-4' />
-                                        }
-                                        isDisabled={disabled}
-                                        color='primary'
-                                        // color='success'
-                                        // variant='flat'
-                                    >
-                                        Next Step
-                                    </Button>
-                                </Link>
+                                    Next Step
+                                </ButtonLink>
                             ) : (
                                 <Button
                                     isLoading={isLoading}
@@ -123,7 +120,7 @@ export default function Page({ params: { provider, step, host, hash: hash } }) {
                         </div>
                     </div>
                     <div className='flex sticky self-start top-4 flex-col mt-1 gap-6 shrink-0 min-w-[260px]'>
-                        <div className='flex gap-3 items-center'>
+                        <div className='ml-4 flex gap-3 items-center'>
                             <div className='[&>*]:w-[20px]'>{p.icon}</div>
                             <div className='text-xl font-semibold'>
                                 {p.name}
@@ -133,42 +130,45 @@ export default function Page({ params: { provider, step, host, hash: hash } }) {
                             const done = index < step - 1
                             const active = index === step - 1
                             return (
-                                <Link
+                                <ButtonLink
                                     href={createStepPath({
                                         host,
                                         provider,
                                         step: index + 1,
                                         hash,
                                     })}
-                                    className='flex text-sm items-center  gap-2'
+                                    className='flex justify-start border-0 text-sm items-center gap-2'
+                                    spinner={null}
+                                    startContent={
+                                        <div
+                                            className={cn(
+                                                'w-[20px] h-[20px] text-sm flex items-center shadow-sm justify-center font-mono rounded-full border-gray-800 border-full',
+                                                active
+                                                    ? 'bg-gray-900 text-white'
+                                                    : done
+                                                    ? 'bg-primary/20 '
+                                                    : 'bg-gray-100',
+                                            )}
+                                        >
+                                            {done ? (
+                                                <CheckIcon className='stroke-[3px] h-[13px]' />
+                                            ) : (
+                                                index + 1
+                                            )}
+                                        </div>
+                                    }
+                                    variant={'ghost'}
                                     key={stepObj.title}
                                 >
                                     <div
                                         className={cn(
-                                            'w-[20px] h-[20px] text-sm flex items-center shadow-sm justify-center font-mono rounded-full border-gray-800 border-full',
-                                            active
-                                                ? 'bg-gray-900 text-white'
-                                                : done
-                                                ? 'bg-primary/20 '
-                                                : 'bg-gray-100',
-                                        )}
-                                    >
-                                        {done ? (
-                                            <CheckIcon className='stroke-[3px] h-[13px]' />
-                                        ) : (
-                                            index + 1
-                                        )}
-                                    </div>
-
-                                    <div
-                                        className={cn(
                                             'truncate',
-                                            active && 'font-semibold',
+                                            active && 'underline',
                                         )}
                                     >
                                         {stepObj.title}
                                     </div>
-                                </Link>
+                                </ButtonLink>
                             )
                         })}
                     </div>

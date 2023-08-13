@@ -1,4 +1,5 @@
 'use client'
+import { ButtonLink } from '@/components/form'
 import { domainAtom } from '@/lib/atoms'
 import { useStore } from '@nanostores/react'
 import { Button, Input } from '@nextui-org/react'
@@ -41,11 +42,15 @@ export function Domain() {
                     placeholder='example.com'
                 />
                 {error && <div className='text-red-400 text-sm'>{error}</div>}
-                <Link legacyBehavior href={`/session/${hash}/select-provider`}>
-                    <Button isDisabled={disabled} color='primary' type='submit'>
-                        Continue
-                    </Button>
-                </Link>
+
+                <ButtonLink
+                    href={`/session/${hash}/select-provider`}
+                    isDisabled={disabled}
+                    color='primary'
+                    type='submit'
+                >
+                    Continue
+                </ButtonLink>
             </form>
         </Container>
     )
