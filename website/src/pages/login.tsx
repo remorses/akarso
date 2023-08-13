@@ -35,6 +35,20 @@ const Login = () => {
             })
         },
     })
+    const { fn: sso, isLoading: ssoLoading } = useThrowingFn({
+        async fn() {
+            NProgress.start()
+
+            const { data, error } = await supabase.auth.signInWithSSO({
+                domain: email.split('@')[1],
+                options: {
+                    redirectTo,
+                },
+            })
+            if (error) console.error(error)
+            await router.push(data?.url!)
+        },
+    })
 
     const redirectTo = createLoginRedirectUrl({ signupReason: 'login' })
     const [email, setEmail] = useState('')
@@ -55,12 +69,7 @@ const Login = () => {
                 <form
                     onSubmit={(e) => {
                         e.preventDefault()
-                        supabase.auth.signInWithSSO({
-                            domain: email.split('@')[1],
-                            options: {
-                                redirectTo,
-                            },
-                        })
+                        sso()
                     }}
                     className='flex flex-col gap-4 '
                 >
@@ -71,7 +80,11 @@ const Login = () => {
                         placeholder='tommy@example.com'
                         type='email'
                     />
-                    <Button isDisabled={!email || !email.includes('@')}>
+                    <Button
+                        type='submit'
+                        isLoading={ssoLoading}
+                        isDisabled={!email || !email.includes('@')}
+                    >
                         Login With SSO
                     </Button>
                 </form>
