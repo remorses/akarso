@@ -44,7 +44,7 @@ export async function updateOrCreateSSOConnection({
             .sign(new TextEncoder().encode(secret)),
     )
 
-    const url = `https://${host}/hash/${token}`
+    const url = `https://${host}/session/${token}`
     return { url }
 }
 

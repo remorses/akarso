@@ -77,6 +77,6 @@ export async function createAdminUrl({ secret, host }) {
         .sign(new TextEncoder().encode(secret))
     const url = `${
         isDev ? 'http://' : 'https://'
-    }${host}/hash/${encodeURIComponent(token)}`
+    }${host}/session/${encodeURIComponent(token)}`
     return { url }
 }
