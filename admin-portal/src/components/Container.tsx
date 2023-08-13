@@ -18,7 +18,7 @@ export function Container({ children }) {
                 </style>
             )}
             <div className='flex py-6 gap-12 items-center'>
-                <Link href={`/hash/${hash}`} className='font-bold text-3xl'>
+                <Link href={`/session/${hash}`} className='font-bold text-3xl'>
                     {logoUrl && <img src={logoUrl} className='h-8' />}
                 </Link>
                 <div className='grow'></div>

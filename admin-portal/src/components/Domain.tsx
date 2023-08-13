@@ -22,7 +22,7 @@ export function Domain() {
             <form
                 onSubmit={(e) => {
                     e.preventDefault()
-                    router.push(`/hash/${hash}/select-provider`)
+                    router.push(`/session/${hash}/select-provider`)
                 }}
                 className='flex w-[500px] self-center flex-col gap-6'
             >
@@ -41,7 +41,7 @@ export function Domain() {
                     placeholder='example.com'
                 />
                 {error && <div className='text-red-400 text-sm'>{error}</div>}
-                <Link legacyBehavior href={`/hash/${hash}/select-provider`}>
+                <Link legacyBehavior href={`/session/${hash}/select-provider`}>
                     <Button isDisabled={disabled} color='primary' type='submit'>
                         Continue
                     </Button>

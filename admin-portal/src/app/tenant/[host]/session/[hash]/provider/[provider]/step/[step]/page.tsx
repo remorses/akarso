@@ -66,7 +66,7 @@ export default function Page({ params: { provider, step, host, hash: hash } }) {
                 <div className=''>
                     <Link
                         className='flex items-center hover:underline text-sm gap-2'
-                        href={`/hash/${hash}/select-provider`}
+                        href={`/session/${hash}/select-provider`}
                     >
                         <ArrowLeftIcon className='w-3' />
                         Back to providers

@@ -2,7 +2,7 @@ export function createStepPath({ host, hash, provider, step }) {
     if (!hash) {
         throw new Error(`no hash passed`)
     }
-    return `/hash/${hash}/provider/${provider}/step/${step}`
+    return `/session/${hash}/provider/${provider}/step/${step}`
 }
 
 export function camel2title(camelCase) {
