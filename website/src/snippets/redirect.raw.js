@@ -6,7 +6,7 @@ const { url } = await updateOrCreateSSOConnection({
     callbackUrl: `https://example.com/api/sso-callback`,
     identifier: teamId,
     // TODO use env var instead
-    secret: 'REPLACE_ME_SECRET', // akarso secret
+    secret: 'REPLACE_ME_SECRET', // your akarso secret
 })
 
 redirect(url)
