@@ -125,7 +125,7 @@ export const providers = {
                             "Finish":
                         </div>
                         <Img
-                            src={require('admin-portal/src/img/supa/sso-gsuite-step-05.png')}
+                            src={require('admin-portal/src/img/supa/sso-gsuite-step-06.png')}
                         />
                     </>
                 ),
@@ -138,9 +138,7 @@ export const providers = {
                             In the created SAML applications landing page,
                             select the "User Access Section".
                         </div>
-                        <Img
-                            src={require('admin-portal/src/img/supa/sso-gsuite-step-06.png')}
-                        />
+
                         <div className=''>
                             Turn this service ON for the correct organizational
                             units in your Google Application. Save any changes.
