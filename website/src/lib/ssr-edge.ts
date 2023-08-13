@@ -31,7 +31,7 @@ export async function createSessionUrl({
     }
     const expiresAt = new Date()
     expiresAt.setHours(expiresAt.getHours() + 1)
-    const hash = Math.random().toString(36).substring(7)
+    const hash = Math.random().toString(36).substring(2, 15)
     const { data, error } = await supabase
         .from('PortalSession')
         .insert({

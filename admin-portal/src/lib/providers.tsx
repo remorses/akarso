@@ -40,8 +40,15 @@ export const providers = {
                 content: (
                     <>
                         <div>
-                            Open the Google Workspace Web and mobile apps
-                            console.
+                            Open the Google Workspace Web and mobile apps{' '}
+                            <a
+                                href='https://admin.google.com/'
+                                target='_blank'
+                                className='underline'
+                            >
+                                console
+                            </a>
+                            .
                         </div>
                         <Img
                             src={require('admin-portal/src/img/supa/sso-gsuite-step-01.png')}
