@@ -95,7 +95,7 @@ export const getServerSideProps = (async (ctx: GetServerSidePropsContext) => {
     const userId = session?.user?.id
     const { orgId, slug } = ctx.query as any
     if (redirect) {
-        return { redirect }
+        return { redirect } as const
     }
     const [site, org, sites] = await Promise.all([
         prisma.site.findUnique({
@@ -128,7 +128,7 @@ export const getServerSideProps = (async (ctx: GetServerSidePropsContext) => {
     if (!site || !org) {
         return {
             notFound: true,
-        }
+        } as const
     }
 
     return {

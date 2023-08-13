@@ -1,4 +1,5 @@
 import { useThrowingFn } from 'beskar/landing'
+import { getServerSideProps as commonServerProps } from './setup'
 import classNames from 'classnames'
 import { colord } from 'colord'
 
@@ -153,39 +154,15 @@ export const getServerSideProps = (async (ctx: GetServerSidePropsContext) => {
     if (redirect) {
         return { redirect }
     }
-    const [site, org, sites] = await Promise.all([
-        prisma.site.findUnique({
-            where: {
-                slug,
-            },
-        }),
-        prisma.org.findUnique({
-            where: {
-                orgId,
-            },
-        }),
-        prisma.site.findMany({
-            where: {
-                org: {
-                    users: {
-                        some: {
-                            userId,
-                        },
-                    },
-                },
-            },
-            select: {
-                orgId: true,
-                siteId: true,
-                slug: true,
-            },
-        }),
-    ])
-    if (!site || !org) {
-        return {
-            notFound: true,
-        }
+    const { props, notFound, redirect: red } = await commonServerProps(ctx)
+    if (red) {
+        return { redirect: red }
     }
+    if (notFound) {
+        return { notFound }
+    }
+    const { site, sites } = props
+
     let host = `${site.slug}.${env.NEXT_PUBLIC_TENANTS_DOMAIN}`
     const { url } = await createSessionUrl({
         secret: site.secret,
