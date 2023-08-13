@@ -48,6 +48,7 @@ Then akarso will redirect to your application with the SSO provider details (`ss
 
 ## TODO
 
+-   [ ] support custom domain other than `slug.akarso.site`
 -   [ ] support for boxyhq
 -   [ ] ability to update the SSO connection metadata if it already exists
 -   [ ] add function to delete the SSO connection to `akarso` npm package
