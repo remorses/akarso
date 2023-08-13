@@ -1,10 +1,7 @@
 import { ChooseProvider } from '@/components/ChooseProvider'
 import { cookies } from 'next/headers'
 import { ProviderSetupProvider } from 'admin-portal/src/components/context'
-import {
-    TokenData,
-    providerSetupContext,
-} from 'admin-portal/src/lib/hooks'
+import { TokenData, providerSetupContext } from 'admin-portal/src/lib/hooks'
 import {
     getPayloadForToken,
     getSiteDataFromHost,
@@ -19,8 +16,9 @@ export default async function Layout({ params: { token, host }, children }) {
     const {
         secret,
         notFound: fourOFour,
-        color,
-        logoUrl,
+        supabaseAccessToken,
+        supabaseProjectRef,
+        ...publicSiteData
     } = await getSiteDataFromHost({
         host,
     })
@@ -30,9 +28,13 @@ export default async function Layout({ params: { token, host }, children }) {
 
     // console.log({ token })
 
-    const payload = await getPayloadForToken({ token, secret, cookies })
-    const context = { ...payload, token, color, logoUrl }
-    if (payload.expired) {
+    const { payload, expired } = await getPayloadForToken({
+        token,
+        secret,
+        cookies,
+    })
+    const context = { ...payload, ...publicSiteData, token }
+    if (expired) {
         return (
             <ProviderSetupProvider value={context}>
                 <SessionExpired />

@@ -7,7 +7,7 @@
         "postinstall": "prisma generate",
         "studio": "doppler run -- prisma studio",
         "gen:supabase": "doppler run --command 'pnpm supabase gen types typescript --db-url $DATABASE_URL > supabase.types.ts'",
-        "push": "doppler run -c dev --command 'prisma db push && prisma generate'",
+        "push": "doppler run -c dev --command 'prisma db push && prisma generate && pnpm gen:supabase'",
         "push:prod": "doppler run -c production -- prisma db push && prisma generate",
         "pull": "doppler run -c dev -- prisma db pull && prisma generate",
         "pull:prod": "doppler run -c production -- prisma db pull && prisma generate"

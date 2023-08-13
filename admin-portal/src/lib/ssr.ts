@@ -38,8 +38,18 @@ export async function getSiteDataFromHost({ host }) {
     if (!site) {
         return { notFound: true as true }
     }
-    let { color, secret, logoUrl, supabaseAccessToken, supabaseProjectRef } =
-        site!
+    let {
+        color,
+        secret,
+        acsUrl,
+        entityId,
+        startUrl,
+        websiteUrl,
+        customDomain,
+        logoUrl,
+        supabaseAccessToken,
+        supabaseProjectRef,
+    } = site!
 
     return {
         notFound: false as false,
@@ -48,6 +58,10 @@ export async function getSiteDataFromHost({ host }) {
         logoUrl,
         supabaseAccessToken,
         supabaseProjectRef,
+        acsUrl,
+        entityId,
+        startUrl,
+        websiteUrl,
     }
 }
 
@@ -69,7 +83,7 @@ export async function getPayloadForToken({ token: hash, cookies, secret }) {
     } catch (error: any) {
         if (error.message.includes('"exp"')) {
             const payload = decodeJwt<TokenData>(token)
-            
+
             return {
                 expired: true,
                 payload,

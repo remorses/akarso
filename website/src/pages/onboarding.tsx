@@ -41,6 +41,7 @@ export default function Page({}) {
         defaultValues: {
             supabaseAccessToken: '',
             supabaseProjectRef: '',
+            websiteUrl: '',
             slug: '',
         },
     })
@@ -74,6 +75,33 @@ export default function Page({}) {
                 onSubmit={handleSubmit(onSubmit)}
                 className='flex flex-col self-center gap-2'
             >
+                <BlockWithStep step={0} className=''>
+                    <div className=''>What is your company url?</div>
+                    <Input
+                        startContent={
+                            <div className='pointer-events-none flex items-center'>
+                                <span className='text-default-400 text-small'>
+                                    https://
+                                </span>
+                            </div>
+                        }
+                        isRequired
+                        placeholder='example.com'
+                        description={errors.websiteUrl?.message}
+                        {...register('websiteUrl', {
+                            required: true,
+                            validate(x) {
+                                if (!x.includes('.')) {
+                                    return 'Must be a valid domain'
+                                }
+                            },
+
+                            // onChange(e) {
+                            //     e.target.value = slugKebabCase(e.target.value)
+                            // },
+                        })}
+                    />
+                </BlockWithStep>
                 <BlockWithStep step={1} className=''>
                     <div className=''>Choose a slug for your admin portal</div>
                     <Input

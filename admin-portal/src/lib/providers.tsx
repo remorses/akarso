@@ -1,4 +1,7 @@
 'use client'
+import 'react-medium-image-zoom/dist/styles.css'
+import Zoom from 'react-medium-image-zoom'
+
 import classNames from 'classnames'
 
 import {
@@ -8,11 +11,14 @@ import {
     ComponentPropsWithoutRef,
     createContext,
     useContext,
+    CSSProperties,
+    ReactNode,
+    Fragment,
 } from 'react'
 import Image from 'next/image'
-import { Button } from '@nextui-org/react'
+import { Button, Input } from '@nextui-org/react'
 import { metadataXmlAtom } from 'admin-portal/src/lib/atoms'
-import { UploadIcon } from 'lucide-react'
+import { CheckIcon, UploadIcon } from 'lucide-react'
 import {
     Auth0,
     Cloudflare,
@@ -21,6 +27,9 @@ import {
     Microsoft,
     Okta,
 } from 'admin-portal/src/components/icons'
+import { useCopyToClipboard, useSetupParams } from '@/lib/hooks'
+import { SiteData } from '@/lib/ssr'
+import { camel2title } from '@/lib/utils'
 
 export const providers = {
     google: {
@@ -32,13 +41,20 @@ export const providers = {
                 content: (
                     <>
                         <div>
+                            Open the Google Workspace Web and mobile apps
+                            console.
+                        </div>
+                        <Img
+                            src={require('admin-portal/src/img/supa/sso-gsuite-step-01.png')}
+                        />
+                        <div>
                             In your Google Admin dashboard, select "Apps" from
                             the sidebar menu, and then select "Web and Mobile
                             Apps" from the list. On this page, select "Add App"
                             and then "Add custom SAML app".
                         </div>
                         <Img
-                            src={require('admin-portal/src/img/boxy/google/1.png')}
+                            src={require('admin-portal/src/img/supa/sso-gsuite-step-02.png')}
                         />
                     </>
                 ),
@@ -52,7 +68,7 @@ export const providers = {
                             demo.workos.com, then select "Continue".
                         </div>
                         <Img
-                            src={require('admin-portal/src/img/boxy/google/2.png')}
+                            src={require('admin-portal/src/img/supa/sso-gsuite-step-03.png')}
                         />
                     </>
                 ),
@@ -68,7 +84,7 @@ export const providers = {
                             "Continue".
                         </div>
                         <Img
-                            src={require('admin-portal/src/img/boxy/google/3.png')}
+                            src={require('admin-portal/src/img/supa/sso-gsuite-step-04.png')}
                         />
                         <UploadButton accept='xml' />
                     </>
@@ -82,8 +98,10 @@ export const providers = {
                             Submit the "ACS URL" and the "Entity ID". Click
                             "Continue"
                         </div>
+                        <Copyable k={'acsUrl'} />
+                        <Copyable k={'entityId'} />
                         <Img
-                            src={require('admin-portal/src/img/boxy/google/4.png')}
+                            src={require('admin-portal/src/img/supa/sso-gsuite-step-05.png')}
                         />
                     </>
                 ),
@@ -97,7 +115,7 @@ export const providers = {
                             "Finish":
                         </div>
                         <Img
-                            src={require('admin-portal/src/img/boxy/google/5.png')}
+                            src={require('admin-portal/src/img/supa/sso-gsuite-step-05.png')}
                         />
                     </>
                 ),
@@ -111,7 +129,7 @@ export const providers = {
                             select the "User Access Section".
                         </div>
                         <Img
-                            src={require('admin-portal/src/img/boxy/google/6.png')}
+                            src={require('admin-portal/src/img/supa/sso-gsuite-step-06.png')}
                         />
                         <div className=''>
                             Turn this service ON for the correct organizational
@@ -121,7 +139,7 @@ export const providers = {
                             inactive until the changes have propagated.
                         </div>
                         <Img
-                            src={require('admin-portal/src/img/boxy/google/7.png')}
+                            src={require('admin-portal/src/img/supa/sso-gsuite-step-07.png')}
                         />
                     </>
                 ),
@@ -256,18 +274,29 @@ Select EmailAddress from the Name ID format dropdown.`}
 export type Provider = keyof typeof providers
 
 export function Img({ src, ...rest }) {
+    const url = src?.default?.src || src?.src
     return (
         <div className='p-8 -mx-8 my-6 bg-gray-100 rounded-md'>
             <div className='overflow-hidden items-center flex relative shadow-xl rounded-md flex-col'>
-                <Image
-                    className={classNames(
-                        'overflow-hidden relative shadow-xl',
-                        src.includes('boxy') && ' min-w-[105%]',
-                    )}
-                    src={src}
-                    alt=''
-                    {...rest}
-                />
+                <Zoom
+                    // overlayBgColorEnd='rgba(0, 0, 0, 0.55)'
+                    // overlayBgColorStart='rgba(0, 0, 0, 0)'
+                    IconZoom={Fragment}
+                    IconUnzoom={Fragment}
+                    zoomMargin={40}
+                    // wrapStyle={style}
+                >
+                    <Image
+                        className={classNames(
+                            'overflow-hidden relative shadow-xl',
+                            url.includes('boxy') && ' min-w-[105%]',
+                        )}
+                        placeholder='blur'
+                        src={src?.default || src}
+                        alt=''
+                        {...rest}
+                    />
+                </Zoom>
             </div>
         </div>
     )
@@ -321,5 +350,68 @@ export function UploadButton({
             </Button>
             {/* <div className="mt-2 text-sm opacity-60">{filename}</div> */}
         </>
+    )
+}
+
+export function Copyable({ k = '' as keyof SiteData, label = '' }) {
+    const data = useSetupParams()
+    // console.log({ data, k })
+    if (!label) {
+        label = camel2title(k)
+    }
+    const value = data[k]
+    return (
+        <div className='space-y-2 my-4 '>
+            <div className=''>{label}</div>
+            <Input
+                className='font-mono  text-sm'
+                labelPlacement='outside'
+                endContent={<CopyButton text={value} />}
+                value={value}
+                // label={label}
+                isReadOnly
+            ></Input>
+        </div>
+    )
+}
+
+export const CopyButton = ({
+    text,
+    style = {} as CSSProperties,
+    size = 18,
+    className = '',
+    ...props
+}) => {
+    const { hasCopied, copy } = useCopyToClipboard(text)
+    const As: any = hasCopied ? CheckIcon : CopyIcon
+    return (
+        <button
+            className={classNames(
+                'text-sm shrink-0 items-center gap-1 font-medium',
+                'flex cursor-pointer rounded hover:bg-gray-100 dark:hover:bg-gray-700 px-1 appearance-none',
+                className,
+            )}
+            type='button'
+            onClick={copy}
+            {...props}
+        >
+            <As style={{ ...style, width: size, height: size }} />
+            {hasCopied ? <div className=''>copied</div> : 'copy'}
+        </button>
+    )
+}
+
+function CopyIcon({ ...rest }) {
+    return (
+        <svg
+            xmlns='http://www.w3.org/2000/svg'
+            className='w-5 h-5'
+            viewBox='0 0 20 20'
+            fill='currentColor'
+            {...rest}
+        >
+            <path d='M7 9a2 2 0 012-2h6a2 2 0 012 2v6a2 2 0 01-2 2H9a2 2 0 01-2-2V9z' />
+            <path d='M5 3a2 2 0 00-2 2v6a2 2 0 002 2V5h8a2 2 0 00-2-2H5z' />
+        </svg>
     )
 }

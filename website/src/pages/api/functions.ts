@@ -15,8 +15,15 @@ export { wrapMethod }
 export async function onboarding({
     slug,
     supabaseAccessToken,
+    websiteUrl,
     supabaseProjectRef,
 }) {
+    if (!websiteUrl) {
+        throw new AppError(`websiteUrl is required`)
+    }
+    if (!websiteUrl.includes('https://') && !websiteUrl.includes('http://')) {
+        websiteUrl = `https://${websiteUrl}`
+    }
     const { req, res } = await getNodejsContext()
     const { userId } = await requireAuth({ req, res })
     slug = slugKebabCase(slug)
@@ -32,6 +39,11 @@ export async function onboarding({
 
     const config = await client.getProjectAuthConfig(supabaseProjectRef)
 
+    const acsUrl = `https://${supabaseProjectRef}.supabase.co/auth/v1/sso/saml/acs`
+    const entityId = `https://${supabaseProjectRef}.supabase.co/auth/v1/sso/saml/metadata`
+    const relayState = `https://${supabaseProjectRef}.supabase.co`
+
+    const ssoMappings = {}
     const [org] = await Promise.all([
         prisma.org.create({
             data: {
@@ -43,6 +55,10 @@ export async function onboarding({
                         secret: generateSecretValue(),
                         supabaseAccessToken,
                         supabaseProjectRef,
+                        acsUrl,
+                        entityId,
+                        ssoMappings,
+                        websiteUrl,
                     },
                 },
                 users: {

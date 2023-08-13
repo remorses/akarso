@@ -104,40 +104,55 @@ export interface Database {
       }
       Site: {
         Row: {
-          color: string | null
+          acsUrl: string
+          color: string
           createdAt: string
           customDomain: string | null
-          logoUrl: string | null
+          entityId: string
+          logoUrl: string
           orgId: string
           secret: string
           siteId: string
           slug: string
+          ssoMappings: Json
+          startUrl: string
           supabaseAccessToken: string | null
           supabaseProjectRef: string | null
+          websiteUrl: string
         }
         Insert: {
-          color?: string | null
+          acsUrl?: string
+          color?: string
           createdAt?: string
           customDomain?: string | null
-          logoUrl?: string | null
+          entityId?: string
+          logoUrl?: string
           orgId: string
           secret: string
           siteId: string
           slug: string
+          ssoMappings?: Json
+          startUrl?: string
           supabaseAccessToken?: string | null
           supabaseProjectRef?: string | null
+          websiteUrl?: string
         }
         Update: {
-          color?: string | null
+          acsUrl?: string
+          color?: string
           createdAt?: string
           customDomain?: string | null
-          logoUrl?: string | null
+          entityId?: string
+          logoUrl?: string
           orgId?: string
           secret?: string
           siteId?: string
           slug?: string
+          ssoMappings?: Json
+          startUrl?: string
           supabaseAccessToken?: string | null
           supabaseProjectRef?: string | null
+          websiteUrl?: string
         }
         Relationships: [
           {

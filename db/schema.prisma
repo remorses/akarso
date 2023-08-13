@@ -375,8 +375,15 @@ model Site {
     org                 Org      @relation(fields: [orgId], references: [orgId], onDelete: Cascade)
     slug                String   @unique
     customDomain        String?  @unique
-    logoUrl             String?
-    color               String?
+    logoUrl             String   @default("")
+    color               String   @default("")
+
+    acsUrl     String @default("")
+    websiteUrl String @default("")
+    entityId   String @default("")
+    startUrl   String @default("")
+
+    ssoMappings Json @default("{}")
 
     @@schema("public")
 }

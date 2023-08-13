@@ -12,11 +12,7 @@ export type TokenData = {
 }
 
 export const providerSetupContext = createContext<
-    | (TokenData & { token: string } & Pick<
-              SiteData,
-              'color' | 'logoUrl'
-          >)
-    | null
+    (TokenData & { token: string } & Omit<SiteData, 'secret'> & {}) | null
 >(null)
 
 export function useSetupParams() {
@@ -116,4 +112,25 @@ export function usePreviewProps<T extends Record<string, any>>(
     }, [])
 
     return latestPageProps.current
+}
+
+export const useCopyToClipboard = (text: string) => {
+    const copyToClipboard = (str: string) => {
+        navigator.clipboard.writeText(str)
+        return true
+    }
+
+    const [copied, setCopied] = React.useState(false)
+
+    const copy = () => {
+        setCopied(copyToClipboard(text))
+    }
+    React.useEffect(() => {
+        const id = setTimeout(() => setCopied(false), 1000)
+        return () => {
+            clearTimeout(id)
+        }
+    }, [copied])
+    React.useEffect(() => () => setCopied(false), [text])
+    return { hasCopied: copied, copy }
 }
