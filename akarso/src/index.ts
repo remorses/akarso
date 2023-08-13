@@ -24,7 +24,7 @@ export async function updateOrCreateSSOConnection({
         identifier,
         callbackUrl,
     }
-    const res = await fetch(`https://akarso.co/api/get-host`, {
+    const res = await fetch(`https://akarso.co/api/session`, {
         method: 'POST',
         body: JSON.stringify({ secret }),
     })
@@ -35,16 +35,9 @@ export async function updateOrCreateSSOConnection({
             } ${await res.text()}`,
         )
     }
-    const { host } = await res.json()
-    const token = encodeURIComponent(
-        await new SignJWT(payload)
-            .setProtectedHeader({ alg: 'HS256' })
-            .setIssuedAt()
-            .setExpirationTime('2h')
-            .sign(new TextEncoder().encode(secret)),
-    )
+    const { host, hash } = await res.json()
 
-    const url = `https://${host}/session/${token}`
+    const url = `https://${host}/session/${hash}`
     return { url }
 }
 
