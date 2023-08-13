@@ -162,6 +162,7 @@ export const getServerSideProps = (async (ctx: GetServerSidePropsContext) => {
         secret: site.secret,
         callbackUrl: new URL(`/`, env.NEXT_PUBLIC_URL).toString(),
         identifier: '',
+        // TODO add isDemo so user does not complete the flow inside the iframe
     })
 
     // console.log('host', host, url)
