@@ -7,12 +7,13 @@
     "repository": "https://github.com/remorses/akarso",
     "scripts": {
         "build": "tsc",
+        "prepublishOnly": "pnpm build",
         "watch": "tsc -w"
     },
     "files": [
         "dist",
         "src",
-        "esm"
+        "README.md"
     ],
     "keywords": [],
     "author": "Tommaso De Rossi, morse <beats.by.morse@gmail.com>",

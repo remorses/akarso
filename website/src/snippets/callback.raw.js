@@ -1,16 +1,18 @@
-import { getSSOCallbackResult } from 'akarso'
+import { getAkarsoCallbackResult } from 'akarso'
 
 app.get('/api/sso-callback', async (req, res) => {
     const { token } = req.query
-    const { identifier, ssoProviderId } = await getSSOCallbackResult({
-        token,
-        secret: 'REPLACE_ME_SECRET',
-    })
+    const { identifier, ssoProviderId, domain } = await getAkarsoCallbackResult(
+        {
+            token,
+            secret: 'REPLACE_ME_SECRET',
+        },
+    )
 
     // connect SSO provider to the team entity
     await prisma.team.update({
         where: { id: identifier },
-        data: { ssoProviderId },
+        data: { ssoProviderId, ssoDomain: domain },
     })
 
     // redirect user back to dashboard

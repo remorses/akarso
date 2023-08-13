@@ -1,7 +1,7 @@
-import { updateOrCreateSSOConnection } from 'akarso'
+import { createOrUpdateSSOConnection } from 'akarso'
 
 // IMPORTANT: this code must run on the server
-const { url } = await updateOrCreateSSOConnection({
+const { url } = await createOrUpdateSSOConnection({
     // TODO: replace with your own url
     callbackUrl: `https://example.com/api/sso-callback`,
     identifier: teamId,
