@@ -10,6 +10,7 @@
         "lint": "next lint"
     },
     "dependencies": {
+        "@nanostores/persistent": "^0.9.1",
         "@nanostores/react": "^0.7.1",
         "@nextui-org/react": "^2.0.14",
         "@nextui-org/theme": "^2.0.4",

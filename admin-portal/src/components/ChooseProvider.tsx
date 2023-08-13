@@ -9,7 +9,7 @@ import { useState } from 'react'
 
 export function ChooseProvider() {
     const [provider, setProvider] = useState('')
-    const { host, hash } = useParams()!
+    const { host, token: hash } = useParams()!
     const router = useRouter()
     return (
         <Container>

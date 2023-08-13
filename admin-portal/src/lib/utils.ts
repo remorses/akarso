@@ -1,4 +1,7 @@
 export function createStepPath({ host, hash, provider, step }) {
+    if (!hash) {
+        throw new Error(`no hash passed`)
+    }
     return `/token/${hash}/provider/${provider}/step/${step}`
 }
 
