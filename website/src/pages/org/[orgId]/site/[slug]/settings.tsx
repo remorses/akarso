@@ -17,11 +17,13 @@ import { useState } from 'react'
 import { DashboardContainer } from 'website/src/components/DashboardContainer'
 import { createSessionUrl } from 'website/src/lib/ssr-edge'
 import { rotateSecret, setupSSO } from 'website/src/pages/api/functions'
+import { prisma } from 'db/prisma'
 
 export default function Page({
     sites,
     site,
     host,
+    org,
     url,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
     const router = useRouter()
@@ -54,7 +56,7 @@ export default function Page({
             <div className='text-3xl font-bold'>Settings</div>
             <Block className='space-y-6'>
                 <Button onClick={setup} isLoading={isLoadingSSO}>
-                    Setup SSO
+                    {org?.ssoProviderId ? 'Update SSO' : `Setup SSO`}
                 </Button>
                 <hr className='w-full' />
                 <div className=''>Your Akarso Secret</div>
@@ -97,14 +99,21 @@ export const getServerSideProps = (async (ctx: GetServerSidePropsContext) => {
     const userId = session?.user?.id
     const { orgId, slug } = ctx.query as any
 
-    const { props, notFound, redirect: red } = await commonServerProps(ctx)
+    const [{ props, notFound, redirect: red }, org] = await Promise.all([
+        commonServerProps(ctx),
+        prisma.org.findUnique({
+            where: {
+                orgId,
+            },
+        }),
+    ])
     if (red) {
         return { redirect: red }
     }
     if (notFound) {
         return { notFound }
     }
-    const { site, sites } = props
+    const { site, sites } = props!
 
     let host = `${site.slug}.${env.NEXT_PUBLIC_TENANTS_DOMAIN}`
     const { url } = await createSessionUrl({
@@ -118,6 +127,7 @@ export const getServerSideProps = (async (ctx: GetServerSidePropsContext) => {
         props: {
             sites,
             host,
+            org,
             site,
             url,
         },
