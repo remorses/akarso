@@ -1,6 +1,6 @@
 {
     "name": "admin-portal",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "private": true,
     "scripts": {
         "dev": "doppler run -c dev --command 'pnpm tsx scripts/example-host && pnpm next dev -p 4040'",
