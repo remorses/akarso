@@ -33,6 +33,7 @@ const handler = async (req: NextRequest) => {
             callbackUrl,
             identifier,
             metadata,
+            
         })
 
         return NextResponse.json({

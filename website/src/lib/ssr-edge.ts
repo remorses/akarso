@@ -13,7 +13,7 @@ export async function createSessionUrl({
     secret,
     callbackUrl,
     identifier,
-
+    // orgId = '',
     metadata = {},
 }) {
     if (!secret) {
@@ -29,6 +29,14 @@ export async function createSessionUrl({
     if (!site) {
         throw new Error('Site not found')
     }
+
+    const [{ data: org }] = await Promise.all([
+        supabase.from('Org').select().eq('orgId', site.orgId).single(),
+    ])
+    if (!org) {
+        throw new Error('Org not found')
+    }
+    let orgId = org?.orgId!
     const expiresAt = new Date()
     expiresAt.setHours(expiresAt.getHours() + 1)
     const hash = Math.random().toString(36).substring(2, 15)
@@ -40,6 +48,7 @@ export async function createSessionUrl({
             expiresAt: expiresAt.toISOString(),
             identifier,
             slug: site.slug,
+            orgId,
             hash,
             metadata,
         })

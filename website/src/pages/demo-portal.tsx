@@ -22,6 +22,7 @@ export const getServerSideProps = (async (ctx: GetServerSidePropsContext) => {
         startUrl: 'https://example.com',
         websiteUrl: 'https://akarso.co',
     }
+    const orgId = env.DEMO_ORG_ID!
     const site = await prisma.site.upsert({
         where: {
             // secret,
@@ -30,7 +31,7 @@ export const getServerSideProps = (async (ctx: GetServerSidePropsContext) => {
         create: {
             secret,
             slug,
-            orgId: env.DEMO_ORG_ID!,
+            orgId,
             ...data,
         },
         update: {
