@@ -62,8 +62,8 @@ export function MyFooter({}) {
                         <div className=''>
                             <button
                                 className='border-0'
-                                onClick={() => {
-                                    supabase.auth.signOut()
+                                onClick={async () => {
+                                    await supabase.auth.signOut()
                                     window.location.href = '/'
                                 }}
                             >
