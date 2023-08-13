@@ -56,6 +56,9 @@ importers:
       autoprefixer:
         specifier: 10.4.14
         version: 10.4.14(postcss@8.4.27)
+      classnames:
+        specifier: ^2.3.1
+        version: 2.3.1
       colord:
         specifier: ^2.9.2
         version: 2.9.2
