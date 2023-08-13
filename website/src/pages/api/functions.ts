@@ -90,8 +90,20 @@ export async function getSupabaseProjects({
     const { req, res } = await getNodejsContext()
 
     const supabase = new SupabaseManagementAPI({ accessToken })
-    const projects = await supabase.getProjects()
-    return projects
+    const [projects, orgs] = await Promise.all([
+        supabase.getProjects(),
+        supabase.getOrganizations(),
+    ])
+    return (
+        projects?.map((x) => {
+            const org = orgs?.find((org) => org?.id === x?.organization_id)
+                ?.name
+            return {
+                ...x,
+                org,
+            }
+        }) || []
+    )
 }
 
 export async function createUploadUrl({ filename }) {

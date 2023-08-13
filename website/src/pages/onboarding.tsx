@@ -162,7 +162,7 @@ export default function Page({}) {
                             >
                                 {projects?.map((t, index) => (
                                     <option key={index} value={t.id}>
-                                        {t.name}
+                                        {t.org}/{t.name}
                                     </option>
                                 ))}
                                 {!projects?.length && (
