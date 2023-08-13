@@ -37,7 +37,6 @@
         "react-medium-image-zoom": "^5.1.8",
         "server-actions-for-next-pages": "^0.0.4",
         "supabase-management-js": "^0.1.5",
-        "tailwindcss": "3.3.3",
-        "typescript": "^5.1.6"
+        "tailwindcss": "3.3.3"
     }
 }
