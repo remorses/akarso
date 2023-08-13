@@ -15,6 +15,7 @@ const piped = pipe(withServerActions(), (c) =>
 
 /** @type {import('next').NextConfig} */
 const nextConfig = piped({
+    reactStrictMode: false,
     experimental: {
         externalDir: true,
         swcPlugins: [['next-superjson-plugin', {}]],

@@ -4,6 +4,7 @@ const piped = pipe(withServerActions())
 
 /** @type {import('next').NextConfig} */
 const nextConfig = piped({
+    reactStrictMode: false,
     experimental: {
         externalDir: true,
     },
