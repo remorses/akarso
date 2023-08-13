@@ -59,6 +59,7 @@ export async function onboarding({
                         entityId,
                         ssoMappings,
                         websiteUrl,
+                        relayState,
                     },
                 },
                 users: {

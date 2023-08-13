@@ -111,6 +111,7 @@ export interface Database {
           entityId: string
           logoUrl: string
           orgId: string
+          relayState: string | null
           secret: string
           siteId: string
           slug: string
@@ -128,6 +129,7 @@ export interface Database {
           entityId?: string
           logoUrl?: string
           orgId: string
+          relayState?: string | null
           secret: string
           siteId: string
           slug: string
@@ -145,6 +147,7 @@ export interface Database {
           entityId?: string
           logoUrl?: string
           orgId?: string
+          relayState?: string | null
           secret?: string
           siteId?: string
           slug?: string

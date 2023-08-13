@@ -9,7 +9,7 @@ import { useState } from 'react'
 
 export function ChooseProvider() {
     const [provider, setProvider] = useState('')
-    const { host, token } = useParams()!
+    const { host, hash } = useParams()!
     const router = useRouter()
     return (
         <Container>
@@ -17,7 +17,7 @@ export function ChooseProvider() {
                 onSubmit={(e) => {
                     e.preventDefault()
                     router.push(
-                        createStepPath({ host, provider, step: 1, token }),
+                        createStepPath({ host, provider, step: 1, hash }),
                     )
                 }}
                 className='flex w-[600px] self-center flex-col gap-12'

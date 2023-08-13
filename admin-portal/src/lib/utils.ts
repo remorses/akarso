@@ -1,5 +1,5 @@
-export function createStepPath({ host, token, provider, step }) {
-    return `/token/${token}/provider/${provider}/step/${step}`
+export function createStepPath({ host, hash, provider, step }) {
+    return `/token/${hash}/provider/${provider}/step/${step}`
 }
 
 export function camel2title(camelCase) {

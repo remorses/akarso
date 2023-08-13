@@ -1,21 +1,10 @@
 'use client'
-import { Container } from 'admin-portal/src/components/Container'
-import { RadioCard } from 'admin-portal/src/components/form'
-import { providers } from 'admin-portal/src/lib/providers'
-import { createStepPath } from 'admin-portal/src/lib/utils'
-import {
-    Button,
-    Checkbox,
-    Input,
-    Radio,
-    RadioGroup,
-    cn,
-} from '@nextui-org/react'
-import { useParams, useRouter } from 'next/navigation'
-import { useState } from 'react'
-import { useStore } from '@nanostores/react'
 import { domainAtom } from '@/lib/atoms'
+import { useStore } from '@nanostores/react'
+import { Button, Input } from '@nextui-org/react'
+import { Container } from 'admin-portal/src/components/Container'
 import Link from 'next/link'
+import { useParams, useRouter } from 'next/navigation'
 
 export function Domain() {
     const domain = useStore(domainAtom)

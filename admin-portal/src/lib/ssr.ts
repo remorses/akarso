@@ -45,7 +45,7 @@ export async function getSiteDataFromHost({ host }) {
         entityId,
         startUrl,
         websiteUrl,
-        customDomain,
+        relayState,
         logoUrl,
         supabaseAccessToken,
         supabaseProjectRef,
@@ -62,13 +62,14 @@ export async function getSiteDataFromHost({ host }) {
         entityId,
         startUrl,
         websiteUrl,
+        relayState,
     }
 }
 
-export async function getPayloadForToken({ token: hash, cookies, secret }) {
+export async function getPayloadForToken({ hash, cookies, secret }) {
     const token = cookies().get(hash)?.value
     if (!token) {
-        console.log('no token for hash', hash, cookies().getAll())
+        console.log('no token for hash', hash, cookies()?.getAll?.())
         return {}
     }
     secret = decodeURIComponent(secret)
@@ -79,13 +80,15 @@ export async function getPayloadForToken({ token: hash, cookies, secret }) {
             new TextEncoder().encode(secret),
         )
         const payload: TokenData = verified.payload as any
-        return { payload, secret, expired: false }
+        return { payload, token, secret, hash, expired: false }
     } catch (error: any) {
         if (error.message.includes('"exp"')) {
             const payload = decodeJwt<TokenData>(token)
 
             return {
                 expired: true,
+                token,
+                hash,
                 payload,
             }
         }

@@ -17,7 +17,7 @@ import {
 } from 'react'
 import Image from 'next/image'
 import { Button, Input } from '@nextui-org/react'
-import { metadataXmlAtom } from 'admin-portal/src/lib/atoms'
+import { metadataUrlAtom, metadataXmlAtom } from 'admin-portal/src/lib/atoms'
 import { CheckIcon, UploadIcon } from 'lucide-react'
 import {
     Auth0,
@@ -30,6 +30,7 @@ import {
 import { useCopyToClipboard, useSetupParams } from '@/lib/hooks'
 import { SiteData } from '@/lib/ssr'
 import { camel2title } from '@/lib/utils'
+import { useStore } from '@nanostores/react'
 
 export const providers = {
     google: {
@@ -168,7 +169,7 @@ export const providers = {
                             Integration".
                         </div>
                         <Img
-                            src={require('admin-portal/src/img/boxy/okta/1.png')}
+                            src={require('admin-portal/src/img/supa/sso-okta-step-01.png')}
                         />
                     </>
                 ),
@@ -181,7 +182,7 @@ export const providers = {
                             Choose SAML 2.0 from the next screen and click Next.
                         </div>
                         <Img
-                            src={require('admin-portal/src/img/boxy/okta/2.png')}
+                            src={require('admin-portal/src/img/supa/sso-okta-step-02.png')}
                         />
                     </>
                 ),
@@ -194,7 +195,7 @@ export const providers = {
                             Give your application an App Name and click Next.
                         </div>
                         <Img
-                            src={require('admin-portal/src/img/boxy/okta/3.png')}
+                            src={require('admin-portal/src/img/supa/sso-okta-step-03.png')}
                         />
                     </>
                 ),
@@ -206,12 +207,29 @@ export const providers = {
                         <div>
                             Enter the following values in the SAML Settings
                             section on the next screen:
-                            {`Single sign on URL
-Audience URI (SP Entity ID)
-Select EmailAddress from the Name ID format dropdown.`}
+                            <Field k='acsUrl' label='Single sign on URL' />
+                            <Field
+                                label='Audience URI (SP Entity ID)'
+                                k='entityId'
+                            />
+                            <Field label='Default RelayState' k='relayState' />
+                            <Field
+                                label='Use this for Recipient URL and Destination URL'
+                                value='✔️'
+                            />
+                            <Field label='Default RelayState' k='relayState' />
+                            <Field
+                                label='Name ID format'
+                                value='EmailAddress'
+                            />
+                            <Field label='Application username' value='Email' />
+                            <Field
+                                label='Update application username on'
+                                value='Create and update'
+                            />
                         </div>
                         <Img
-                            src={require('admin-portal/src/img/boxy/okta/4.png')}
+                            src={require('admin-portal/src/img/supa/sso-okta-step-04.png')}
                         />
                     </>
                 ),
@@ -224,14 +242,33 @@ Select EmailAddress from the Name ID format dropdown.`}
                             Under the Attribute Statements section, you have to
                             configure the following attributes:
                         </div>
+                        <div className=''>
+                            <div className='flex justify-between'>
+                                <Field value='email' />
+                                <Field value='user.email' />
+                            </div>
+                            <div className='flex justify-between'>
+                                <Field value='first_name' />
+                                <Field value='user.firstName' />
+                            </div>
+                            <div className='flex justify-between'>
+                                <Field value='last_name' />
+                                <Field value='user.lastName' />
+                            </div>
+                            {/* <div className='flex justify-between'>
+                                <Field value='user_name' />
+                                <Field value='user.login' />
+                            </div> */}
+                        </div>
                         <Img
-                            src={require('admin-portal/src/img/boxy/okta/5.png')}
+                            src={require('admin-portal/src/img/supa/sso-okta-step-05.png')}
                         />
                     </>
                 ),
             },
             {
-                title: `Finish setup`,
+                title: `Copy the metadata URL`,
+                addsMetadata: true,
                 content: (
                     <>
                         <div>
@@ -239,19 +276,12 @@ Select EmailAddress from the Name ID format dropdown.`}
                             adding an internal app and click Finish.
                         </div>
                         <Img
-                            src={require('admin-portal/src/img/boxy/okta/6.png')}
+                            src={require('admin-portal/src/img/supa/sso-okta-step-06.png')}
                         />
                         <div className=''>
-                            From your application, click Sign On tab and go to
-                            the section SAML Signing Certificates Click the
-                            Actions dropdown for the correct certificate and
-                            click View IdP metadata. A separate window will open
-                            with the metadata XML file, you can copy it to your
-                            clipboard.
+                            Copy the metadata URL and paste it here below.
                         </div>
-                        <Img
-                            src={require('admin-portal/src/img/boxy/okta/7.png')}
-                        />
+                        <MetadataUrl />
                     </>
                 ),
             },
@@ -259,7 +289,7 @@ Select EmailAddress from the Name ID format dropdown.`}
     },
     microsoft: {
         inactive: true,
-        name: 'Microsoft Azure',
+        name: 'Azure AD',
         icon: <Microsoft />,
     },
     auth0: {
@@ -385,6 +415,25 @@ export function Field({
                 value={value}
                 // label={label}
                 isReadOnly
+            ></Input>
+        </div>
+    )
+}
+
+export function MetadataUrl({}) {
+    const data = useSetupParams()
+    // console.log({ data, k })
+    const value = useStore(metadataUrlAtom)
+    return (
+        <div className='space-y-2 my-1 '>
+            <div className=''>Metadata URL</div>
+            <Input
+                placeholder='https://example.com/metadata.xml'
+                className=''
+                labelPlacement='outside'
+                onValueChange={(x) => metadataUrlAtom.set(x)}
+                value={value}
+                // label={label}
             ></Input>
         </div>
     )

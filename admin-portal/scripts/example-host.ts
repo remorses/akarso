@@ -4,7 +4,7 @@ import { SignJWT } from 'jose'
 async function main() {
     const payload: TokenData = {
         callbackUrl: 'http://localhost:3000/api/sso-callback',
-        domain: 'localhost',
+        identifier: 'xxx',
         metadata: {
             orgId: 'example',
         },

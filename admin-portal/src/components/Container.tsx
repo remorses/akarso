@@ -3,7 +3,7 @@ import { useSetupParams } from 'admin-portal/src/lib/hooks'
 import Link from 'next/link'
 
 export function Container({ children }) {
-    let { logoUrl, token, color = '' } = useSetupParams()
+    let { logoUrl, token, hash, color = '' } = useSetupParams()
     color = color.replace('hsl(', '').replace(')', '').replace(/,/g, '')
 
     return (

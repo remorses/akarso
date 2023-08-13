@@ -12,7 +12,10 @@ import { SessionExpired } from '@/components/SessionExpired'
 
 export const revalidate = 0
 
-export default async function Layout({ params: { token, host }, children }) {
+export default async function Layout({
+    params: { token: hash, host },
+    children,
+}) {
     const {
         secret,
         notFound: fourOFour,
@@ -28,12 +31,12 @@ export default async function Layout({ params: { token, host }, children }) {
 
     // console.log({ token })
 
-    const { payload, expired } = await getPayloadForToken({
-        token,
+    const { payload, token, expired } = await getPayloadForToken({
+        hash,
         secret,
         cookies,
     })
-    const context = { ...payload, ...publicSiteData, token }
+    const context = { ...payload, ...publicSiteData, hash, token }
     if (expired) {
         return (
             <ProviderSetupProvider value={context}>

@@ -378,10 +378,11 @@ model Site {
     logoUrl             String   @default("")
     color               String   @default("")
 
-    acsUrl     String @default("")
-    websiteUrl String @default("")
-    entityId   String @default("")
-    startUrl   String @default("")
+    acsUrl     String  @default("")
+    websiteUrl String  @default("")
+    entityId   String  @default("")
+    relayState String? @default("")
+    startUrl   String  @default("")
 
     ssoMappings Json @default("{}")
 

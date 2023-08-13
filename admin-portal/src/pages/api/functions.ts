@@ -12,7 +12,7 @@ import { SupabaseManagementAPI } from 'supabase-management-js'
 export { wrapMethod }
 
 export async function createSSOProvider({
-    token,
+    hash,
     domain,
     metadataXml = undefined as string | undefined,
     metadataUrl = undefined as string | undefined,
@@ -20,6 +20,12 @@ export async function createSSOProvider({
 }) {
     if (!metadataXml && !metadataUrl) {
         throw new Error(`must provide either metadataXml or metadataUrl`)
+    }
+    if (!hash) {
+        throw new Error(`must provide hash`)
+    }
+    if (!domain) {
+        throw new Error(`must provide domain`)
     }
     if (!metadataXml) {
         metadataXml = undefined
@@ -36,7 +42,7 @@ export async function createSSOProvider({
     }
     // token is used as authentication, if user has this token it means he can setup sso for this domain, this means generated urls should expire and should not be shared in public, otherwise anyone could override an SSO connection
     const { payload, expired } = await getPayloadForToken({
-        token,
+        hash,
         secret,
         cookies() {
             return new Map(Object.entries((req as any as NextRequest).cookies))

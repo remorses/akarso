@@ -25,21 +25,25 @@ import { Container } from 'admin-portal/src/components/Container'
 import { useSetupParams, useThrowingFn } from 'admin-portal/src/lib/hooks'
 import { createSSOProvider } from 'admin-portal/src/pages/api/functions'
 
-export default function Page({ params: { provider, step, host, token } }) {
+export default function Page({
+    params: { provider, step, host, token: hash },
+}) {
     step = Number(step)
     const p = providers[provider]
     const stepsLength = p.steps.length
     const isEnd = step - 1 === stepsLength - 1
     const stepObj = p.steps[step - 1]
     const metadataXml = useStore(metadataXmlAtom)
-    const { callbackUrl } = useSetupParams()
-
     const metadataUrl = useStore(metadataUrlAtom)
+    const { callbackUrl, token } = useSetupParams()
 
     const { fn: create, isLoading } = useThrowingFn({
         async fn() {
+            if (disabled) {
+                return alert('Please fill in the metadata url and xml')
+            }
             const { url } = await createSSOProvider({
-                token,
+                hash,
                 metadataUrl,
                 domain: domainAtom.get(),
                 metadataXml,
@@ -47,6 +51,12 @@ export default function Page({ params: { provider, step, host, token } }) {
             window.location.href = url
         },
     })
+    const disabled =
+        'addsMetadata' in stepObj &&
+        stepObj.addsMetadata &&
+        !metadataXml &&
+        !metadataUrl
+    const buttonClass = disabled && 'pointer-events-none opacity-70'
     return (
         <Container>
             <div className='flex h-full justify-between gap-12'>
@@ -62,7 +72,7 @@ export default function Page({ params: { provider, step, host, token } }) {
                                     host,
                                     provider,
                                     step: step + 1,
-                                    token,
+                                    hash,
                                 })}
                             >
                                 <Button
@@ -70,11 +80,7 @@ export default function Page({ params: { provider, step, host, token } }) {
                                     endContent={
                                         <ArrowRightIcon className='w-4' />
                                     }
-                                    className={cn(
-                                        stepObj['addsMetadata'] &&
-                                            !metadataXml &&
-                                            'pointer-events-none opacity-70',
-                                    )}
+                                    className={cn(buttonClass)}
                                     color='primary'
                                     // color='success'
                                     // variant='flat'
@@ -86,6 +92,7 @@ export default function Page({ params: { provider, step, host, token } }) {
                             <Button
                                 isLoading={isLoading}
                                 onClick={create}
+                                className={cn(buttonClass)}
                                 endContent={<ArrowRightIcon className='w-4' />}
                             >
                                 Finish Setup
@@ -107,7 +114,7 @@ export default function Page({ params: { provider, step, host, token } }) {
                                     host,
                                     provider,
                                     step: index + 1,
-                                    token,
+                                    hash,
                                 })}
                                 className='flex text-sm items-center  gap-2'
                                 key={stepObj.title}
