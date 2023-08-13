@@ -4,7 +4,7 @@ import { useUser } from '@supabase/auth-helpers-react'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { MyNavbar } from 'website/src/components/specific'
+import { MyFooter, MyNavbar } from 'website/src/components/specific'
 
 export function OnboardingContainer({ children }) {
     const router = useRouter()
@@ -35,6 +35,8 @@ export function OnboardingContainer({ children }) {
                     </div>
                 </div>
             </div>
+            <hr className='mt-24 grow border-b'></hr>
+            <MyFooter />
         </div>
     )
 }
