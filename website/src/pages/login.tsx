@@ -24,7 +24,7 @@ const Login = () => {
     const { fn: loginWithGoogle, isLoading } = useThrowingFn({
         async fn() {
             NProgress.start()
-            const { data } = await supabase.auth.signInWithOAuth({
+            const { data, error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
                     queryParams: {
@@ -33,6 +33,8 @@ const Login = () => {
                     redirectTo,
                 },
             })
+            if (error) console.error(error)
+            await router.push(data?.url!)
         },
     })
     const { fn: sso, isLoading: ssoLoading } = useThrowingFn({
