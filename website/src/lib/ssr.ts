@@ -101,7 +101,7 @@ export async function createSessionUrl({
         throw error
     }
     const host =
-        site.customDomain || `${site.slug}.${env.NEXT_PUBLIC_SUPABASE_URL}`
+        site.customDomain || `${site.slug}.${env.NEXT_PUBLIC_TENANTS_DOMAIN}`
     const url = `${
         isDev ? 'http://' : 'https://'
     }${host}/session/${encodeURIComponent(hash)}`

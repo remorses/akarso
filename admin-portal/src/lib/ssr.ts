@@ -48,7 +48,7 @@ export async function getSiteDataFromHost({ host }) {
     }
 }
 
-export async function getPayloadForToken({ hash, secret }) {
+export async function getPortalSession({ hash, secret }) {
     secret = decodeURIComponent(secret)
     // console.log({ secret })
     const supabase = createSupabaseAdmin()
@@ -61,11 +61,26 @@ export async function getPayloadForToken({ hash, secret }) {
         throw new Error(`failed to get payload for hash: ${error.message}`)
     }
     const [session] = data || []
-
-    if (!session || new Date(session.expiresAt) < new Date()) {
+    if (!session) {
+        return { notFound: true as const }
+    }
+    // console.log({ session })
+    const exp = new Date(session.expiresAt + 'Z')
+    const now = new Date()
+    if (exp.getTime() < now.getTime()) {
+        console.log(
+            `expired from ${
+                (now.getTime() - exp.getTime()) / (1000 * 60)
+            } minutes`,
+        )
         return {
             expired: true as true,
         }
     }
-    return { payload: session, hash: hash, expired: false as false }
+    return {
+        payload: session,
+        hash: hash,
+        expired: false as false,
+        notFound: false as false,
+    }
 }

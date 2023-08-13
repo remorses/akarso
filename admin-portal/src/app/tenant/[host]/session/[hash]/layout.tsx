@@ -3,7 +3,7 @@ import { cookies } from 'next/headers'
 import { ProviderSetupProvider } from 'admin-portal/src/components/context'
 import { TokenData, providerSetupContext } from 'admin-portal/src/lib/hooks'
 import {
-    getPayloadForToken,
+    getPortalSession,
     getSiteDataFromHost,
 } from 'admin-portal/src/lib/ssr'
 import { jwtVerify } from 'jose'
@@ -31,7 +31,11 @@ export default async function Layout({
     } = data
 
     // console.log({ hash })
-    const { payload, expired } = await getPayloadForToken({
+    const {
+        payload,
+        expired,
+        notFound: notF,
+    } = await getPortalSession({
         hash,
         secret,
     })
@@ -43,7 +47,8 @@ export default async function Layout({
             </ProviderSetupProvider>
         )
     }
-    if (!payload) {
+
+    if (!payload || notF) {
         return notFound()
     }
 

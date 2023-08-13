@@ -193,6 +193,7 @@ export const getServerSideProps = (async (ctx: GetServerSidePropsContext) => {
         identifier: '',
     })
 
+    // console.log('host', host, url)
     return {
         props: {
             sites,
