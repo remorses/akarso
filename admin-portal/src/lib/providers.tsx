@@ -1,24 +1,14 @@
 'use client'
-import 'react-medium-image-zoom/dist/styles.css'
 import Zoom from 'react-medium-image-zoom'
+import 'react-medium-image-zoom/dist/styles.css'
 
 import classNames from 'classnames'
 
-import {
-    useState,
-    useReducer,
-    useRef,
-    ComponentPropsWithoutRef,
-    createContext,
-    useContext,
-    CSSProperties,
-    ReactNode,
-    Fragment,
-} from 'react'
-import Image from 'next/image'
+import { useCopyToClipboard, useSetupParams } from '@/lib/hooks'
+import { SiteData } from '@/lib/ssr'
+import { camel2title } from '@/lib/utils'
+import { useStore } from '@nanostores/react'
 import { Button, Input } from '@nextui-org/react'
-import { metadataUrlAtom, metadataXmlAtom } from 'admin-portal/src/lib/atoms'
-import { CheckIcon, UploadIcon } from 'lucide-react'
 import {
     Auth0,
     Cloudflare,
@@ -27,10 +17,18 @@ import {
     Microsoft,
     Okta,
 } from 'admin-portal/src/components/icons'
-import { useCopyToClipboard, useSetupParams } from '@/lib/hooks'
-import { SiteData } from '@/lib/ssr'
-import { camel2title } from '@/lib/utils'
-import { useStore } from '@nanostores/react'
+import { metadataUrlAtom, metadataXmlAtom } from 'admin-portal/src/lib/atoms'
+import { CheckIcon, UploadIcon } from 'lucide-react'
+import NextImage from 'next/image'
+import { Image } from '@nextui-org/react'
+
+import {
+    CSSProperties,
+    ComponentPropsWithoutRef,
+    Fragment,
+    useRef,
+    useState,
+} from 'react'
 
 export const providers = {
     google: {
@@ -338,6 +336,7 @@ export function Img({ src, ...rest }) {
                     // wrapStyle={style}
                 >
                     <Image
+                        as={NextImage}
                         className={classNames(
                             'overflow-hidden relative shadow-xl',
                             url.includes('boxy') && ' min-w-[105%]',
