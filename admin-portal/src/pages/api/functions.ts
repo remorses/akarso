@@ -1,4 +1,5 @@
 "poor man's use server"
+import { AkarsoCallbackParams } from 'akarso/src'
 import { NextRequest } from 'next/server'
 import {
     getPortalSession,
@@ -90,13 +91,18 @@ export async function createSSOProvider({
     }
     const ssoProviderId = ssoProv.id
 
-    const callbackPayload = { metadata, domain, ssoProviderId }
+    const callbackPayload: AkarsoCallbackParams = {
+        metadata: (metadata as any) || {},
+        identifier,
+        domain,
+        ssoProviderId,
+    }
     const encoded = await new SignJWT(callbackPayload)
         .setProtectedHeader({ alg: 'HS256' })
         .setIssuedAt()
         .setExpirationTime('2h')
         .sign(new TextEncoder().encode(secret))
-    url.searchParams.set('data', encodeURIComponent(encoded))
+    url.searchParams.set('token', encodeURIComponent(encoded))
     return {
         url: url.toString(),
     }

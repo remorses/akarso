@@ -1,14 +1,10 @@
-import { NextApiHandler, NextApiRequest, NextApiResponse } from 'next'
-import { createPagesServerClient } from '@supabase/auth-helpers-nextjs'
-import { createLoginRedirectUrl } from 'website/src/lib/utils'
-import { KnownError } from 'website/src/lib/errors'
-import { prisma } from 'db/prisma'
-import { notifyError } from 'website/src/lib/sentry'
-import { NextRequest, NextResponse } from 'next/server'
-import { createSupabaseAdmin } from 'db/supabase'
-import { env } from 'db/env'
-import { createSessionUrl } from 'website/src/lib/ssr-edge'
 import { getAkarsoCallbackResult } from 'akarso'
+import { env } from 'db/env'
+import { createSupabaseAdmin } from 'db/supabase'
+
+import { NextRequest, NextResponse } from 'next/server'
+import { KnownError } from 'website/src/lib/errors'
+import { notifyError } from 'website/src/lib/sentry'
 
 export const config = {
     runtime: 'edge',
@@ -22,11 +18,13 @@ const handler = async (req: NextRequest) => {
         })
     }
     try {
-        const { ssoProviderId, domain, identifier, metadata } =
+        const callbackData =
             await getAkarsoCallbackResult({
                 secret: env.AKARSO_SECRET,
                 token,
             })
+        console.log('callbackData', callbackData)
+        const { identifier, domain, ssoProviderId, metadata } = callbackData
         console.log(
             `received akarso callback for ${identifier}: registered ${domain} with provider id ${ssoProviderId}`,
         )
@@ -34,22 +32,27 @@ const handler = async (req: NextRequest) => {
         if (!slug) {
             throw new KnownError(`slug is missing`)
         }
-        const org = await prisma.org.findUnique({
-            where: {
-                orgId: identifier,
-            },
-        })
+        const supabase = createSupabaseAdmin()
+        const { data: org } = await supabase
+            .from('org')
+            .select()
+            .eq('orgId', identifier)
+            .single()
         if (!org) {
-            throw new KnownError(`org not found`)
+            throw new KnownError(`org ${identifier} not found`)
         }
-        await prisma.org.update({
-            where: {
-                orgId: identifier,
-            },
-            data: {
-                ssoProviderId,
-            },
-        })
+
+        const { error } = await supabase
+            .from('org')
+            .update({ ssoProviderId })
+            .eq('orgId', identifier)
+
+        // Check for errors and retrieve the result
+        if (error) {
+            console.error('Error updating org:', error)
+        } else {
+            console.log('Org updated successfully')
+        }
 
         return NextResponse.redirect(
             `${env.NEXT_PUBLIC_URL}/org/${org.orgId}/site/${slug}`,
