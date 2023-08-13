@@ -41,7 +41,7 @@ html.dark {
     min-height: 100vh !important;
     display: flex;
     flex-direction: column;
-    
+
     /* margin-right: calc(-1 * (100vw - 100%)); */
 }
 body {
@@ -61,4 +61,8 @@ body {
 .scrollbar-hide {
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
+}
+
+html {
+    overflow-y: scroll;
 }
