@@ -41,7 +41,7 @@ const handler = async (req, res) => {
     const minutes = Math.floor(diff / 1000 / 60)
     if (minutes > 5) {
         console.log(
-            `Not a signup because user is older than ${minutes} minutes, redirecting`,
+            `Not a signup because user is ${minutes} old minutes, redirecting`,
         )
         return res.redirect(redirectTo)
     }

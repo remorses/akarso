@@ -13,11 +13,15 @@ import {
 } from '@nextui-org/react'
 import { useParams, useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { useStore } from '@nanostores/react'
+import { domainAtom } from '@/lib/atoms'
+import Link from 'next/link'
 
-export function ChooseProvider() {
-    const [domain, setDomain] = useState('')
+export function Domain() {
+    const domain = useStore(domainAtom)
     const { host, token } = useParams()!
     const router = useRouter()
+
     return (
         <Container>
             <form
@@ -25,18 +29,20 @@ export function ChooseProvider() {
                     e.preventDefault()
                     router.push(`/token/${token}/select-provider`)
                 }}
-                className='flex w-[600px] self-center flex-col gap-12'
+                className='flex w-[600px] self-center flex-col gap-6'
             >
-                <div className=''>What is your SSO provider?</div>
+                <div className=''>What is your SSO domain?</div>
                 <Input
-                    onValueChange={setDomain}
+                    onValueChange={(x) => domainAtom.set(x)}
                     value={domain}
                     type='text'
                     placeholder='example.com'
                 />
-                <Button isDisabled={!domain} color='primary' type='submit'>
-                    Continue
-                </Button>
+                <Link legacyBehavior href={`/token/${token}/select-provider`}>
+                    <Button isDisabled={!domain} color='primary' type='submit'>
+                        Continue
+                    </Button>
+                </Link>
             </form>
         </Container>
     )

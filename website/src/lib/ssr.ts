@@ -64,7 +64,7 @@ export const generateSecretValue = () => {
 
 export async function createAdminUrl({ secret, host }) {
     const payload: ProviderSetupParams = {
-        callbackUrl: 'http://localhost:3000/api/auth/callback',
+        callbackUrl: 'http://localhost:3000/api/sso-callback',
         domain: 'localhost',
         metadata: {
             orgId: 'example',
