@@ -23,6 +23,7 @@
         "db": "workspace:*",
         "framer-motion": "^10.15.1",
         "jose": "^4.14.4",
+        "jwt-decode": "^3.1.2",
         "lucide-react": "0.265.0",
         "nanostores": "^0.9.3",
         "next": "13.4.14-canary.2",

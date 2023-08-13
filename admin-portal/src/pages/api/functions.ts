@@ -34,13 +34,16 @@ export async function createSSOProvider({
         throw new Error(`tenant not found`)
     }
     // token is used as authentication, if user has this token it means he can setup sso for this domain, this means generated urls should expire and should not be shared in public, otherwise anyone could override an SSO connection
-    const { payload } = await getPayloadForToken({
+    const { payload, expired } = await getPayloadForToken({
         token,
         secret,
         cookies() {
             return new Map(Object.entries((req as any as NextRequest).cookies))
         },
     })
+    if (expired) {
+        throw new Error(`Admin portal session expired, create a new one`)
+    }
     if (!payload) {
         throw new Error(`missing payload`)
     }

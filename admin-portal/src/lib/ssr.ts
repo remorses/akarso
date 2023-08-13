@@ -1,5 +1,6 @@
 import { ProviderSetupParams } from '../lib/hooks'
 import { colord } from 'colord'
+import decodeJwt from 'jwt-decode'
 
 import { createSupabaseAdmin } from 'db/supabase'
 import { createClient } from '@supabase/supabase-js'
@@ -39,7 +40,7 @@ export async function getSiteDataFromHost({ host }) {
     }
     let { color, secret, logoUrl, supabaseAccessToken, supabaseProjectRef } =
         site!
-   
+
     return {
         notFound: false as false,
         secret,
@@ -58,10 +59,22 @@ export async function getPayloadForToken({ token: hash, cookies, secret }) {
     }
     secret = decodeURIComponent(secret)
     // console.log({ secret })
-    const verified = await jwtVerify(
-        decodeURIComponent(token),
-        new TextEncoder().encode(secret),
-    )
-    const payload: ProviderSetupParams = verified.payload as any
-    return { payload, secret }
+    try {
+        const verified = await jwtVerify(
+            decodeURIComponent(token),
+            new TextEncoder().encode(secret),
+        )
+        const payload: ProviderSetupParams = verified.payload as any
+        return { payload, secret, expired: false }
+    } catch (error: any) {
+        if (error.message.includes('"exp"')) {
+            const payload = decodeJwt<ProviderSetupParams>(token)
+            
+            return {
+                expired: true,
+                payload,
+            }
+        }
+        throw error
+    }
 }

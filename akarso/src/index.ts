@@ -7,20 +7,21 @@ export async function getSSOCallbackResult({ token, secret }) {
         new TextEncoder().encode(secret),
     )
     const data = payload as CallbackParams
+    if (!data.metadata) {
+        data.metadata = {}
+    }
     return data
 }
 
 export async function updateOrCreateSSOConnection({
     metadata,
     identifier,
-    domain,
     callbackUrl,
     secret,
 }: SetupParams & { secret: string }) {
     const payload = {
         metadata,
         identifier,
-        domain,
         callbackUrl,
     }
     const res = await fetch(`https://akarso.co/api/get-host`, {
@@ -57,6 +58,6 @@ export type SetupParams = {
 export type CallbackParams = {
     ssoProviderId: string
     identifier: string
-    metadata?: Record<string, string>
+    metadata: Record<string, any>
     domain: string
 }

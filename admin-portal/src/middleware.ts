@@ -26,7 +26,8 @@ export default async function middleware(req: NextRequest) {
     const tokenIndex = parts.findIndex((p, i) => {
         return parts[i - 1] === 'token'
     })
-    const token = parts[tokenIndex]
+    const token = parts[tokenIndex] || ''
+
     const hash = token.slice(0, 8)
 
     if (token.length > 8) {
