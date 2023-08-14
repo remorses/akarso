@@ -14,7 +14,7 @@ export const getServerSideProps = (async (ctx: GetServerSidePropsContext) => {
     const data = {
         logoUrl:
             'https://edlzdykcnsqevfjzscic.supabase.co/storage/v1/object/public/user-uploads/e8a59d6c-2e43-4083-b3f1-59b83612292c/cc8ca374-ef8f-4b73-ba06-9488277f6924-logo-svg',
-        supabaseAccessToken: 'https://example.com',
+        supabaseAccessToken: 'xxxxx',
         supabaseProjectRef: 'example.com',
         acsUrl: 'https://example.com',
         entityId: 'https://example.com',

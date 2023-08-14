@@ -18,6 +18,7 @@ import { DashboardContainer } from 'website/src/components/DashboardContainer'
 import { createSessionUrl } from 'website/src/lib/ssr-edge'
 import { rotateSecret, setupSSO } from 'website/src/pages/api/functions'
 import { prisma } from 'db/prisma'
+import Link from 'next/link'
 
 export default function Page({
     sites,
@@ -34,6 +35,14 @@ export default function Page({
             window.location.href = url
         },
     })
+    const supabaseRefreshToken = site.supabaseRefreshToken
+    const supabaseUrl = new URL(`/api/supabase/connect`, env.NEXT_PUBLIC_URL)
+    supabaseUrl.searchParams.set(
+        'redirectUrl',
+        new URL(router.asPath, env.NEXT_PUBLIC_URL).toString(),
+    )
+    supabaseUrl.searchParams.set('slug', slug)
+    supabaseUrl.searchParams.set('orgId', orgId)
     const { fn: rotate, isLoading: isLoadingSecret } = useThrowingFn({
         async fn() {
             const ok = confirm(
@@ -54,6 +63,15 @@ export default function Page({
         <DashboardContainer sites={sites}>
             <div className='text-3xl font-bold'>Settings</div>
             <Block className='space-y-6'>
+                <div className=''>Update Supabase integration</div>
+                <Link legacyBehavior href={supabaseUrl.toString()}>
+                    <Button>
+                        {supabaseRefreshToken
+                            ? 'Update Supabase Integration'
+                            : `Connect Supabase`}
+                    </Button>
+                </Link>
+                <hr className='' />
                 <Button onClick={setup} isLoading={isLoadingSSO}>
                     {org?.ssoProviderId ? 'Update SSO' : `Setup SSO`}
                 </Button>

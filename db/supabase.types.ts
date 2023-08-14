@@ -168,6 +168,7 @@ export interface Database {
           startUrl: string
           supabaseAccessToken: string | null
           supabaseProjectRef: string | null
+          supabaseRefreshToken: string | null
           websiteUrl: string
         }
         Insert: {
@@ -186,6 +187,7 @@ export interface Database {
           startUrl?: string
           supabaseAccessToken?: string | null
           supabaseProjectRef?: string | null
+          supabaseRefreshToken?: string | null
           websiteUrl?: string
         }
         Update: {
@@ -204,6 +206,7 @@ export interface Database {
           startUrl?: string
           supabaseAccessToken?: string | null
           supabaseProjectRef?: string | null
+          supabaseRefreshToken?: string | null
           websiteUrl?: string
         }
         Relationships: [

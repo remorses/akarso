@@ -19,6 +19,9 @@ export default async function middleware(req: NextRequest) {
     const hostname = req.headers.get('host')!
 
     const path = url.pathname
+    if (path.startsWith('/api/')) {
+        return
+    }
 
     return NextResponse.rewrite(
         new URL(`/tenant/${hostname}${path}`, req.url),

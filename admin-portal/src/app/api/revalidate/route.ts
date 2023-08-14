@@ -9,6 +9,10 @@ if (typeof window !== 'undefined') {
 
 export const runtime = 'edge'
 
+export async function GET() {
+    return new Response('use POST instead', { status: 400 })
+}
+
 export async function POST(req: NextRequest) {
     const body = (await req.json()) as {
         secret?: string

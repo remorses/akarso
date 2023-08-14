@@ -5,6 +5,7 @@ import { NextRequest } from 'next/server'
 import {
     getPortalSession,
     getSiteDataFromHost,
+    refreshSupabaseToken,
     wrapMethod,
 } from 'admin-portal/src/lib/ssr'
 import { SignJWT } from 'jose'
@@ -12,6 +13,7 @@ import { getEdgeContext } from 'server-actions-for-next-pages/context'
 import { SupabaseManagementAPI } from 'supabase-management-js'
 import { DEMO_SITE_SECRET } from 'db/env'
 import { createSupabaseAdmin } from 'db/supabase'
+import { retry } from '@/lib/utils'
 
 export { wrapMethod }
 
@@ -41,11 +43,15 @@ export async function createSSOProvider({
     }
     const { req, res } = await getEdgeContext()
     const host = req?.headers.get('host')
-    const sess = await getSiteDataFromHost({ host })
-    if (sess.notFound) {
+    const site = await getSiteDataFromHost({ host })
+    if (site.notFound) {
         throw new Error(`tenant not found`)
     }
-    const { secret, supabaseAccessToken, supabaseProjectRef } = sess
+    const {
+        secret,
+        supabaseRefreshToken: oldRefreshToken,
+        supabaseProjectRef,
+    } = site
     if (secret == DEMO_SITE_SECRET) {
         console.warn(`DEMO_SITE_SECRET, returning`)
         return {
@@ -72,9 +78,14 @@ export async function createSSOProvider({
     // TODO think about dynamic code evaluation, tenants could find ways to talk with my database if they manage to run code here
     const url = new URL(callbackUrl)
 
-    if (!supabaseAccessToken) {
-        throw new Error(`missing supabaseAccessToken`)
+    if (!oldRefreshToken) {
+        throw new Error(`missing supabaseRefreshToken`)
     }
+    const { supabaseAccessToken, supabaseRefreshToken } =
+        await refreshSupabaseToken({
+            supabaseRefreshToken: oldRefreshToken,
+        })
+    // console.log({ supabaseRefreshToken, oldRefreshToken })
     if (!supabaseProjectRef) {
         throw new Error(`missing supabaseProjectRef`)
     }
@@ -83,75 +94,104 @@ export async function createSSOProvider({
     })
     const supabase = createSupabaseAdmin()
 
-    const ssoProviderId = await Promise.resolve().then(async () => {
-        try {
-            const ssoProv = await client.createSSOProvider(supabaseProjectRef, {
-                type: 'saml',
-                domains: [domain],
-                metadata_xml: metadataXml,
-                metadata_url: metadataUrl,
-
-                // attribute_mapping: attributeMappings,
+    const savingTokenPromise = retry(3, async () => {
+        const { error } = await supabase
+            .from('Site')
+            .update({
+                supabaseAccessToken,
+                supabaseRefreshToken,
             })
-            if (!ssoProv) {
-                throw new Error(`failed to create sso provider`)
-            }
-            const ssoProviderId = ssoProv.id
-            return ssoProviderId
-        } catch (error: any) {
-            if (!error.message.includes('already exists')) {
-                throw error
-            }
-
-            const { data: connections, error: connError } = await supabase
-                .from('SSOConnection')
-                .select()
-                .eq('domain', domain)
-                .eq('orgId', orgId)
-                .eq('identifier', identifier)
-                .limit(1)
-            if (connError) {
-                throw new Error(
-                    `failed to get akarso sso connection: ${error.message}`,
-                )
-            }
-            const [connection] = connections || []
-            if (!connection) {
-                throw new Error(
-                    `sso provider already exists but it was not created with akaraso or it has a different identifier`,
-                )
-            }
-            console.log(`sso provider already exists, updating`)
-            const providers = await client.getSSOProviders(supabaseProjectRef)
-            // TODO find previous SSO provider using passed down ssoProviderId instead of domain?
-            const prov = providers?.items.find(
-                (p) => p.domains?.find((x) => x.domain === domain),
+            .eq('secret', secret)
+        if (error) {
+            throw new Error(
+                `Failed to update site with supabase tokens: ${error}`,
             )
-            if (!prov) {
-                throw new Error(`sso provider to update not found`)
-            }
-            const ssoProv = await client.updateSSOProvider(
-                supabaseProjectRef,
-                prov.id,
-                {
-                    metadata_xml: metadataXml,
-                    metadata_url: metadataUrl,
-                    // attribute_mapping: attributeMappings,
-                },
-            )
-            return prov.id
         }
-    })
+    })()
+
+    const ssoProviderId = await Promise.resolve()
+        .then(async () => {
+            try {
+                const ssoProv = await client.createSSOProvider(
+                    supabaseProjectRef,
+                    {
+                        type: 'saml',
+                        domains: [domain],
+                        metadata_xml: metadataXml,
+                        metadata_url: metadataUrl,
+                        // attribute_mapping: attributeMappings,
+                    },
+                )
+                if (!ssoProv) {
+                    throw new Error(`failed to create sso provider`)
+                }
+                const ssoProviderId = ssoProv.id
+                return ssoProviderId
+            } catch (error: any) {
+                if (!error.message.includes('already exists')) {
+                    throw error
+                }
+
+                const { data: connections, error: connError } = await supabase
+                    .from('SSOConnection')
+                    .select()
+                    .eq('domain', domain)
+                    .eq('orgId', orgId)
+                    .eq('identifier', identifier)
+                    .limit(1)
+                if (connError) {
+                    throw new Error(
+                        `failed to get akarso sso connection: ${error.message}`,
+                    )
+                }
+                const [connection] = connections || []
+                if (!connection) {
+                    throw new Error(
+                        `sso provider already exists but it was not created with akaraso or it has a different identifier`,
+                    )
+                }
+                console.log(`sso provider already exists, updating`)
+                const providers = await client.getSSOProviders(
+                    supabaseProjectRef,
+                )
+                // TODO find previous SSO provider using passed down ssoProviderId instead of domain?
+                const prov = providers?.items.find(
+                    (p) => p.domains?.find((x) => x.domain === domain),
+                )
+                if (!prov) {
+                    throw new Error(`sso provider to update not found`)
+                }
+                const ssoProv = await client.updateSSOProvider(
+                    supabaseProjectRef,
+                    prov.id,
+                    {
+                        metadata_xml: metadataXml,
+                        metadata_url: metadataUrl,
+                        // attribute_mapping: attributeMappings,
+                    },
+                )
+                return prov.id
+            }
+        })
+        .catch(async (e) => {
+            await savingTokenPromise
+            throw e
+        })
+
+    await Promise.all([
+        ssoProviderId &&
+            supabase.from('SSOConnection').upsert({
+                domain,
+                id: v4(),
+                identifier,
+                orgId,
+                ssoProviderId,
+            }),
+        savingTokenPromise,
+    ])
     if (!ssoProviderId) {
         throw new Error(`failed to create sso provider`)
     }
-    await supabase.from('SSOConnection').upsert({
-        domain,
-        id: v4(),
-        identifier,
-        orgId,
-        ssoProviderId,
-    })
 
     const callbackPayload: AkarsoCallbackParams = {
         metadata: (metadata as any) || {},

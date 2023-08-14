@@ -64,7 +64,7 @@ export const generateSecretValue = () => {
 }
 
 export async function revalidateSiteSSGCache({ slug = '', host = '' }) {
-    console.info('Revalidating site', slug)
+    
     const isPreview = process.env.NODE_ENV === ('preview' as any)
     try {
         let hosts = [host].filter(Boolean)
@@ -98,6 +98,7 @@ export async function revalidateSiteSSGCache({ slug = '', host = '' }) {
                 ).slice(0, 100)}`,
             )
         }
+        console.info('Revalidated site', await res.text())
     } catch (e) {
         notifyError(e, 'revalidateSiteSSGCache')
     }

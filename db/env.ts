@@ -15,6 +15,9 @@ export const env = {
     REVALIDATE_SECRET: process.env.REVALIDATE_SECRET,
     DEMO_ORG_ID: process.env.DEMO_ORG_ID,
     AKARSO_SECRET: process.env.AKARSO_SECRET,
+    SUPA_CONNECT_CLIENT_SECRET: process.env.SUPA_CONNECT_CLIENT_SECRET,
+    SUPA_CONNECT_CLIENT_ID: process.env.SUPA_CONNECT_CLIENT_ID,
+    
 }
 
 if (typeof window === 'undefined') {

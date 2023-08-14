@@ -1,12 +1,5 @@
-import { TokenData } from '../lib/hooks'
-import { colord } from 'colord'
-import decodeJwt from 'jwt-decode'
-
-import { createSupabaseAdmin } from 'db/supabase'
-import { createClient } from '@supabase/supabase-js'
-import { jwtVerify } from 'jose'
 import { env } from 'db/env'
-import { cookies } from 'next/headers'
+import { createSupabaseAdmin } from 'db/supabase'
 
 export function wrapMethod(fn) {
     return async (...args) => {
@@ -80,8 +73,43 @@ export async function getPortalSession({ hash, host, secret }) {
     return {
         payload: session,
         hash: hash,
-        
+
         expired: false as false,
         notFound: false as false,
+    }
+}
+
+export async function refreshSupabaseToken({ supabaseRefreshToken }) {
+    console.log(`refreshing supabase token`)
+    const clientId = env.SUPA_CONNECT_CLIENT_ID!
+    const clientSecret = env.SUPA_CONNECT_CLIENT_SECRET!
+    const tokensRes = await fetch('https://api.supabase.com/v1/oauth/token', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            Accept: 'application/json',
+            Authorization: `Basic ${btoa(`${clientId}:${clientSecret}`)}`,
+        },
+        body: new URLSearchParams({
+            grant_type: 'refresh_token',
+            refresh_token: supabaseRefreshToken,
+        }),
+    })
+    if (!tokensRes.ok) {
+        throw new Error(
+            `Failed to fetch tokens from Supabase: ${await tokensRes.text()}`,
+        )
+    }
+    const tokens = await tokensRes.json()
+    // console.log('tokens', tokens)
+    {
+        const {
+            access_token: supabaseAccessToken,
+            refresh_token: supabaseRefreshToken,
+        } = tokens
+        return {
+            supabaseAccessToken,
+            supabaseRefreshToken,
+        }
     }
 }

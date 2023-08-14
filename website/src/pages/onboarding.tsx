@@ -7,7 +7,7 @@ import { requireAuth } from 'website/src/lib/ssr'
 
 import { Button, Input, Radio, cn } from '@nextui-org/react'
 import { useRouter } from 'next/router'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { OnboardingContainer } from 'website/src/components/OnboardingContainer'
 import { useForm } from 'react-hook-form'
 import Link from 'next/link'
@@ -19,8 +19,9 @@ import {
 import { toast } from 'react-hot-toast'
 import { slugKebabCase } from 'website/src/lib/utils'
 import { env } from 'db/env'
+import useFormPersist from 'react-hook-form-persist'
 
-export default function Page({}) {
+export default function Page({ supabaseAccessToken }) {
     const router = useRouter()
     const { fn: onSubmit, isLoading } = useThrowingFn({
         async fn(data) {
@@ -36,21 +37,21 @@ export default function Page({}) {
         watch,
         trigger,
         reset,
+        setValue,
         formState: { errors, isSubmitting, isValid },
     } = useForm({
         defaultValues: {
-            supabaseAccessToken: '',
             supabaseProjectRef: '',
             websiteUrl: '',
             slug: '',
         },
     })
+
     const data = watch()
-    const { slug, supabaseAccessToken, supabaseProjectRef } = data
+    const { slug, supabaseProjectRef } = data
     const {
         data: projects,
         isValidating,
-
         error,
     } = useSwr(
         [supabaseAccessToken],
@@ -67,6 +68,19 @@ export default function Page({}) {
             },
         },
     )
+
+    useFormPersist('onboarding', {
+        watch,
+        storage: globalThis?.window?.localStorage,
+        setValue,
+    })
+
+    const supabaseUrl = new URL(`/api/supabase/connect`, env.NEXT_PUBLIC_URL)
+    supabaseUrl.searchParams.set(
+        'redirectUrl',
+        new URL(router.asPath, env.NEXT_PUBLIC_URL).toString(),
+    )
+
     // params to take: supabase token, site slug (will also be org name, ), logo, and domain
     return (
         <OnboardingContainer>
@@ -126,25 +140,14 @@ export default function Page({}) {
                     />
                 </BlockWithStep>
                 <BlockWithStep step={2} className=''>
-                    <div className=''>
-                        Supabase token, you can generate one{' '}
-                        <a
-                            href={`https://supabase.com/dashboard/account/tokens`}
-                            target='_blank'
-                            className='underline'
-                        >
-                            here
-                        </a>
-                    </div>
-                    <Input
-                        {...register('supabaseAccessToken', {
-                            required: true,
-                            deps: ['supabaseProjectRef'],
-                        })}
-                        isRequired
-                        type='password'
-                        placeholder='xxxxxx'
-                    />
+                    <div className=''>Connect Supabase</div>
+                    <Link legacyBehavior href={supabaseUrl.toString()}>
+                        <Button>
+                            {supabaseAccessToken
+                                ? 'Update Supabase Integration'
+                                : `Connect Supabase`}
+                        </Button>
+                    </Link>
                 </BlockWithStep>
                 <BlockWithStep
                     disabled={!supabaseAccessToken || !projects?.length}
@@ -223,7 +226,8 @@ export async function getServerSideProps(
         return { redirect }
     }
 
+    const supabaseAccessToken = ctx.req.cookies?.supabaseAccessToken || ''
     return {
-        props: {},
+        props: { supabaseAccessToken },
     }
 }

@@ -36,3 +36,11 @@ export function generateCodeSnippet({ host, secret }) {
 }
 
 export const isDev = process.env.NODE_ENV === 'development'
+
+export function safeJsonParse(str) {
+    try {
+        return JSON.parse(str)
+    } catch (error) {
+        return null
+    }
+}

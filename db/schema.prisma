@@ -369,16 +369,17 @@ enum SubscriptionStatus {
 model Site {
     siteId String @id @default(uuid())
 
-    createdAt           DateTime @default(now())
-    supabaseAccessToken String?
-    supabaseProjectRef  String?
-    secret              String   @unique
-    orgId               String
-    org                 Org      @relation(fields: [orgId], references: [orgId], onDelete: Cascade)
-    slug                String   @unique
-    customDomain        String?  @unique
-    logoUrl             String   @default("")
-    color               String   @default("")
+    createdAt            DateTime @default(now())
+    supabaseAccessToken  String?
+    supabaseRefreshToken String?
+    supabaseProjectRef   String?
+    secret               String   @unique
+    orgId                String
+    org                  Org      @relation(fields: [orgId], references: [orgId], onDelete: Cascade)
+    slug                 String   @unique
+    customDomain         String?  @unique
+    logoUrl              String   @default("")
+    color                String   @default("")
 
     acsUrl     String  @default("")
     websiteUrl String  @default("")
