@@ -132,6 +132,9 @@ export const getServerSideProps = (async (ctx: GetServerSidePropsContext) => {
                 siteId: true,
                 slug: true,
             },
+            orderBy: {
+                createdAt: 'desc',
+            },
         }),
     ])
     if (!site || !org) {
