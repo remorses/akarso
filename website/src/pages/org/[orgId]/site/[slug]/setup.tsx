@@ -40,9 +40,7 @@ export default function Page({
     })
     const exampleLink = `https://github.com/remorses/akarso/blob/62bedda2347bfc387a0c4846c6a41ea8e6aba7af/website/src/pages/api/functions.ts#L113`
     return (
-        <DashboardContainer
-            {...{ freeTrialEndsInDays, hasFreeTrial, subs, sites }}
-        >
+        <div className='flex flex-col gap-6'>
             <div className='text-3xl font-bold'>Setup</div>
             <div className=''>
                 You can see a full example application written in Next.js{' '}
@@ -100,7 +98,7 @@ export default function Page({
                     </Link> */}
                 </BlockWithStep>
             </div>
-        </DashboardContainer>
+        </div>
     )
 }
 

@@ -18,10 +18,12 @@ import Script from 'next/script'
 import { useEffect, useState } from 'react'
 import { Toaster } from 'react-hot-toast'
 import classNames from 'classnames'
+import { DashboardContainer } from 'website/src/components/DashboardContainer'
+import { dashboardContext } from 'website/src/lib/hooks'
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }) {
     const router = useRouter()
-    const isDashboard = router.asPath.startsWith('/org')
+    const isDashboard = router.asPath.startsWith('/org/')
     const is404 = pageProps?.['statusCode'] > 200
     if (Component.disableNprogress) {
         pageProps.disableNprogress = true
@@ -35,9 +37,13 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
     }
     if (isDashboard) {
         return (
-            <CommonProviders pageProps={pageProps}>
-                <Component {...pageProps} />
-            </CommonProviders>
+            <dashboardContext.Provider value={pageProps as any}>
+                <DashboardContainer>
+                    <CommonProviders pageProps={pageProps}>
+                        <Component {...pageProps} />
+                    </CommonProviders>
+                </DashboardContainer>
+            </dashboardContext.Provider>
         )
     }
 

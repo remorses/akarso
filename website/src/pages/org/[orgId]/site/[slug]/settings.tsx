@@ -75,7 +75,7 @@ export default function Page({
     const toggleVisibility = () => setIsVisible(!isVisible)
 
     return (
-        <DashboardContainer sites={sites}>
+        <div className='flex flex-col gap-6'>
             <div className='text-3xl font-bold'>Settings</div>
             <Block className='space-y-6'>
                 <div className=''>Update Supabase integration</div>
@@ -132,7 +132,7 @@ export default function Page({
                     Delete Site and All Data
                 </Button>
             </Block>
-        </DashboardContainer>
+        </div>
     )
 }
 
@@ -167,6 +167,7 @@ export const getServerSideProps = (async (ctx: GetServerSidePropsContext) => {
     // console.log('host', host, url)
     return {
         props: {
+            ...props,
             sites,
             host,
             org,

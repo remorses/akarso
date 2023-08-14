@@ -1,4 +1,4 @@
-import { ProviderSetupParams } from '@/lib/hooks'
+import { DashboardProps } from '@/lib/hooks'
 import crypto from 'crypto'
 import { createSupabaseAdmin } from 'db/supabase'
 import { createClient } from '@supabase/supabase-js'

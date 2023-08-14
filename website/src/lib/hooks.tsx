@@ -2,21 +2,17 @@
 import React from 'react'
 import { createContext, useContext, useEffect } from 'react'
 import toast from 'react-hot-toast'
+import type { getServerSideProps } from 'website/src/pages/org/[orgId]/site/[slug]/setup'
 import type { SiteData } from 'admin-portal/src/lib/ssr'
 
-export type ProviderSetupParams = {
-    callbackUrl: string
-    metadata: Record<string, string>
-    domain: string
-}
+export type DashboardProps = Awaited<
+    ReturnType<typeof getServerSideProps>
+>['props']
 
+export const dashboardContext = createContext<DashboardProps>(null as any)
 
-export const providerSetupContext = createContext<ProviderSetupParams | null>(
-    null,
-)
-
-export function useSetupParams() {
-    return useContext(providerSetupContext)!
+export function useProps() {
+    return useContext(dashboardContext)!
 }
 
 export function useThrowingFn({

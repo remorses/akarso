@@ -48,7 +48,7 @@ export default function Page({
         updatePageProps({ logoUrl, color: color || undefined }, iframeRef)
     }, [color, logoUrl])
     return (
-        <DashboardContainer sites={sites}>
+        <div className='flex flex-col gap-6'>
             <div className='text-3xl font-bold'>Customize</div>
             <Block>
                 <div className='space-y-3'>
@@ -128,7 +128,7 @@ export default function Page({
                     )} */}
                 </BrowserWindow>
             </div>
-        </DashboardContainer>
+        </div>
     )
 }
 
@@ -168,6 +168,7 @@ export const getServerSideProps = (async (ctx: GetServerSidePropsContext) => {
     // console.log('host', host, url)
     return {
         props: {
+            ...props,
             sites,
             host,
             site,

@@ -15,6 +15,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { MyFooter, MyNavbar } from 'website/src/components/specific'
 import { Banner } from 'website/src/components/Banner'
+import { useProps } from 'website/src/lib/hooks'
 
 function SelectOrg({ sites = [] as { slug: string; orgId: string }[], slug }) {
     const router = useRouter()
@@ -46,16 +47,12 @@ function SelectOrg({ sites = [] as { slug: string; orgId: string }[], slug }) {
     )
 }
 
-export function DashboardContainer({
-    children,
-    subs,
-    freeTrialEndsInDays,
-    sites,
-}) {
+export function DashboardContainer({ children }) {
     const router = useRouter()
     const user = useUser()
     const { orgId, slug } = router.query as any
     const base = `/org/${orgId}/site/${slug}`
+    const { subs, freeTrialEndsInDays, sites } = useProps()
     return (
         <div className='pb-6 flex flex-col min-h-screen'>
             <Banner
