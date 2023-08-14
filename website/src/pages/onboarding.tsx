@@ -64,7 +64,7 @@ export default function Page({ supabaseAccessToken }) {
         },
         {
             onError: (err) => {
-                toast.error(err.message)
+                console.error(err.message)
             },
         },
     )
