@@ -37,16 +37,16 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
     }
     if (isDashboard) {
         return (
-            <dashboardContext.Provider
-                key={router.asPath}
-                value={pageProps as any}
-            >
-                <DashboardContainer>
-                    <CommonProviders pageProps={pageProps}>
+            <CommonProviders pageProps={pageProps}>
+                <dashboardContext.Provider
+                    key={router.asPath}
+                    value={pageProps as any}
+                >
+                    <DashboardContainer>
                         <Component {...pageProps} />
-                    </CommonProviders>
-                </DashboardContainer>
-            </dashboardContext.Provider>
+                    </DashboardContainer>
+                </dashboardContext.Provider>
+            </CommonProviders>
         )
     }
 
