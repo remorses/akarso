@@ -117,12 +117,12 @@ function CreatePortalButton() {
                     </ModalHeader>
                     {!url ? (
                         <>
-                            <ModalBody className='gap-4'>
-                                <div className='font-semibold'>Identifier</div>
-                                <div className='opacity-80 text-sm'>
-                                    The identifier for the team you are sending
-                                    the url to, will be passed back to the{' '}
-                                    <span className=''>callbackUrl</span>
+                            <ModalBody className='gap-4 '>
+                                <div className='font-semibold'>identifier</div>
+                                <div className='opacity-80 text-sm leading-relaxed'>
+                                    The identifier of the company you are
+                                    sending the url to, will be passed back to
+                                    the <span className=''>callbackUrl</span>
                                 </div>
                                 <Input
                                     defaultValue={'exampleTeamId'}
@@ -135,7 +135,7 @@ function CreatePortalButton() {
                                 </div>
                                 <div className='font-semibold'>callbackUrl</div>
 
-                                <div className='opacity-80 text-sm'>
+                                <div className='opacity-80 text-sm leading-relaxed'>
                                     The Akarso portal will redirect the user to
                                     this url after completing the SSO setup,
                                     passing the identifier and the other SSO
