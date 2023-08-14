@@ -122,7 +122,7 @@ export default function Page({ supabaseAccessToken, supabaseRefreshToken }) {
                     />
                 </BlockWithStep>
                 <BlockWithStep step={1} className=''>
-                    <div className=''>Choose a slug for your admin portal</div>
+                    <div className=''>Choose a slug for your Admin Portal</div>
                     <Input
                         endContent={
                             <div className='pointer-events-none flex items-center'>

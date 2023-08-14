@@ -25,7 +25,7 @@ export async function createAkarsoAdminPortalSession({
     })
     if (!res.ok) {
         throw new Error(
-            `failed to get host for Admin portal: ${
+            `failed to get host for Admin Portal: ${
                 res.status
             } ${await res.text()}`,
         )

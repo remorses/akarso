@@ -4,8 +4,7 @@
     "scripts": {
         "test": "NODE_ENV=test vitest",
         "watch": "pnpm -r watch",
-        "build": "pnpm -r build",
-        "release": "pnpm build && changeset"
+        "build": "pnpm -r build"
     },
     "devDependencies": {
         "@changesets/cli": "^2.26.2",

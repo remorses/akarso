@@ -65,10 +65,10 @@ export async function createSSOProvider({
         host,
     })
     if (expired) {
-        throw new Error(`Admin portal session expired, create a new one`)
+        throw new Error(`Admin Portal session expired, create a new one`)
     }
     if (notFound) {
-        throw new Error(`Admin portal session not found, create a new one`)
+        throw new Error(`Admin Portal session not found, create a new one`)
     }
     if (!payload) {
         throw new Error(`missing payload`)
