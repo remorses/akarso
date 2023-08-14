@@ -12,7 +12,7 @@ import { getOrgLimitsAndSubs, requireAuth } from 'website/src/lib/ssr'
 import { RefreshCwIcon } from 'lucide-react'
 import { useRouter } from 'next/router'
 import { useRef, useState } from 'react'
-import { FREE_TRIAL_DAYS, env } from 'db/env'
+import { env } from 'db/env'
 import { prisma } from 'db/prisma'
 import { DashboardContainer } from 'website/src/components/DashboardContainer'
 import { daysDistance, generateCodeSnippet, isDev } from 'website/src/lib/utils'
@@ -25,7 +25,6 @@ import Link from 'next/link'
 export default function Page({
     sites,
     site,
-    freeTrialEndsInDays,
     hasFreeTrial,
     subs,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
@@ -146,12 +145,6 @@ export const getServerSideProps = (async (ctx: GetServerSidePropsContext) => {
             notFound: true,
         } as const
     }
-    const freeTrialEndsInDays = subs?.length
-        ? 0
-        : Math.max(
-              FREE_TRIAL_DAYS - daysDistance(org?.createdAt!, new Date()),
-              0,
-          )
 
     return {
         props: {
@@ -159,7 +152,6 @@ export const getServerSideProps = (async (ctx: GetServerSidePropsContext) => {
             site,
             subs,
             hasFreeTrial,
-            freeTrialEndsInDays,
         },
     }
 }) satisfies GetServerSideProps

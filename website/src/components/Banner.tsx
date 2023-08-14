@@ -6,6 +6,7 @@ import {
     ModalContent,
     ModalFooter,
     ModalHeader,
+    RadioGroup,
     Tab,
     Tabs,
     useDisclosure,
@@ -16,14 +17,27 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
 import { createStripeCheckoutSession } from 'website/src/pages/api/stripe/stripe-functions'
-import { env, prices } from 'db/env'
+import { FREE_CONNECTIONS, Plan, env, prices } from 'db/env'
+import { RadioCard } from 'website/src/components/form'
 
 export function Banner({ freeTrialEndsInDays, subs, orgId }) {
     const router = useRouter()
     const { isOpen, onClose, onOpen, onOpenChange } = useDisclosure()
     const [billing, setBilling] = useState('monthly')
-    const price =
-        billing === 'yearly' ? prices.yearlyPro.usd : prices.monthlyPro.usd
+    const [plan, setPlan] = useState<Plan>('startup')
+    let price = 0
+    if (plan === 'startup') {
+        price +=
+            billing === 'yearly'
+                ? prices.yearlyStartup.usd
+                : prices.monthlyStartup.usd
+    }
+    if (plan === 'business') {
+        price +=
+            billing === 'yearly'
+                ? prices.yearlyBusiness.usd
+                : prices.monthlyBusiness.usd
+    }
     const { fn, isLoading } = useThrowingFn({
         async fn() {
             const stripe = await loadStripe(
@@ -42,9 +56,6 @@ export function Banner({ freeTrialEndsInDays, subs, orgId }) {
             await stripe?.redirectToCheckout({ sessionId })
         },
     })
-    if (subs?.length) {
-        return null
-    }
 
     const upgrade = (
         <button
@@ -59,56 +70,68 @@ export function Banner({ freeTrialEndsInDays, subs, orgId }) {
             {isLoading ? 'loading...' : 'upgrade'}
         </button>
     )
+    if (subs?.length) {
+        return null
+    }
 
     return (
         <>
             <div className='font-semibold text-white bg-gradient-to-r from-cyan-600 gap-1 to-sky-600 text-sm absolute top-0 shrink-0 h-[40px] bg-black w-full flex items-center justify-center'>
-                {freeTrialEndsInDays ? (
+                {
                     <div className=''>
-                        {upgrade} to not lose access in {freeTrialEndsInDays}{' '}
-                        {freeTrialEndsInDays === 1 ? 'day' : 'days'}
+                        {upgrade} to create more than {FREE_CONNECTIONS} SSO
+                        connections
                     </div>
-                ) : (
-                    <div className=''>
-                        Your free trial expired, {upgrade} to not lose access{' '}
-                    </div>
-                )}
+                }
             </div>
             <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
                 <ModalContent>
-                    {(onClose) => (
-                        <>
-                            <ModalHeader className='flex flex-col gap-1'>
-                                Upgrade
-                            </ModalHeader>
-                            <ModalBody>
-                                <div className=''>
-                                    How often do you want to pay?
-                                </div>
-                                <Tabs
-                                    selectedKey={billing}
-                                    onSelectionChange={setBilling as any}
+                    <>
+                        <ModalHeader className='flex flex-col gap-1'>
+                            Upgrade
+                        </ModalHeader>
+                        <ModalBody className='gap-6'>
+                            <div className=''>Choose a plan</div>
+                            <RadioGroup
+                                onValueChange={setPlan as any}
+                                value={plan}
+                            >
+                                <RadioCard
+                                    value='startup'
+                                    description='max 20 connections, all customizations'
                                 >
-                                    <Tab key='yearly' title='Yearly Billing' />
-                                    <Tab
-                                        key='monthly'
-                                        title='Monthly Billing'
-                                    />
-                                </Tabs>
-                            </ModalBody>
-                            <ModalFooter className='items-center'>
-                                <Button
-                                    onClick={fn}
-                                    isLoading={isLoading}
-                                    color='primary'
+                                    Startup
+                                </RadioCard>
+                                <RadioCard
+                                    value='business'
+                                    description='max 200 connections, all customizations'
                                 >
-                                    Upgrade at{' '}
-                                    <span className='font-mono'>${price}</span>{' '}
-                                    a month
-                                </Button>
-                            </ModalFooter>
-                        </>
-                    )}
+                                    Business
+                                </RadioCard>
+                            </RadioGroup>
+                            <div className=''>
+                                How often do you want to pay?
+                            </div>
+                            <Tabs
+                                selectedKey={billing}
+                                onSelectionChange={setBilling as any}
+                            >
+                                <Tab key='monthly' title='Monthly Billing' />
+                                <Tab key='yearly' title='Yearly Billing' />
+                            </Tabs>
+                        </ModalBody>
+                        <ModalFooter className='items-center'>
+                            <Button
+                                onClick={fn}
+                                isLoading={isLoading}
+                                color='primary'
+                            >
+                                Upgrade at{' '}
+                                <span className='font-mono'>${price}</span> a
+                                month
+                            </Button>
+                        </ModalFooter>
+                    </>
                 </ModalContent>
             </Modal>
         </>

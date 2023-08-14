@@ -25,7 +25,7 @@ export const RadioCard = (props) => {
             }}
         >
             <div className='flex gap-2'>
-                <div className='[&>*]:w-[30px]'>{icon}</div>
+                {icon && <div className='[&>*]:w-[30px]'>{icon}</div>}
                 <div className=''>{children}</div>
             </div>
         </Radio>

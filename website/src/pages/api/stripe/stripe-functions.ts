@@ -3,7 +3,7 @@ import { AppError, KnownError } from 'website/src/lib/errors'
 import { requireAuth } from 'website/src/lib/ssr'
 import { wrapMethod } from '../functions'
 import { getNodejsContext as getContext } from 'server-actions-for-next-pages/context'
-import { env, prices } from 'db/env'
+import { Plan, env, prices } from 'db/env'
 import { prisma } from 'db/prisma'
 import { upsertStripeCustomer, stripe } from 'website/src/lib/ssr-stripe'
 import { isTruthy } from 'website/src/lib/utils'
@@ -12,6 +12,7 @@ export { wrapMethod }
 
 export async function createStripeCheckoutSession({
     orgId,
+    plan = 'startup' as Plan,
     yearlyBilling = false,
     callbackUrl,
     addons = [],
@@ -37,6 +38,19 @@ export async function createStripeCheckoutSession({
         userId,
         email,
     }
+    const price = (() => {
+        if (plan === 'startup') {
+            return yearlyBilling
+                ? prices.yearlyStartup.id
+                : prices.monthlyStartup.id
+        }
+        if (plan === 'business') {
+            return yearlyBilling
+                ? prices.yearlyBusiness.id
+                : prices.monthlyBusiness.id
+        }
+        throw new AppError(`Unknown plan ${plan}`)
+    })()
 
     const sess = await stripe.checkout.sessions
         .create({
@@ -57,9 +71,7 @@ export async function createStripeCheckoutSession({
 
             line_items: [
                 {
-                    price: yearlyBilling
-                        ? prices.yearlyPro.id
-                        : prices.monthlyPro.id,
+                    price,
                     quantity: 1,
                 },
                 ...addons

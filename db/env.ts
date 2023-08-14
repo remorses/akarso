@@ -39,7 +39,7 @@ function stagingValue(a, b) {
 }
 
 export const prices = {
-    monthlyPro: {
+    monthlyStartup: {
         addon: false,
         id: stagingValue(
             'price_1Ney9EHLbEXYizoqakK1TjqH',
@@ -47,13 +47,29 @@ export const prices = {
         ),
         usd: 99,
     },
-    yearlyPro: {
+    yearlyStartup: {
         addon: false,
         id: stagingValue(
             'price_1Ney9EHLbEXYizoqAjBMZGjp',
             'price_1Ney9EHLbEXYizoqAjBMZGjp',
         ),
         usd: 80,
+    },
+    monthlyBusiness: {
+        addon: false,
+        id: stagingValue(
+            'price_1Nf0gSHLbEXYizoq5PyjJqBL',
+            'price_1Nf0gSHLbEXYizoq5PyjJqBL',
+        ),
+        usd: 299,
+    },
+    yearlyBusiness: {
+        addon: false,
+        id: stagingValue(
+            'price_1Nf0gSHLbEXYizoqLRlHBcDI',
+            'price_1Nf0gSHLbEXYizoqLRlHBcDI',
+        ),
+        usd: 239,
     },
 } as const
 
@@ -68,4 +84,6 @@ export const UPLOADS_BASE_URL = `${env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/obje
 
 export const DEMO_SITE_SECRET = 'DEMO_SITE_SECRET'
 
-export const FREE_TRIAL_DAYS = 7
+export const FREE_CONNECTIONS = 5
+
+export type Plan = 'startup' | 'business'
