@@ -43,7 +43,7 @@ export const prices = {
     monthlyStartup: {
         addon: false,
         id: stagingValue(
-            'price_1Ney9EHLbEXYizoqakK1TjqH',
+            'price_1Nf3YBHLbEXYizoqJ4jjiHm2',
             'price_1Ney9EHLbEXYizoqakK1TjqH',
         ),
         usd: 99,
@@ -51,7 +51,7 @@ export const prices = {
     yearlyStartup: {
         addon: false,
         id: stagingValue(
-            'price_1Ney9EHLbEXYizoqAjBMZGjp',
+            'price_1Nf3YBHLbEXYizoq9H2ul1LA',
             'price_1Ney9EHLbEXYizoqAjBMZGjp',
         ),
         usd: 80,
@@ -59,7 +59,7 @@ export const prices = {
     monthlyBusiness: {
         addon: false,
         id: stagingValue(
-            'price_1Nf0gSHLbEXYizoq5PyjJqBL',
+            'price_1Nf3ZUHLbEXYizoq1Z6fnAAx',
             'price_1Nf0gSHLbEXYizoq5PyjJqBL',
         ),
         usd: 299,
@@ -67,7 +67,7 @@ export const prices = {
     yearlyBusiness: {
         addon: false,
         id: stagingValue(
-            'price_1Nf0gSHLbEXYizoqLRlHBcDI',
+            'price_1Nf3ZUHLbEXYizoqVxgS8aIZ',
             'price_1Nf0gSHLbEXYizoqLRlHBcDI',
         ),
         usd: 239,
