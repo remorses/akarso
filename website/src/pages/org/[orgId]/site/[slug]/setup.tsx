@@ -1,6 +1,4 @@
-import { Spinner, useThrowingFn } from 'beskar/landing'
 import { Code } from 'beskar/src/landing/Code'
-import classNames from 'classnames'
 
 import {
     GetServerSideProps,
@@ -9,18 +7,11 @@ import {
 } from 'next'
 import { getOrgLimitsAndSubs, requireAuth } from 'website/src/lib/ssr'
 
-import { RefreshCwIcon } from 'lucide-react'
-import { useRouter } from 'next/router'
-import { useRef, useState } from 'react'
+import { Alert, BlockWithStep } from 'beskar/dashboard'
 import { env } from 'db/env'
 import { prisma } from 'db/prisma'
-import { DashboardContainer } from 'website/src/components/DashboardContainer'
-import { daysDistance, generateCodeSnippet, isDev } from 'website/src/lib/utils'
-import { onboarding } from 'website/src/pages/api/functions'
-import { Alert, Block, BlockWithStep } from 'beskar/dashboard'
-import { BrowserWindow } from 'website/src/components/BrowserWindow'
-import { Button } from '@nextui-org/react'
-import Link from 'next/link'
+import { useRouter } from 'next/router'
+import { generateCodeSnippet } from 'website/src/lib/utils'
 
 export default function Page({
     sites,
