@@ -14,6 +14,7 @@ import {
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { MyFooter, MyNavbar } from 'website/src/components/specific'
+import { Banner } from 'website/src/components/Banner'
 
 function SelectOrg({ sites = [] as { slug: string; orgId: string }[], slug }) {
     const router = useRouter()
@@ -45,13 +46,23 @@ function SelectOrg({ sites = [] as { slug: string; orgId: string }[], slug }) {
     )
 }
 
-export function DashboardContainer({ children, sites }) {
+export function DashboardContainer({
+    children,
+    subs,
+    freeTrialEndsInDays,
+    sites,
+}) {
     const router = useRouter()
     const user = useUser()
     const { orgId, slug } = router.query as any
     const base = `/org/${orgId}/site/${slug}`
     return (
         <div className='pb-6 flex flex-col min-h-screen'>
+            <Banner
+                orgId={orgId}
+                freeTrialEndsInDays={freeTrialEndsInDays}
+                subs={subs}
+            />
             {/* <MyNavbar /> */}
             {/* <div className='w-full '>
                 <div className='w-full max-w-[1200px] mx-auto'>

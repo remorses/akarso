@@ -6,7 +6,7 @@ import { SignJWT, jwtVerify } from 'jose'
 import { env } from 'db/env'
 import { createPagesServerClient } from '@supabase/auth-helpers-nextjs'
 import { notifyError } from '@/lib/sentry'
-import { isDev } from 'website/src/lib/utils'
+import { daysDistance, isDev } from 'website/src/lib/utils'
 import { prisma } from 'db/prisma'
 
 export function wrapMethod(fn) {
@@ -64,7 +64,6 @@ export const generateSecretValue = () => {
 }
 
 export async function revalidateSiteSSGCache({ slug = '', host = '' }) {
-    
     const isPreview = process.env.NODE_ENV === ('preview' as any)
     try {
         let hosts = [host].filter(Boolean)
@@ -101,5 +100,33 @@ export async function revalidateSiteSSGCache({ slug = '', host = '' }) {
         console.info('Revalidated site', await res.text())
     } catch (e) {
         notifyError(e, 'revalidateSiteSSGCache')
+    }
+}
+
+export async function getOrgLimitsAndSubs({ orgId = '' }) {
+    const [subs, org] = await Promise.all([
+        prisma.subscription.findMany({
+            where: {
+                AND: [
+                    { orgId, status: 'active' },
+                    { OR: [{ endsAt: null }, { endsAt: { gt: new Date() } }] },
+                ],
+            },
+        }),
+        prisma.org.findUnique({
+            where: { orgId },
+            select: { createdAt: true },
+        }),
+    ])
+    const hasFreeTrial = Boolean(
+        org && daysDistance(org?.createdAt, new Date()) < 7,
+    )
+    const limits = {
+        maxUsersNumber: 100,
+    }
+    return {
+        subs: subs || [],
+        hasFreeTrial,
+        limits,
     }
 }

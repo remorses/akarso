@@ -7,15 +7,15 @@ import {
     GetServerSidePropsContext,
     InferGetServerSidePropsType,
 } from 'next'
-import { requireAuth } from 'website/src/lib/ssr'
+import { getOrgLimitsAndSubs, requireAuth } from 'website/src/lib/ssr'
 
 import { RefreshCwIcon } from 'lucide-react'
 import { useRouter } from 'next/router'
 import { useRef, useState } from 'react'
-import { env } from 'db/env'
+import { FREE_TRIAL_DAYS, env } from 'db/env'
 import { prisma } from 'db/prisma'
 import { DashboardContainer } from 'website/src/components/DashboardContainer'
-import { generateCodeSnippet, isDev } from 'website/src/lib/utils'
+import { daysDistance, generateCodeSnippet, isDev } from 'website/src/lib/utils'
 import { onboarding } from 'website/src/pages/api/functions'
 import { Alert, Block, BlockWithStep } from 'beskar/dashboard'
 import { BrowserWindow } from 'website/src/components/BrowserWindow'
@@ -25,6 +25,9 @@ import Link from 'next/link'
 export default function Page({
     sites,
     site,
+    freeTrialEndsInDays,
+    hasFreeTrial,
+    subs,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
     const router = useRouter()
 
@@ -37,7 +40,9 @@ export default function Page({
     })
     const exampleLink = `https://github.com/remorses/akarso/blob/62bedda2347bfc387a0c4846c6a41ea8e6aba7af/website/src/pages/api/functions.ts#L113`
     return (
-        <DashboardContainer sites={sites}>
+        <DashboardContainer
+            {...{ freeTrialEndsInDays, hasFreeTrial, subs, sites }}
+        >
             <div className='text-3xl font-bold'>Setup</div>
             <div className=''>
                 You can see a full example application written in Next.js{' '}
@@ -106,7 +111,7 @@ export const getServerSideProps = (async (ctx: GetServerSidePropsContext) => {
     if (redirect) {
         return { redirect } as const
     }
-    const [site, org, sites] = await Promise.all([
+    const [site, org, sites, { subs, hasFreeTrial }] = await Promise.all([
         prisma.site.findUnique({
             where: {
                 slug,
@@ -136,17 +141,27 @@ export const getServerSideProps = (async (ctx: GetServerSidePropsContext) => {
                 createdAt: 'desc',
             },
         }),
+        getOrgLimitsAndSubs({ orgId }),
     ])
     if (!site || !org) {
         return {
             notFound: true,
         } as const
     }
+    const freeTrialEndsInDays = subs?.length
+        ? 0
+        : Math.max(
+              FREE_TRIAL_DAYS - daysDistance(org?.createdAt!, new Date()),
+              0,
+          )
 
     return {
         props: {
             sites,
             site,
+            subs,
+            hasFreeTrial,
+            freeTrialEndsInDays,
         },
     }
 }) satisfies GetServerSideProps

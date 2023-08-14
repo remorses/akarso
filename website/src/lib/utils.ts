@@ -44,3 +44,11 @@ export function safeJsonParse(str) {
         return null
     }
 }
+
+export function isTruthy<T>(val: T | undefined | null | false): val is T {
+    return !!val
+}
+
+export function daysDistance(a: Date, b: Date) {
+    return Math.floor(Math.abs(a.getTime() - b.getTime()) / (1000 * 3600 * 24))
+}
