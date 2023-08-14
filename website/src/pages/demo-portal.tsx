@@ -42,7 +42,7 @@ export const getServerSideProps = (async (ctx: GetServerSidePropsContext) => {
     })
     const { url } = await createSessionUrl({
         callbackUrl: env.NEXT_PUBLIC_URL,
-        identifier: 'x',
+        identifier: '',
         secret,
     })
     return {

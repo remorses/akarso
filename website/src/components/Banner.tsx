@@ -70,6 +70,7 @@ export function Banner({ freeTrialEndsInDays, subs, orgId }) {
             {isLoading ? 'loading...' : 'upgrade'}
         </button>
     )
+    return null
     if (subs?.length) {
         return null
     }

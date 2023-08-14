@@ -74,6 +74,12 @@ export async function createSSOProvider({
         throw new Error(`missing payload`)
     }
     const { callbackUrl, identifier, metadata, orgId } = payload
+
+    if (!identifier) {
+        throw new Error(
+            `missing customer identifier, this is expected in a demo SSO portal`,
+        )
+    }
     // TODO check if this domain is already used by another tenant, if yes and has different identifier, throw error
     // TODO think about dynamic code evaluation, tenants could find ways to talk with my database if they manage to run code here
     const url = new URL(callbackUrl)

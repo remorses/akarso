@@ -19,6 +19,7 @@ import { slugKebabCase } from 'website/src/lib/utils'
 import { createSupabaseAdmin } from 'db/supabase'
 import { env, uploadBucketName } from 'db/env'
 import { NextApiResponse } from 'next'
+import { createSessionUrl } from 'website/src/lib/ssr-edge'
 
 export { wrapMethod }
 
@@ -273,4 +274,29 @@ export async function deleteSite({ slug, orgId }) {
     if (!r.count) {
         throw new AppError(`site not found '${slug}'`)
     }
+}
+
+export async function createPortalNoCode({ callbackUrl, identifier, secret }) {
+    const { req, res } = getNodejsContext()
+    const { userId } = await requireAuth({ req, res })
+    if (!userId) {
+        throw new AppError('Missing userId')
+    }
+    if (!secret) {
+        throw new AppError('Missing secret')
+    }
+    if (!identifier) {
+        throw new AppError('Missing identifier')
+    }
+    try {
+        new URL(callbackUrl)
+    } catch (error) {
+        throw new AppError(`Invalid callbackUrl: ${callbackUrl}`)
+    }
+    const { url } = await createSessionUrl({
+        secret: secret,
+        callbackUrl,
+        identifier,
+    })
+    return { url }
 }

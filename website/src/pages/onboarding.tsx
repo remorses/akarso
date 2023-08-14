@@ -1,25 +1,23 @@
+import { BlockWithStep } from 'beskar/dashboard'
 import { useThrowingFn } from 'beskar/landing'
 import useSwr from 'swr'
-import { BlockWithStep } from 'beskar/dashboard'
 
 import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next'
 import { requireAuth } from 'website/src/lib/ssr'
 
 import { Button, Input, Radio, cn } from '@nextui-org/react'
-import { useRouter } from 'next/router'
-import { useCallback, useState } from 'react'
-import { OnboardingContainer } from 'website/src/components/OnboardingContainer'
-import { useForm } from 'react-hook-form'
+import { env } from 'db/env'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
+import { useForm } from 'react-hook-form'
+import useFormPersist from 'react-hook-form-persist'
+import { OnboardingContainer } from 'website/src/components/OnboardingContainer'
 import { SimpleSelect } from 'website/src/components/SimpleSelect'
+import { slugKebabCase } from 'website/src/lib/utils'
 import {
     getSupabaseProjects,
     onboarding,
 } from 'website/src/pages/api/functions'
-import { toast } from 'react-hot-toast'
-import { slugKebabCase } from 'website/src/lib/utils'
-import { env } from 'db/env'
-import useFormPersist from 'react-hook-form-persist'
 
 export default function Page({ supabaseAccessToken, supabaseRefreshToken }) {
     const router = useRouter()
