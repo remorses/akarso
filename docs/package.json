@@ -5,7 +5,7 @@
     "main": "index.js",
     "scripts": {
         "dev": "vitepress dev .",
-        "build": "pnpm vitepress build .",
+        "build": "pnpm vitepress build . && ls -l .vitepress/dist && ls -l .vitepress",
         "preview": "vitepress preview ."
     },
     "keywords": [],
