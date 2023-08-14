@@ -17,6 +17,7 @@ export const env = {
     AKARSO_SECRET: process.env.AKARSO_SECRET,
     SUPA_CONNECT_CLIENT_SECRET: process.env.SUPA_CONNECT_CLIENT_SECRET,
     SUPA_CONNECT_CLIENT_ID: process.env.SUPA_CONNECT_CLIENT_ID,
+    DOCS_URL: process.env.DOCS_URL,
 }
 
 if (typeof window === 'undefined') {
