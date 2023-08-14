@@ -14,9 +14,7 @@ import { useRouter } from 'next/router'
 import { generateCodeSnippet } from 'website/src/lib/utils'
 
 export default function Page({
-    sites,
     site,
-    hasFreeTrial,
     subs,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
     const router = useRouter()

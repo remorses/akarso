@@ -29,6 +29,9 @@ export const getServerSideProps = (async (ctx: GetServerSidePropsContext) => {
                 slug: true,
                 org: true,
             },
+            orderBy: {
+                createdAt: 'desc',
+            },
         }),
     ])
     if (!site) {
