@@ -21,12 +21,19 @@ import { slugKebabCase } from 'website/src/lib/utils'
 import { env } from 'db/env'
 import useFormPersist from 'react-hook-form-persist'
 
-export default function Page({ supabaseAccessToken }) {
+export default function Page({ supabaseAccessToken, supabaseRefreshToken }) {
     const router = useRouter()
     const { fn: onSubmit, isLoading } = useThrowingFn({
         async fn(data) {
             console.log(data)
-            const { orgId, slug } = await onboarding(data)
+            if (!supabaseRefreshToken) {
+                throw new Error('No supabase refresh token')
+            }
+            const { orgId, slug } = await onboarding({
+                ...data,
+                supabaseRefreshToken,
+                supabaseAccessToken,
+            })
             router.push(`/org/${orgId}/site/${slug}`)
         },
     })
@@ -227,7 +234,8 @@ export async function getServerSideProps(
     }
 
     const supabaseAccessToken = ctx.req.cookies?.supabaseAccessToken || ''
+    const supabaseRefreshToken = ctx.req.cookies?.supabaseRefreshToken || ''
     return {
-        props: { supabaseAccessToken },
+        props: { supabaseAccessToken, supabaseRefreshToken },
     }
 }

@@ -18,17 +18,25 @@ import { AppError, KnownError } from 'website/src/lib/errors'
 import { slugKebabCase } from 'website/src/lib/utils'
 import { createSupabaseAdmin } from 'db/supabase'
 import { env, uploadBucketName } from 'db/env'
+import { NextApiResponse } from 'next'
 
 export { wrapMethod }
 
 export async function onboarding({
     slug,
     supabaseAccessToken,
+    supabaseRefreshToken,
     websiteUrl,
     supabaseProjectRef,
 }) {
     if (!websiteUrl) {
         throw new AppError(`websiteUrl is required`)
+    }
+    if (!supabaseRefreshToken) {
+        throw new AppError(`supabaseRefreshToken is required`)
+    }
+    if (!supabaseAccessToken) {
+        throw new AppError(`supabaseAccessToken is required`)
     }
     if (!websiteUrl.includes('https://') && !websiteUrl.includes('http://')) {
         websiteUrl = `https://${websiteUrl}`
@@ -63,6 +71,7 @@ export async function onboarding({
                         slug,
                         secret: generateSecretValue(),
                         supabaseAccessToken,
+                        supabaseRefreshToken,
                         supabaseProjectRef,
                         acsUrl,
                         entityId,
@@ -82,6 +91,7 @@ export async function onboarding({
     ])
 
     const { orgId } = org
+
     return {
         orgId,
         slug,

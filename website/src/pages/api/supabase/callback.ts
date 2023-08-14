@@ -79,6 +79,11 @@ const handler = async (req: NextRequest) => {
             httpOnly: false,
             domain: req.nextUrl.hostname,
         })
+        res.cookies.set('supabaseRefreshToken', refresh_token, {
+            path: '/',
+            httpOnly: false,
+            domain: req.nextUrl.hostname,
+        })
 
         return res
     } catch (error: any) {
