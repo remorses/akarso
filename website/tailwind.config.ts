@@ -1,3 +1,4 @@
+import colors from 'beskar/colors'
 import type { Config } from 'tailwindcss'
 const { nextui } = require('@nextui-org/react')
 
@@ -18,6 +19,19 @@ const config: Config = {
     },
 
     darkMode: 'class',
-    plugins: [nextui()],
+    plugins: [
+        nextui({
+            themes: {
+                light: {
+                    colors: {
+                        primary: {
+                            DEFAULT: colors.sky[600],
+                            // foreground: '#000000',
+                        },
+                    },
+                },
+            },
+        }),
+    ],
 }
 export default config
