@@ -15,7 +15,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { MyFooter, MyNavbar } from 'website/src/components/specific'
 import { Banner } from 'website/src/components/Banner'
-import { useProps } from 'website/src/lib/hooks'
+import { useIsMounted, useProps } from 'website/src/lib/hooks'
 
 function SelectOrg({ sites = [] as { slug: string; orgId: string }[], slug }) {
     const router = useRouter()
@@ -53,6 +53,11 @@ export function DashboardContainer({ children }) {
     const { orgId, slug } = router.query as any
     const base = `/org/${orgId}/site/${slug}`
     const { subs, freeTrialEndsInDays, sites } = useProps()
+    const mounted = useIsMounted()
+    if (!mounted) {
+        // don't waste time on ssr
+        return null
+    }
     return (
         <div className='pb-6 flex flex-col min-h-screen'>
             <Banner

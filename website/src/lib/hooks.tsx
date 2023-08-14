@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { useState } from 'react'
 import { createContext, useContext, useEffect } from 'react'
 import toast from 'react-hot-toast'
 import type { getServerSideProps } from 'website/src/pages/org/[orgId]/site/[slug]/setup'
@@ -55,4 +55,12 @@ export function useThrowingFn({
         isLoading,
         fn,
     }
+}
+
+export function useIsMounted() {
+    const [isMounted, setIsMounted] = useState(false)
+    useEffect(() => {
+        setIsMounted(true)
+    }, [])
+    return isMounted
 }
