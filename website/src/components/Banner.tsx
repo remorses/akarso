@@ -19,9 +19,11 @@ import { useState } from 'react'
 import { createStripeCheckoutSession } from 'website/src/pages/api/stripe/stripe-functions'
 import { FREE_CONNECTIONS, Plan, env, prices } from 'db/env'
 import { RadioCard } from 'website/src/components/form'
+import { useProps } from 'website/src/lib/hooks'
 
-export function Banner({ freeTrialEndsInDays, subs, orgId }) {
+export function Banner({ orgId }) {
     const router = useRouter()
+    const { site, subs } = useProps()
     const { isOpen, onClose, onOpen, onOpenChange } = useDisclosure()
     const [billing, setBilling] = useState('monthly')
     const [plan, setPlan] = useState<Plan>('startup')

@@ -52,7 +52,7 @@ export function DashboardContainer({ children }) {
     const user = useUser()
     const { orgId, slug } = router.query as any
     const base = `/org/${orgId}/site/${slug}`
-    const { subs, freeTrialEndsInDays, sites } = useProps()
+    const { subs, sites } = useProps()
     const mounted = useIsMounted()
     if (!mounted) {
         // don't waste time on ssr
@@ -60,11 +60,7 @@ export function DashboardContainer({ children }) {
     }
     return (
         <div className='pb-6 flex flex-col min-h-screen'>
-            <Banner
-                orgId={orgId}
-                freeTrialEndsInDays={freeTrialEndsInDays}
-                subs={subs}
-            />
+            <Banner orgId={orgId} />
             {/* <MyNavbar /> */}
             {/* <div className='w-full '>
                 <div className='w-full max-w-[1200px] mx-auto'>
