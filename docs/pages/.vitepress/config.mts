@@ -7,7 +7,7 @@ export default defineConfig({
     description:
         'Documentation for akarso.co, learn how to implement SSO sign-up in 10 lines of code',
     lang: 'en-US',
-
+    base: '/docs',
     themeConfig: {
         search: {
             provider: 'local',
