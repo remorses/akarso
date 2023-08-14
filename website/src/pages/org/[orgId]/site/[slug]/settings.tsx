@@ -16,7 +16,11 @@ import { useRouter } from 'next/router'
 import { useState } from 'react'
 import { DashboardContainer } from 'website/src/components/DashboardContainer'
 import { createSessionUrl } from 'website/src/lib/ssr-edge'
-import { rotateSecret, setupSSO } from 'website/src/pages/api/functions'
+import {
+    deleteSite,
+    rotateSecret,
+    setupSSO,
+} from 'website/src/pages/api/functions'
 import { prisma } from 'db/prisma'
 import Link from 'next/link'
 
@@ -52,6 +56,17 @@ export default function Page({
             const { secret } = await rotateSecret({ slug, orgId })
             setSecret(secret)
             setIsVisible(true)
+        },
+    })
+    const { fn: del, isLoading: isDeleting } = useThrowingFn({
+        async fn() {
+            const ok = confirm(
+                `Are you sure you want to delete the Admin Portal?`,
+            )
+            if (!ok) return
+            await deleteSite({ slug, orgId })
+
+            await router.push('/dashboard')
         },
     })
     const [secret, setSecret] = useState(site.secret)
@@ -105,6 +120,16 @@ export default function Page({
                 />
                 <Button onClick={rotate} isLoading={isLoadingSecret}>
                     Rotate Secret
+                </Button>
+                <hr className='' />
+                <Button
+                    isLoading={isDeleting}
+                    onClick={del}
+                    color='danger'
+                    variant='ghost'
+                    className=''
+                >
+                    Delete Site and All Data
                 </Button>
             </Block>
         </DashboardContainer>

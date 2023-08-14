@@ -249,3 +249,28 @@ export async function updateSite({ logoUrl, slug, color }) {
 
     return
 }
+
+export async function deleteSite({ slug, orgId }) {
+    const { req, res } = getNodejsContext()
+    const { userId } = await requireAuth({ req, res })
+    if (!userId) {
+        throw new AppError('Missing userId')
+    }
+    const r = await prisma.site.deleteMany({
+        where: {
+            slug,
+            org: {
+                orgId,
+                users: {
+                    some: {
+                        userId,
+                        role: 'ADMIN',
+                    },
+                },
+            },
+        },
+    })
+    if (!r.count) {
+        throw new AppError(`site not found '${slug}'`)
+    }
+}
