@@ -266,7 +266,7 @@ importers:
   website:
     dependencies:
       '@lucia-auth/oauth':
-        specifier: ^2.1.2
+        specifier: 2.1.2
         version: 2.1.2(lucia@2.3.0)
       '@nanostores/react':
         specifier: ^0.7.1
@@ -335,7 +335,7 @@ importers:
         specifier: ^4.14.4
         version: 4.14.4
       lucia:
-        specifier: ^2.3.0
+        specifier: 2.3.0
         version: 2.3.0
       lucide-react:
         specifier: 0.265.0

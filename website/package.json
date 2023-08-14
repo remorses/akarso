@@ -10,7 +10,7 @@
         "lint": "next lint"
     },
     "dependencies": {
-        "@lucia-auth/oauth": "^2.1.2",
+        "@lucia-auth/oauth": "2.1.2",
         "@nanostores/react": "^0.7.1",
         "@nextui-org/react": "^2.0.19",
         "@nextui-org/theme": "^2.0.5",
@@ -33,7 +33,7 @@
         "framer-motion": "^10.15.1",
         "htmlrewriter": "^0.0.3",
         "jose": "^4.14.4",
-        "lucia": "^2.3.0",
+        "lucia": "2.3.0",
         "lucide-react": "0.265.0",
         "nanostores": "^0.9.3",
         "next": "13.4.14-canary.2",
