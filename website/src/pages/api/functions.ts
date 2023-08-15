@@ -108,7 +108,7 @@ export async function getSupabaseProjects({
     const [projects, orgs] = await Promise.all([
         supabase.getProjects(),
         supabase.getOrganizations(),
-    ])
+    ]).catch(() => [])
     return (
         projects?.map((x) => {
             const org = orgs?.find((org) => org?.id === x?.organization_id)

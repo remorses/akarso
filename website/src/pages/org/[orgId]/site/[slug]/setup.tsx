@@ -286,6 +286,7 @@ function ApiIntegration() {
 }
 
 export const getServerSideProps = (async (ctx: GetServerSidePropsContext) => {
+    console.time('setup getServerSideProps')
     const { supabase, session, redirect } = await requireAuth(ctx)
     const userId = session?.user?.id
     const { orgId, slug } = ctx.query as any
@@ -329,7 +330,7 @@ export const getServerSideProps = (async (ctx: GetServerSidePropsContext) => {
             notFound: true,
         } as const
     }
-
+    console.timeEnd('setup getServerSideProps')
     return {
         props: {
             sites,
