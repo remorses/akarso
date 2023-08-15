@@ -1,16 +1,20 @@
 const { withServerActions } = require('server-actions-for-next-pages')
 const { withSentryConfig } = require('@sentry/nextjs')
+const { withElacca } = require('elacca')
 
-const piped = pipe(withServerActions(), (c) =>
-    withSentryConfig(c, {
-        org: 'akarso',
-        project: 'website',
-        dryRun: process.env.NEXT_PUBLIC_ENV === 'development',
-        // You can get an auth token from https://sentry.io/settings/account/api/auth-tokens/
-        // The token must have `project:releases` and `org:read` scopes for uploading source maps
-        authToken: process.env.SENTRY_AUTH_TOKEN,
-        silent: true, //
-    }),
+const piped = pipe(
+    withElacca(), //
+    withServerActions(),
+    (c) =>
+        withSentryConfig(c, {
+            org: 'akarso',
+            project: 'website',
+            dryRun: process.env.NEXT_PUBLIC_ENV === 'development',
+            // You can get an auth token from https://sentry.io/settings/account/api/auth-tokens/
+            // The token must have `project:releases` and `org:read` scopes for uploading source maps
+            authToken: process.env.SENTRY_AUTH_TOKEN,
+            silent: true, //
+        }),
 )
 
 /** @type {import('next').NextConfig} */
