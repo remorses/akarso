@@ -49,7 +49,4 @@ Then akarso will redirect to your application with the SSO provider details (`ss
 ## TODO
 
 -   [ ] support custom domain other than `slug.akarso.site`
--   [ ] add subscription plans to Akarso for customizability and when user has more than 5 SSO connections
--   [ ] support for boxyhq
--   [ ] ability to update the SSO connection metadata if it already exists
 -   [ ] add function to delete the SSO connection in the `akarso` npm package

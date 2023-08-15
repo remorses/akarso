@@ -17,7 +17,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
 import { createStripeCheckoutSession } from 'website/src/pages/api/stripe/stripe-functions'
-import { FREE_CONNECTIONS, Plan, env, prices } from 'db/env'
+import { MAX_CONNECTIONS, Plan, env, prices } from 'db/env'
 import { RadioCard } from 'website/src/components/form'
 import { useProps } from 'website/src/lib/hooks'
 
@@ -82,7 +82,7 @@ export function Banner({ orgId }) {
             <div className='font-semibold text-white bg-gradient-to-r from-cyan-600 gap-1 to-sky-600 text-sm absolute top-0 shrink-0 h-[40px] bg-black w-full flex items-center justify-center'>
                 {
                     <div className=''>
-                        {upgrade} to create more than {FREE_CONNECTIONS} SSO
+                        {upgrade} to create more than {MAX_CONNECTIONS.free} SSO
                         connections
                     </div>
                 }
@@ -101,13 +101,13 @@ export function Banner({ orgId }) {
                             >
                                 <RadioCard
                                     value='startup'
-                                    description='max 20 connections, all customizations'
+                                    description={`max ${MAX_CONNECTIONS.startup} connections`}
                                 >
                                     Startup
                                 </RadioCard>
                                 <RadioCard
                                     value='business'
-                                    description='max 200 connections, all customizations'
+                                    description={`max ${MAX_CONNECTIONS.business} connections`}
                                 >
                                     Business
                                 </RadioCard>

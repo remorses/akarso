@@ -39,6 +39,12 @@ function stagingValue(a, b) {
     return env.NEXT_PUBLIC_ENV === 'production' ? a : b
 }
 
+export const MAX_CONNECTIONS = {
+    free: 3,
+    startup: 20,
+    business: 100,
+}
+
 export const prices = {
     monthlyStartup: {
         addon: false,
@@ -85,6 +91,6 @@ export const UPLOADS_BASE_URL = `${env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/obje
 
 export const DEMO_SITE_SECRET = 'DEMO_SITE_SECRET'
 
-export const FREE_CONNECTIONS = 5
+
 
 export type Plan = 'startup' | 'business'
