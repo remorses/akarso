@@ -2,7 +2,11 @@ import { ChooseProvider } from '@/components/ChooseProvider'
 import { cookies } from 'next/headers'
 import { ProviderSetupProvider } from 'admin-portal/src/components/context'
 import { TokenData, providerSetupContext } from 'admin-portal/src/lib/hooks'
-import { getPortalSession, getSiteDataFromHost } from 'admin-portal/src/lib/ssr'
+import {
+    SiteData,
+    getPortalSession,
+    getSiteDataFromHost,
+} from 'admin-portal/src/lib/ssr'
 import { jwtVerify } from 'jose'
 import { notFound, redirect } from 'next/navigation'
 import { SessionExpired } from '@/components/SessionExpired'
@@ -20,13 +24,35 @@ export default async function Layout({
         return notFound()
     }
     const {
-        secret,
-        notFound: fourOFour,
-        supabaseAccessToken,
-        supabaseProjectRef,
-        supabaseRefreshToken,
-        ...publicSiteData
-    } = data
+        acsUrl,
+        color,
+        createdAt,
+        customDomain,
+        entityId,
+        logoUrl,
+        orgId,
+        relayState,
+        siteId,
+        slug,
+        ssoMappings,
+        startUrl,
+        websiteUrl,
+    } = data!
+    const publicSiteData: Partial<SiteData> = {
+        acsUrl,
+        color,
+        createdAt,
+        customDomain,
+        entityId,
+        logoUrl,
+        orgId,
+        relayState,
+        siteId,
+        slug,
+        ssoMappings,
+        startUrl,
+        websiteUrl,
+    }
 
     // console.log({ hash })
     const {
@@ -35,7 +61,7 @@ export default async function Layout({
         notFound: notF,
     } = await getPortalSession({
         hash,
-        secret,
+        secret: data.secret,
         host,
     })
 
@@ -59,5 +85,3 @@ export default async function Layout({
         </ProviderSetupProvider>
     )
 }
-
-
