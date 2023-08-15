@@ -14,7 +14,7 @@
     "dependencies": {
         "@lucia-auth/oauth": "2.1.2",
         "@nanostores/react": "^0.7.1",
-        "@nextui-org/react": "^2.0.19",
+        "@nextui-org/react": "^2.0.21",
         "@nextui-org/theme": "^2.0.5",
         "@sentry/nextjs": "^7.63.0",
         "@stripe/stripe-js": "^2.0.0",
@@ -28,11 +28,13 @@
         "admin-portal": "workspace:*",
         "akarso": "workspace:*",
         "autoprefixer": "10.4.14",
+        "babel-loader": "^9.1.3",
         "beskar": "workspace:*",
         "classnames": "^2.3.1",
         "colord": "^2.9.2",
         "db": "workspace:*",
         "dedent": "^1.5.1",
+        "elacca": "^0.0.2",
         "framer-motion": "^10.15.1",
         "htmlrewriter": "^0.0.3",
         "jose": "^4.14.4",
@@ -58,8 +60,6 @@
         "superjson": "^1.13.1",
         "swr": "^2.2.0",
         "tailwindcss": "3.3.3",
-        "elacca": "^0.0.2",
         "uuid": "^9.0.0"
-    },
-    "devDependencies": {}
+    }
 }

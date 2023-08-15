@@ -80,7 +80,7 @@ function CreatePortalButton() {
         formState: { errors, isSubmitting, isValid },
     } = useForm({
         defaultValues: {
-            identifier: '', // 'exampleTeamId' // TODO wait for https://github.com/nextui-org/nextui/issues/1395
+            identifier: 'exampleTeamId',
             callbackUrl: '',
         },
     })
