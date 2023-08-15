@@ -38,7 +38,9 @@ export default async function Layout({
         secret,
         host,
     })
-    const context = { ...payload, ...publicSiteData, hash }
+
+    const { secret: _, ...payloadPublicData } = payload!
+    const context = { ...payloadPublicData, ...publicSiteData, hash }
     if (expired) {
         return (
             <ProviderSetupProvider value={context}>
