@@ -40,7 +40,7 @@ function stagingValue(a, b) {
 }
 
 export const MAX_CONNECTIONS = {
-    free: 3,
+    free: 3, // three is free!
     startup: 20,
     business: 100,
 }
@@ -90,7 +90,5 @@ export const uploadBucketName = 'user-uploads'
 export const UPLOADS_BASE_URL = `${env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${uploadBucketName}/`
 
 export const DEMO_SITE_SECRET = 'DEMO_SITE_SECRET'
-
-
 
 export type Plan = 'startup' | 'business'
