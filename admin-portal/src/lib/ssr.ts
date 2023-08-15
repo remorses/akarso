@@ -1,7 +1,7 @@
 import { env } from 'db/env'
 import { createSupabaseAdmin } from 'db/supabase'
 
-if (typeof window === 'undefined') {
+if (typeof window !== 'undefined') {
     throw new Error('this file is for ssr only')
 }
 
