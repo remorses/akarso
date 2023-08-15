@@ -1,6 +1,10 @@
 import { env } from 'db/env'
 import { createSupabaseAdmin } from 'db/supabase'
 
+if (typeof window === 'undefined') {
+    throw new Error('this file is for ssr only')
+}
+
 export function wrapMethod(fn) {
     return async (...args) => {
         try {
