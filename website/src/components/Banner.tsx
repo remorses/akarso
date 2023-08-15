@@ -72,7 +72,7 @@ export function Banner({ orgId }) {
             {isLoading ? 'loading...' : 'upgrade'}
         </button>
     )
-    return null
+    // return null
     if (subs?.length) {
         return null
     }

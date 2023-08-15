@@ -79,7 +79,7 @@ function CreatePortalButton() {
         formState: { errors, isSubmitting, isValid },
     } = useForm({
         defaultValues: {
-            identifier: '',
+            identifier: '', // 'exampleTeamId' // TODO wait for https://github.com/nextui-org/nextui/issues/1395
             callbackUrl: '',
         },
     })
@@ -125,7 +125,7 @@ function CreatePortalButton() {
                                     the <span className=''>callbackUrl</span>
                                 </div>
                                 <Input
-                                    defaultValue={'exampleTeamId'}
+                                    // defaultValue={'exampleTeamId'}
                                     {...register('identifier', {
                                         required: true,
                                     })}
