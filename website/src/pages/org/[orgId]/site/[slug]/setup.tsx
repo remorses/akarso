@@ -239,8 +239,8 @@ function ApiIntegration() {
                         // @ts-ignore
                         title={
                             <div className='font-normal'>
-                                You should call the akarso functions only on
-                                server side
+                                You should call these akarso functions only in
+                                the server
                             </div>
                         }
                     />
