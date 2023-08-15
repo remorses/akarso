@@ -39,7 +39,7 @@
         "lucia": "2.3.0",
         "lucide-react": "0.265.0",
         "nanostores": "^0.9.3",
-        "next": "13.4.14-canary.2",
+        "next": "13.4.16",
         "next-superjson-plugin": "^0.5.9",
         "nextjs-progressbar": "^0.0.16",
         "nprogress": "*",
