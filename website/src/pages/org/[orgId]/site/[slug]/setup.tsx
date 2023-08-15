@@ -190,7 +190,7 @@ function CreatePortalButton() {
                                         setup, you can store the customer
                                         ssoProviderId in your callbackUrl{' '}
                                         <Link
-                                            href='/docs'
+                                            href='https://docs.akarso.co/'
                                             className='underline'
                                         >
                                             here
