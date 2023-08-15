@@ -1,3 +1,4 @@
+'skip ssr'
 import { Button, Input } from '@nextui-org/react'
 import NProgress from 'nprogress'
 import { useSupabaseClient, useUser } from '@supabase/auth-helpers-react'

@@ -1,3 +1,4 @@
+'skip ssr'
 import { useThrowingFn } from 'beskar/landing'
 import { getServerSideProps as commonServerProps } from './setup'
 

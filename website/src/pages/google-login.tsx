@@ -1,3 +1,4 @@
+'skip ssr'
 import { useSupabaseClient, useUser } from '@supabase/auth-helpers-react'
 import router from 'next/router'
 import { useEffect } from 'react'

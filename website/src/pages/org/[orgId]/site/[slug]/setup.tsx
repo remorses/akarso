@@ -1,3 +1,4 @@
+'skip ssr'
 import { Code as BigCode } from 'beskar/src/landing/Code'
 
 import {

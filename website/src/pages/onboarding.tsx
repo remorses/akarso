@@ -1,3 +1,4 @@
+'skip ssr'
 import { BlockWithStep } from 'beskar/dashboard'
 import { useThrowingFn } from 'beskar/landing'
 import useSwr from 'swr'

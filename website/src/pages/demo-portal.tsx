@@ -1,3 +1,4 @@
+'skip ssr'
 import { DEMO_SITE_SECRET, env } from 'db/env'
 import { prisma } from 'db/prisma'
 import { GetServerSidePropsContext, GetServerSideProps } from 'next'
