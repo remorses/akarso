@@ -1,3 +1,4 @@
+const path = require('path')
 const { withServerActions } = require('server-actions-for-next-pages')
 const { withSentryConfig } = require('@sentry/nextjs')
 const { withElacca } = require('elacca')
@@ -20,8 +21,11 @@ const piped = pipe(
 /** @type {import('next').NextConfig} */
 const nextConfig = piped({
     reactStrictMode: false,
+    output: 'standalone',
+    outputFileTracing: true,
     experimental: {
         externalDir: true,
+        outputFileTracingRoot: path.join(__dirname, '../'),
         swcPlugins: [['next-superjson-plugin', {}]],
     },
     webpack: (config, { dev }) => {
