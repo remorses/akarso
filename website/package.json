@@ -2,6 +2,7 @@
     "name": "website",
     "version": "0.1.2",
     "private": true,
+    "sideEffects": false,
     "scripts": {
         "dev": "doppler run -c dev -- pnpm concurrently -k 'pnpm next dev -p 2020' 'pnpm tunnel'",
         "build": "doppler run -c dev -- next build",
@@ -57,9 +58,8 @@
         "superjson": "^1.13.1",
         "swr": "^2.2.0",
         "tailwindcss": "3.3.3",
+        "elacca": "^0.0.2",
         "uuid": "^9.0.0"
     },
-    "devDependencies": {
-        "elacca": "^0.0.1"
-    }
+    "devDependencies": {}
 }
