@@ -24,6 +24,7 @@ export default async function Layout({
         notFound: fourOFour,
         supabaseAccessToken,
         supabaseProjectRef,
+        supabaseRefreshToken,
         ...publicSiteData
     } = data
 
