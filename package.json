@@ -4,6 +4,7 @@
     "scripts": {
         "test": "NODE_ENV=test vitest",
         "watch": "pnpm -r watch",
+        "release": "git merge main && git checkout main && git merge preview && git push && git checkout preview",
         "build": "pnpm -r build"
     },
     "workspaces": [

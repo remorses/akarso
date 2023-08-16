@@ -39,12 +39,9 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
     if (isDashboard) {
         return (
             <CommonProviders pageProps={pageProps}>
-                <dashboardContext.Provider
-                    key={router.asPath}
-                    value={pageProps as any}
-                >
+                <dashboardContext.Provider value={pageProps as any}>
                     <DashboardContainer>
-                        <Component {...pageProps} />
+                        <Component key={router.asPath} {...pageProps} />
                     </DashboardContainer>
                 </dashboardContext.Provider>
             </CommonProviders>
