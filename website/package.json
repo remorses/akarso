@@ -5,7 +5,7 @@
     "sideEffects": false,
     "scripts": {
         "dev": "doppler run -c dev -- pnpm concurrently -k 'pnpm next dev -p 2020' 'pnpm tunnel'",
-        "build": "doppler run -c dev -- next build",
+        "build": "NEXT_DEBUG_FUNCTION_SIZE=1 doppler run -c dev -- next build",
         "vercel-build": "next build",
         "tunnel": "lt --port 2020 --subdomain akarso",
         "start": "doppler run -c dev -- next start",

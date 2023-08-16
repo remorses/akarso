@@ -27,6 +27,16 @@ const nextConfig = piped({
         externalDir: true,
         outputFileTracingRoot: path.join(__dirname, '../'),
         swcPlugins: [['next-superjson-plugin', {}]],
+        // outputFileTracingExcludes: {
+        //     '*': [
+        //         '@vercel', //
+        //         'react-dom-experimental',
+        //         'babel-packages',
+        //         'babel',
+        //         'rollup',
+        //         'node-fetch',
+        //     ].map((x) => '**/next/compiled/' + x),
+        // },
     },
     webpack: (config, { dev }) => {
         config.module.rules.push({
