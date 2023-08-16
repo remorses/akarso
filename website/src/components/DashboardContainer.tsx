@@ -53,11 +53,6 @@ export function DashboardContainer({ children }) {
     const { orgId, slug } = router.query as any
     const base = `/org/${orgId}/site/${slug}`
     const { subs, sites } = useProps()
-    const mounted = useIsMounted()
-    if (!mounted) {
-        // don't waste time on ssr
-        return null
-    }
     return (
         <div className='pb-6 flex flex-col min-h-screen'>
             <Banner orgId={orgId} />
