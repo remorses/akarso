@@ -4,7 +4,9 @@ import path from 'path'
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 
 if (process.env.DEV) {
+    console.time('cold start')
     require('../.next/standalone/website/.next/server/pages/org/[orgId]/site/[slug]/customize.js')
+    console.timeEnd('cold start')
 }
 
 export default async function handler(

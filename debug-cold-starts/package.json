@@ -10,7 +10,7 @@
     "scripts": {
         "vercel-build": "pnpm tsx scripts/build.ts",
         "build": "doppler run -- pnpm vercel-build",
-        "dev": "DEV=1 pnpm tsx api/cold-start",
+        "dev": "DEV=1 doppler run -- pnpm tsx api/cold-start",
         "prod": "DEV=1 node .vercel/output/functions/api/cold-start.func/api/cold-start.js"
     },
     "files": [
