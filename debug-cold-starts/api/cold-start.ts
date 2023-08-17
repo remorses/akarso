@@ -1,5 +1,4 @@
 import inspector from 'inspector'
-import { uploadDirect } from '@uploadcare/upload-client'
 
 import path from 'path'
 import type { VercelRequest, VercelResponse } from '@vercel/node'
@@ -51,19 +50,22 @@ export default async function handler(
                     // fs.writeFileSync('cold-start.cpuprofile', profileData)
                     // Disconnect the inspector session
                     session.disconnect()
-                    const result = await uploadDirect(
-                        Buffer.from(profileData),
-                        {
-                            publicKey: '880c755228f5ed9be9dc',
-                            fileName: 'cold-start.cpuprofile',
-                            store: 'auto',
-                        },
+                    const pageName = 'customize'
+                    const filename = `${pageName}-cold-start.cpuprofile`
+                    res.setHeader(
+                        'Content-Disposition',
+                        `attachment; filename="${filename}"`,
                     )
-                    resolve(result)
-                    console.log(profileData)
+                    res.setHeader('Content-Type', 'application/json')
+
+                    res.end(profileData)
+                    // Pipe the file stream to the response
+
+                    resolve(profileData)
+                    // console.log(profileData)
                 })
             })
         })
-        response.end(result)
+        // response.end(result)
     })
 }
