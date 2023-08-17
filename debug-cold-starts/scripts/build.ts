@@ -5,7 +5,7 @@ import { shell } from '@xmorse/deployment-utils/src'
 import path from 'path'
 
 async function main() {
-    // await shell(`pnpm --filter website vercel-build `)
+    await shell(`pnpm --filter website vercel-build `)
     
     await extra.copy('../website/.next', './.next', {
         overwrite: true,
