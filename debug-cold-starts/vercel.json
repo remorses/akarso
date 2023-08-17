@@ -1,6 +1,6 @@
 {
     "functions": {
-        "api/cold-start.ts": {
+        "api/cold-start.js": {
             "memory": 1024,
             "includeFiles": ".next/**/*",
             "maxDuration": 60

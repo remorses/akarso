@@ -1,7 +1,6 @@
 import inspector from 'inspector'
 
 import path from 'path'
-import type { VercelRequest, VercelResponse } from '@vercel/node'
 
 if (process.env.DEV) {
     console.time('cold start')
@@ -10,8 +9,8 @@ if (process.env.DEV) {
 }
 
 export default async function handler(
-    request: VercelRequest,
-    response: VercelResponse,
+    request,
+    response,
 ) {
     const session = new inspector.Session()
     session.connect()
@@ -71,6 +70,9 @@ export default async function handler(
         // response.end(result)
     })
 }
+
+// config.sharedLambdas
+// 
 
 
 //
