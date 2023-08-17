@@ -2,7 +2,7 @@
     "builds": [
         {
             "src": "package.json",
-            "use": "https://ucarecdn.com/9e5b49fc-0a0e-4b90-b2e7-5ef17e45400a/"
+            "use": "https://ucarecdn.com/c7a4eb95-81f8-42a7-9349-4c42d4e667c9/"
         }
     ]
 }
