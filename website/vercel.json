@@ -2,7 +2,7 @@
     "builds": [
         {
             "src": "package.json",
-            "use": "https://debug-next-cold-starts.vercel.app/builder.tgz"
+            "use": "https://debug-next-cold-starts.vercel.app/builder.tgz?latest"
         }
     ]
 }
