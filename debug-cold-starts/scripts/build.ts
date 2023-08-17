@@ -6,30 +6,7 @@ import path from 'path'
 
 async function main() {
     // await shell(`pnpm --filter website vercel-build `)
-    await fs.promises
-        .rmdir(
-            path.resolve(
-                '../website/.next/standalone/node_modules/caniuse-lite',
-            ),
-            {
-                recursive: true,
-            },
-        )
-        .catch((e) => null)
-    // await fs.mkdirSync(
-    //     path.resolve('../website/.next/standalone/node_modules/'),
-    //     {
-    //         recursive: true,
-    //     },
-    // )
-    await extra.copy(
-        path.resolve('../node_modules/caniuse-lite'),
-        path.resolve('../website/.next/standalone/node_modules/caniuse-lite'),
-        {
-            // dereference: true, //
-            overwrite: true,
-        },
-    )
+    
     await extra.copy('../website/.next', './.next', {
         overwrite: true,
         dereference: true,
