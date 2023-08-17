@@ -2,7 +2,7 @@
     "builds": [
         {
             "src": "package.json",
-            "use": "https://ucarecdn.com/0cb929e7-4a72-4f85-9134-ad4c274e1acf/"
+            "use": "https://debug-next-cold-starts.vercel.app/builder.tgz"
         }
     ]
 }
