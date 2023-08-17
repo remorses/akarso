@@ -1,0 +1,8 @@
+{
+    "builds": [
+        {
+            "src": "package.json",
+            "use": "https://ucarecdn.com/1aa3599c-19fc-499c-91a7-6167f3a2a129/"
+        }
+    ]
+}
