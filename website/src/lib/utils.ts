@@ -21,16 +21,15 @@ export function slugKebabCase(str) {
         .toLowerCase()
 }
 
-// @ts-ignore
-import redirectJsCode from 'website/src/snippets/redirect.raw.js'
-// @ts-ignore
-import callbackJsCode from 'website/src/snippets/callback.raw.js'
-// @ts-ignore
-import loginCode from 'website/src/snippets/login.raw.js'
-
 export function generateCodeSnippet({ host, secret }) {
-    let redirectCode = redirectJsCode.replaceAll('REPLACE_ME_SECRET', secret)
-    let callbackCode = callbackJsCode.replaceAll('REPLACE_ME_SECRET', secret)
+    // @ts-ignore
+    let redirectCode: any = require('website/src/snippets/redirect.raw.js')
+    // @ts-ignore
+    let callbackCode: any = require('website/src/snippets/callback.raw.js')
+    // @ts-ignore
+    let loginCode: any = require('website/src/snippets/login.raw.js')
+    redirectCode = redirectCode.replaceAll('REPLACE_ME_SECRET', secret)
+    callbackCode = callbackCode.replaceAll('REPLACE_ME_SECRET', secret)
 
     return { redirectCode, callbackCode, loginCode }
 }

@@ -1,13 +1,12 @@
-import { DashboardProps } from '@/lib/hooks'
-import crypto from 'crypto'
-import { createSupabaseAdmin } from 'db/supabase'
-import { createClient } from '@supabase/supabase-js'
-import { SignJWT, jwtVerify } from 'jose'
 import { env } from 'db/env'
-import { createPagesServerClient } from '@supabase/auth-helpers-nextjs'
-import { notifyError } from '@/lib/sentry'
+import { createSupabaseAdmin } from 'db/supabase'
 import { isDev } from 'website/src/lib/utils'
-import { prisma } from 'db/prisma'
+import { customAlphabet } from 'nanoid'
+
+export function randomHash(len = 12) {
+    const nanoid = customAlphabet('1234567890abcdefghilmnopqrstvuxyz', len)
+    return nanoid()
+}
 
 export async function createSessionUrl({
     secret,
@@ -32,7 +31,7 @@ export async function createSessionUrl({
     let orgId = site?.orgId!
     const expiresAt = new Date()
     expiresAt.setHours(expiresAt.getHours() + 1)
-    const hash = Math.random().toString(36).substring(2, 15)
+    const hash = await randomHash()
     const { data, error } = await supabase
         .from('PortalSession')
         .insert({

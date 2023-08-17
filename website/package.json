@@ -10,6 +10,7 @@
         "vercel-build": "next build",
         "tunnel": "lt --port 2020 --subdomain akarso",
         "start": "doppler run -c dev -- next start",
+        "test": "doppler run -c dev -- pnpm vitest",
         "lint": "next lint"
     },
     "dependencies": {
@@ -42,6 +43,7 @@
         "localtunnel": "^2.0.2",
         "lucia": "2.3.0",
         "lucide-react": "0.265.0",
+        "nanoid": "^4.0.2",
         "nanostores": "^0.9.3",
         "next": "13.4.16",
         "next-superjson-plugin": "^0.5.9",
