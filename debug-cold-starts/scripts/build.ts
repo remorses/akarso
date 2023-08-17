@@ -9,7 +9,7 @@ async function main() {
     
     await extra.copy('../website/.next', './.next', {
         overwrite: true,
-        dereference: true,
+        // dereference: true,
     })
     // await shell(`cp -fr ../node_modules/caniuse-lite `)
     // await shell(`cp -r ../website/.next ./.next`).catch(() => {
