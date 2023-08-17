@@ -8,7 +8,8 @@
     "types": "dist/index.d.ts",
     "repository": "https://github.com/remorses/",
     "scripts": {
-        "build": "pnpm --filter website vercel-build && cp -r ../website/.next ./.next || echo 'failed but who cares'",
+        "vercel-build": "pnpm tsx scripts/build.ts",
+        "build": "doppler run -- pnpm vercel-build",
         "dev": "DEV=1 pnpm tsx api/cold-start",
         "prod": "DEV=1 node .vercel/output/functions/api/cold-start.func/api/cold-start.js"
     },
@@ -23,6 +24,7 @@
     "dependencies": {
         "@types/node": "^20.5.0",
         "@uploadcare/upload-client": "^6.6.1",
-        "@vercel/node": "^2.15.10"
+        "@vercel/node": "^2.15.10",
+        "@xmorse/deployment-utils": "^0.0.28"
     }
 }
