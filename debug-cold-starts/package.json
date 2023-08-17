@@ -21,6 +21,7 @@
     "author": "Tommaso De Rossi, morse <beats.by.morse@gmail.com>",
     "license": "",
     "dependencies": {
+        "@types/node": "^20.5.0",
         "@uploadcare/upload-client": "^6.6.1",
         "@vercel/node": "^2.15.10"
     }
