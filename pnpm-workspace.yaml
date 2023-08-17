@@ -6,4 +6,5 @@ packages:
   - beskar
   - akarso
   - docs
+  - debug-cold-starts
 
