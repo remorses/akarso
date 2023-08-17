@@ -2,7 +2,7 @@
     "functions": {
         "api/cold-start.ts": {
             "memory": 1024,
-            "includeFiles": ".next/standalone/**/*",
+            "includeFiles": ".next/**/*",
             "maxDuration": 60
         }
     }
