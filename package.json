@@ -11,6 +11,7 @@
         "akarso",
         "website",
         "admin-portal",
+        "debug-cold-starts",
         "db",
         "beskar"
     ],

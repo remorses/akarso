@@ -22,9 +22,11 @@
     "author": "Tommaso De Rossi, morse <beats.by.morse@gmail.com>",
     "license": "",
     "dependencies": {
+        "@types/fs-extra": "^11.0.1",
         "@types/node": "^20.5.0",
         "@uploadcare/upload-client": "^6.6.1",
         "@vercel/node": "^2.15.10",
-        "@xmorse/deployment-utils": "^0.0.28"
+        "@xmorse/deployment-utils": "^0.0.28",
+        "fs-extra": "^11.1.1"
     }
 }
