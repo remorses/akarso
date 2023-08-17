@@ -8,7 +8,7 @@
     "types": "dist/index.d.ts",
     "repository": "https://github.com/remorses/",
     "scripts": {
-        "build": "pnpm --filter website build && cp -r ../website/.next ./.next || echo 'failed but who cares'",
+        "build": "pnpm --filter website vercel-build && cp -r ../website/.next ./.next || echo 'failed but who cares'",
         "dev": "DEV=1 pnpm tsx api/cold-start",
         "prod": "DEV=1 node .vercel/output/functions/api/cold-start.func/api/cold-start.js"
     },
