@@ -1,4 +1,4 @@
-import * as Sentry from '@sentry/nextjs'
+import * as Sentry from '@sentry/core'
 
 import { AppError, KnownError } from './errors'
 
