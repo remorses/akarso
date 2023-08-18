@@ -310,6 +310,9 @@ importers:
       '@nextui-org/theme':
         specifier: ^2.0.5
         version: 2.0.5(tailwindcss@3.3.3)
+      '@sentry/core':
+        specifier: ^7.64.0
+        version: 7.64.0
       '@sentry/nextjs':
         specifier: ^7.63.0
         version: 7.63.0(next@13.4.16)(react@18.2.0)
@@ -5340,6 +5343,15 @@ packages:
       tslib: 2.6.1
     dev: false
 
+  /@sentry/core@7.64.0:
+    resolution: {integrity: sha512-IzmEyl5sNG7NyEFiyFHEHC+sizsZp9MEw1+RJRLX6U5RITvcsEgcajSkHQFafaBPzRrcxZMdm47Cwhl212LXcw==}
+    engines: {node: '>=8'}
+    dependencies:
+      '@sentry/types': 7.64.0
+      '@sentry/utils': 7.64.0
+      tslib: 2.6.1
+    dev: false
+
   /@sentry/integrations@7.63.0:
     resolution: {integrity: sha512-+P8GNqFZNH/yS/KPbvUfUDERneoRNUrqp9ayvvp8aq4cTtrBdM72CYgI21oG6cti42SSM1VDLYZomTV3ElPzSg==}
     engines: {node: '>=8'}
@@ -5424,11 +5436,24 @@ packages:
     engines: {node: '>=8'}
     dev: false
 
+  /@sentry/types@7.64.0:
+    resolution: {integrity: sha512-LqjQprWXjUFRmzIlUjyA+KL+38elgIYmAeoDrdyNVh8MK5IC1W2Lh1Q87b4yOiZeMiIhIVNBd7Ecoh2rodGrGA==}
+    engines: {node: '>=8'}
+    dev: false
+
   /@sentry/utils@7.63.0:
     resolution: {integrity: sha512-7FQv1RYAwnuTuarruP+1+Jd6YQuN7i/Y7KltwPMVEwU7j5mzYQaexLr/Jz1XIdR2KYVdkbXQyP8jj8BmA6u9Jw==}
     engines: {node: '>=8'}
     dependencies:
       '@sentry/types': 7.63.0
+      tslib: 2.6.1
+    dev: false
+
+  /@sentry/utils@7.64.0:
+    resolution: {integrity: sha512-HRlM1INzK66Gt+F4vCItiwGKAng4gqzCR4C5marsL3qv6SrKH98dQnCGYgXluSWaaa56h97FRQu7TxCk6jkSvQ==}
+    engines: {node: '>=8'}
+    dependencies:
+      '@sentry/types': 7.64.0
       tslib: 2.6.1
     dev: false
 
