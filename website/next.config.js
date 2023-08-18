@@ -7,15 +7,27 @@ const piped = pipe(
     withElacca(), //
     withServerActions(),
     (c) =>
-        withSentryConfig(c, {
-            org: 'akarso',
-            project: 'website',
-            dryRun: process.env.NEXT_PUBLIC_ENV === 'development',
-            // You can get an auth token from https://sentry.io/settings/account/api/auth-tokens/
-            // The token must have `project:releases` and `org:read` scopes for uploading source maps
-            authToken: process.env.SENTRY_AUTH_TOKEN,
-            silent: true, //
-        }),
+        withSentryConfig(
+            c,
+            {
+                org: 'akarso',
+                project: 'website',
+
+                dryRun: process.env.NEXT_PUBLIC_ENV === 'development',
+                // You can get an auth token from https://sentry.io/settings/account/api/auth-tokens/
+                // The token must have `project:releases` and `org:read` scopes for uploading source maps
+                authToken: process.env.SENTRY_AUTH_TOKEN,
+                silent: true, //
+            },
+            {
+                autoInstrumentAppDirectory: false,
+                autoInstrumentMiddleware: false,
+                autoInstrumentServerFunctions: false,
+                automaticVercelMonitors: false,
+
+                // disableServerWebpackPlugin: true,
+            },
+        ),
 )
 
 /** @type {import('next').NextConfig} */

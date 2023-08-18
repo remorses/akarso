@@ -15,6 +15,7 @@
         "@nanostores/react": "^0.7.1",
         "@nextui-org/react": "^2.0.21",
         "@nextui-org/theme": "^2.0.5",
+        "@sentry/core": "^7.64.0",
         "@supabase/supabase-js": "^2.32.0",
         "@types/node": "20.4.9",
         "@types/react": "18.2.20",
