@@ -19,14 +19,7 @@ const piped = pipe(
                 authToken: process.env.SENTRY_AUTH_TOKEN,
                 silent: true, //
             },
-            {
-                autoInstrumentAppDirectory: false,
-                autoInstrumentMiddleware: false,
-                autoInstrumentServerFunctions: false,
-                automaticVercelMonitors: false,
-
-                // disableServerWebpackPlugin: true,
-            },
+            
         ),
 )
 
@@ -51,11 +44,20 @@ const nextConfig = piped({
         //     ].map((x) => '**/next/compiled/' + x),
         // },
     },
-    webpack: (config, { dev }) => {
+    webpack: (config, { dev, isServer }) => {
         config.module.rules.push({
             test: /\.raw\.js$/,
             use: 'raw-loader',
         })
+        if (isServer) {
+            config.resolve.alias['@sentry/nextjs'] = require.resolve(
+                '@sentry/nextjs/cjs/edge',
+            )
+            // config.resolve.alias['@sentry/cjs/node'] = require.resolve(
+            //     '@sentry/nextjs/cjs/edge',
+            // )
+        }
+
         return config
     },
 })
