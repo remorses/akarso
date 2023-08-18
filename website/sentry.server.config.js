@@ -2,7 +2,7 @@
 // The config you add here will be used whenever the server handles a request.
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
-import * as Sentry from '@sentry/nextjs/edge'
+import * as Sentry from '@sentry/nextjs/cjs/edge'
 
 Sentry.init({
     dsn: 'https://23002eceab539857c43d00f5ec1fb826@o4505699631431680.ingest.sentry.io/4505699633004544',
