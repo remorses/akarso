@@ -371,8 +371,8 @@ importers:
         specifier: ^1.5.1
         version: 1.5.1
       elacca:
-        specifier: ^0.1.0
-        version: 0.1.0(next@13.4.16)
+        specifier: ^0.1.1
+        version: 0.1.1(next@13.4.16)
       framer-motion:
         specifier: ^10.15.1
         version: 10.15.1(react-dom@18.2.0)(react@18.2.0)
@@ -7282,8 +7282,8 @@ packages:
       time-span: 4.0.0
     dev: false
 
-  /elacca@0.1.0(next@13.4.16):
-    resolution: {integrity: sha512-XjqcYTCH/HxgtLhjXR4CqOzGnntlDv2NgcOjPC1zvxta53agY+u1oxdWfoKLFLWlVadqKfWdarM1yf96j82+Og==}
+  /elacca@0.1.1(next@13.4.16):
+    resolution: {integrity: sha512-gfnVJRnjSgXFwN/f7al8lfXfHCnn+hcdq3fYvmGL8vPgkYOP9SJqqdsRaJEmZ34DAdj0Ls2t05WBiVtZBtqqyw==}
     peerDependencies:
       next: '>=10'
     dependencies:
