@@ -31,6 +31,7 @@ const nextConfig = piped({
     experimental: {
         externalDir: true,
         esmExternals: false,
+        serverMinification: true,
         outputFileTracingRoot: path.join(__dirname, '../'),
         swcPlugins: [['next-superjson-plugin', {}]],
         // outputFileTracingExcludes: {
