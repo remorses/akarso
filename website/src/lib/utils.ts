@@ -28,6 +28,9 @@ export function generateCodeSnippet({ host, secret }) {
     let callbackCode: any = require('website/src/snippets/callback.raw.js')
     // @ts-ignore
     let loginCode: any = require('website/src/snippets/login.raw.js')
+    loginCode = loginCode.default || loginCode
+    redirectCode = redirectCode.default || redirectCode
+    callbackCode = callbackCode.default || callbackCode
     redirectCode = redirectCode.replaceAll('REPLACE_ME_SECRET', secret)
     callbackCode = callbackCode.replaceAll('REPLACE_ME_SECRET', secret)
 
