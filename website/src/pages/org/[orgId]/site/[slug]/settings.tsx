@@ -98,9 +98,12 @@ export default function Page({
                         isReadOnly
                         type={isVisible ? 'text' : 'password'}
                         value={secret}
+                        classNames={{
+                            input: ' font-mono',
+                        }}
                         endContent={
                             <button
-                                className='focus:outline-none'
+                                className=' focus:outline-none'
                                 type='button'
                                 onClick={toggleVisibility}
                             >
