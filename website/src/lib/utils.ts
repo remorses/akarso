@@ -37,7 +37,7 @@ export function generateCodeSnippet({ host, secret }) {
     return { redirectCode, callbackCode, loginCode }
 }
 
-export const isDev = process.env.NODE_ENV === 'development'
+export const isDev = env.NEXT_PUBLIC_ENV === 'development'
 
 export function safeJsonParse(str) {
     try {

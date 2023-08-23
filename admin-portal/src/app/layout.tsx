@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { Lexend } from 'next/font/google'
 import { NextUIProvider } from '@nextui-org/react'
 import { Providers } from 'admin-portal/src/components/context'
+import { BGGrid } from '@/components/grid'
 
 const font = Lexend({ subsets: ['latin'], weight: ['400', '500', '600'] })
 
@@ -21,7 +22,9 @@ export default function RootLayout({
     return (
         <html lang='en' className={font.className}>
             <body>
-                <Providers>{children}</Providers>
+                <BGGrid>
+                    <Providers>{children}</Providers>
+                </BGGrid>
             </body>
         </html>
     )

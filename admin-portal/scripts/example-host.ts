@@ -1,22 +1,15 @@
-import { TokenData } from 'admin-portal/src/lib/hooks'
-import { SignJWT } from 'jose'
+import { createSessionUrl } from 'admin-portal/../website/src/lib/ssr-edge'
+import { prisma } from 'db/prisma'
+import { DEMO_SITE_SECRET, env } from 'db/env'
 
 async function main() {
-    const payload: TokenData = {
-        callbackUrl: 'http://localhost:3000/api/sso-callback',
-        identifier: 'xxx',
-        metadata: {
-            orgId: 'example',
-        },
-    }
-    const token = await new SignJWT(payload)
-        .setProtectedHeader({ alg: 'HS256' })
-        .setIssuedAt()
-        .setExpirationTime('2h')
-        .sign(new TextEncoder().encode('secret'))
-    const url = `http://localhost:4040/session/${encodeURIComponent(
-        token,
-    )}`
+    const secret = DEMO_SITE_SECRET
+
+    const { url } = await createSessionUrl({
+        callbackUrl: env.NEXT_PUBLIC_URL,
+        identifier: '',
+        secret,
+    })
     console.log(`example url:`, url)
 }
 
