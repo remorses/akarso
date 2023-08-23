@@ -37,7 +37,7 @@
         "colord": "^2.9.2",
         "db": "workspace:*",
         "dedent": "^1.5.1",
-        "elacca": "^0.3.0",
+        "elacca": "^0.3.1",
         "framer-motion": "^10.15.1",
         "htmlrewriter": "^0.0.3",
         "jose": "^4.14.4",
