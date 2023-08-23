@@ -26,7 +26,7 @@ const nextConfig = piped({
     outputFileTracing: true,
     experimental: {
         externalDir: true,
-        // esmExternals: true,
+        esmExternals: false,
         // serverMinification: true,
         transpilePackages: ['next', '@sentry/core'],
         outputFileTracingRoot: path.join(__dirname, '../'),
