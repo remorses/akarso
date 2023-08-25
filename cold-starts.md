@@ -1,4 +1,4 @@
 to profile cold starts:
 
 time curl -O 'https://preview.akarso.co/org/x/site/x/setup?vercel-profile-require=1'
-time curl -O 'https://preview.akarso.co/org/x/site/x/setup?vercel-profile=1 '
+time curl -O 'https://preview.akarso.co/org/x/site/x/setup?vercel-profile=1'
