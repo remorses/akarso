@@ -62,7 +62,7 @@ export function DashboardContainer({ children }) {
                     <MyNavbar />
                 </div>
             </div> */}
-            <div className='w-full flex max-w-[1200px] pt-24 gap-12 mx-auto'>
+            <div className='w-full px-6 flex max-w-[1200px] pt-24 gap-12 mx-auto'>
                 <div className='flex flex-col w-[220px] h-full sticky top-4 gap-6 shrink-0 self-start'>
                     <Link
                         href='/home'

@@ -24,11 +24,11 @@ const nextConfig = piped({
     reactStrictMode: false,
     output: 'standalone',
     outputFileTracing: true,
+    transpilePackages: ['next', '@sentry/core'],
     experimental: {
         externalDir: true,
         esmExternals: false,
         // serverMinification: true,
-        transpilePackages: ['next', '@sentry/core'],
         outputFileTracingRoot: path.join(__dirname, '../'),
         swcPlugins: [['next-superjson-plugin', {}]],
         // outputFileTracingExcludes: {
