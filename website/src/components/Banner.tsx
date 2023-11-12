@@ -1,4 +1,3 @@
-import { loadStripe } from '@stripe/stripe-js'
 import {
     Button,
     Modal,
@@ -11,19 +10,16 @@ import {
     Tabs,
     useDisclosure,
 } from '@nextui-org/react'
+import { loadStripe } from '@stripe/stripe-js'
 import { useThrowingFn } from 'beskar/landing'
 import classNames from 'classnames'
-import Link from 'next/link'
-import { useRouter } from 'next/router'
-import { useState } from 'react'
-import { createStripeCheckoutSession } from 'website/src/pages/api/stripe/stripe-functions'
 import { MAX_CONNECTIONS, Plan, env, prices } from 'db/env'
+import { useState } from 'react'
 import { RadioCard } from 'website/src/components/form'
 import { useProps } from 'website/src/lib/hooks'
+import { createStripeCheckoutSession } from 'website/src/pages/api/stripe/stripe-functions'
 
-export function Banner({ orgId }) {
-    const router = useRouter()
-    const { site, subs } = useProps()
+function useUpgradeModal({ orgId }) {
     const { isOpen, onClose, onOpen, onOpenChange } = useDisclosure()
     const [billing, setBilling] = useState('monthly')
     const [plan, setPlan] = useState<Plan>('startup')
@@ -45,12 +41,10 @@ export function Banner({ orgId }) {
             const stripe = await loadStripe(
                 env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '',
             )
+            const href = window.location.href
             const { sessionId } = await createStripeCheckoutSession({
                 orgId,
-                callbackUrl: new URL(
-                    router.asPath,
-                    env.NEXT_PUBLIC_URL,
-                ).toString(),
+                callbackUrl: new URL(href, env.NEXT_PUBLIC_URL).toString(),
                 addons: [],
                 yearlyBilling: billing === 'yearly',
             })
@@ -58,35 +52,11 @@ export function Banner({ orgId }) {
             await stripe?.redirectToCheckout({ sessionId })
         },
     })
-
-    const upgrade = (
-        <button
-            // href={`/org/${orgId}/upgrade`}
-            // onClick={fn}
-            onClick={onOpen}
-            className={classNames(
-                'inline appearance-none px-[6px] py-[1px] transition-all mx-1 bg-gray-100/10 hover:bg-gray-100/30 rounded',
-                isLoading && 'opacity-50 pointer-events-none',
-            )}
-        >
-            {isLoading ? 'loading...' : 'upgrade'}
-        </button>
-    )
-    // return null
-    if (subs?.length) {
-        return null
-    }
-
-    return (
-        <>
-            <div className='font-semibold text-white bg-gradient-to-r from-cyan-600 gap-1 to-sky-600 text-sm absolute top-0 shrink-0 h-[40px] bg-black w-full flex items-center justify-center'>
-                {
-                    <div className=''>
-                        {upgrade} to create more than {MAX_CONNECTIONS.free} SSO
-                        connections
-                    </div>
-                }
-            </div>
+    return {
+        isLoading,
+        onOpen,
+        onClose,
+        modal: (
             <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
                 <ModalContent>
                     <>
@@ -137,6 +107,38 @@ export function Banner({ orgId }) {
                     </>
                 </ModalContent>
             </Modal>
+        ),
+    }
+}
+
+export function Banner({ orgId }) {
+    const { site, subs } = useProps()
+    const { modal, isLoading, onOpen } = useUpgradeModal({ orgId })
+    const upgrade = (
+        <button
+            onClick={onOpen}
+            className={classNames(
+                'inline appearance-none px-[6px] py-[1px] transition-all mx-1 bg-gray-100/10 hover:bg-gray-100/30 rounded',
+                isLoading && 'opacity-50 pointer-events-none',
+            )}
+        >
+            {isLoading ? 'loading...' : 'upgrade'}
+        </button>
+    )
+
+    if (subs?.length) {
+        return null
+    }
+
+    return (
+        <>
+            <div className='font-semibold text-white bg-gradient-to-r from-cyan-600 gap-1 to-sky-600 text-sm absolute top-0 shrink-0 h-[40px] bg-black w-full flex items-center justify-center'>
+                <div className=''>
+                    {upgrade} to create more than {MAX_CONNECTIONS.free} SSO
+                    connections
+                </div>
+            </div>
+            {modal}
         </>
     )
 }
