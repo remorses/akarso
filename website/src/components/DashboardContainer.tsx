@@ -1,5 +1,4 @@
 import { Button, Tab, Tabs, cn } from '@nextui-org/react'
-// import { TabLink } from 'beskar/src/Tabs'
 
 import { Select } from 'beskar/src/Select'
 import { useUser } from '@supabase/auth-helpers-react'
@@ -141,6 +140,3 @@ export function DashboardContainer({ children }) {
         </div>
     )
 }
-
-
-
