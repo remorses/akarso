@@ -23,7 +23,7 @@ import { BrowserWindow } from 'website/src/components/BrowserWindow'
 import { DashboardContainer } from 'website/src/components/DashboardContainer'
 import { UploadButton } from 'website/src/components/UploadButton'
 import { ColorPicker } from 'website/src/components/form'
-import { generateCodeSnippet } from 'website/src/lib/utils'
+import { generateCodeSnippet, scaleDownElement } from 'website/src/lib/utils'
 import { updateSite } from 'website/src/pages/api/functions'
 import { createSessionUrl } from 'website/src/lib/ssr-edge'
 
@@ -43,7 +43,6 @@ export default function Page({
     const [logoUrl, setLogoUrl] = useState(site.logoUrl)
     const iframeRef = useRef<HTMLIFrameElement>(null)
 
-    const iframeScale = 0.8
     const [color, setColor] = useState(site.color || '')
     useEffect(() => {
         updatePageProps({ logoUrl, color: color || undefined }, iframeRef)
@@ -103,12 +102,7 @@ export default function Page({
                 >
                     <iframe
                         ref={iframeRef}
-                        style={{
-                            transform: `scale(${iframeScale})`,
-                            transformOrigin: 'top left',
-                            width: `${Number(100 / iframeScale).toFixed(1)}%`,
-                            height: `${Number(100 / iframeScale).toFixed(1)}%`,
-                        }}
+                        style={scaleDownElement(0.8)}
                         className={classNames(
                             ' inset-0 bg-transparent',
                             'absolute',

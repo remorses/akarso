@@ -54,3 +54,12 @@ export function isTruthy<T>(val: T | undefined | null | false): val is T {
 export function daysDistance(a: Date, b: Date) {
     return Math.floor(Math.abs(a.getTime() - b.getTime()) / (1000 * 3600 * 24))
 }
+
+export function scaleDownElement(iframeScale) {
+    return {
+        transform: `scale(${iframeScale})`,
+        transformOrigin: 'top left',
+        width: `${Number(100 / iframeScale).toFixed(1)}%`,
+        height: `${Number(100 / iframeScale).toFixed(1)}%`,
+    }
+}
