@@ -3,29 +3,24 @@ import { useStore } from '@nanostores/react'
 
 import {
     ArrowLeftIcon,
-    ArrowRight,
     ArrowRightIcon,
-    CheckCircle2,
-    CheckIcon,
-    CheckSquareIcon,
+    CheckIcon
 } from 'lucide-react'
-import Image from 'next/image'
 
-import { Radio, cn, Checkbox, RadioGroup, Button } from '@nextui-org/react'
-import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import Link from 'next/link'
-import { Provider, providers } from 'admin-portal/src/lib/providers'
+import { ButtonLink } from '@/components/form'
+import { Button, cn } from '@nextui-org/react'
+import { Container } from 'admin-portal/src/components/Container'
 import {
     domainAtom,
     metadataUrlAtom,
     metadataXmlAtom,
 } from 'admin-portal/src/lib/atoms'
-import { createStepPath } from 'admin-portal/src/lib/utils'
-import { Container } from 'admin-portal/src/components/Container'
 import { useSetupParams, useThrowingFn } from 'admin-portal/src/lib/hooks'
+import { providers } from 'admin-portal/src/lib/providers'
+import { createStepPath } from 'admin-portal/src/lib/utils'
 import { createSSOProvider } from 'admin-portal/src/pages/api/functions'
-import { ButtonLink } from '@/components/form'
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
 
 export default function Page({ params: { provider, step, host, hash: hash } }) {
     step = Number(step)
