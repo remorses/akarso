@@ -25,6 +25,7 @@ const nextConfig = piped({
             test: /\.raw\.js$/,
             use: 'raw-loader',
         })
+
         return config
     },
 })
