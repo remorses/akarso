@@ -16,10 +16,10 @@
     "author": "remorses <beats.by.morse@gmail.com>",
     "license": "ISC",
     "dependencies": {
-        "@prisma/client": "^5.7.0",
+        "@prisma/client": "^5.8.1",
         "@supabase/supabase-js": "^2.39.0",
         "postgres": "^3.3.4",
-        "prisma": "^5.7.0"
+        "prisma": "^5.8.1"
     },
     "devDependencies": {
         "@types/node": "^20.2.1",
