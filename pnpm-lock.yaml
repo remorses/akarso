@@ -325,6 +325,9 @@ importers:
       '@types/uuid':
         specifier: ^9.0.2
         version: 9.0.2
+      '@vercel/analytics':
+        specifier: ^1.1.2
+        version: 1.1.2
       admin-portal:
         specifier: workspace:*
         version: link:../admin-portal
@@ -6582,6 +6585,12 @@ packages:
       '@types/node': 20.4.9
     dev: false
 
+  /@vercel/analytics@1.1.2:
+    resolution: {integrity: sha512-CodhkLCQ/EHzjX8k+Qg+OzTBY0UadykrcfolfSOJVZZY/ZJM5nbhztm9KdbYvMfqKlasAr1+OYy0ThZnDA/MYA==}
+    dependencies:
+      server-only: 0.0.1
+    dev: false
+
   /@visx/axis@2.14.0(react@18.2.0):
     resolution: {integrity: sha512-/mJuPiAUN/YdatSlXkkXD/8Pb4gVclbucNZkpUk6JVhnrmow0a1x73QiMXKuH2qDO5GDaqQS0C3Ly9lI3qTQ5Q==}
     peerDependencies:
@@ -10848,6 +10857,10 @@ packages:
     transitivePeerDependencies:
       - supports-color
       - webpack
+    dev: false
+
+  /server-only@0.0.1:
+    resolution: {integrity: sha512-qepMx2JxAa5jjfzxG79yPPq+8BuFToHd1hm7kI+Z4zAq1ftQiP7HcxMhDDItrbtwVeLg/cY2JnKnrcFkmiswNA==}
     dev: false
 
   /set-blocking@2.0.0:

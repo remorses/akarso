@@ -1,26 +1,27 @@
 'skip ssr'
-import { NextUIProvider } from '@nextui-org/react'
+
 import 'prismjs/themes/prism-tomorrow.css'
 import 'website/src/styles/index.css'
-import { Lexend } from 'next/font/google'
 
-import { createPagesBrowserClient } from '@supabase/auth-helpers-nextjs'
 import {
     SessionContextProvider,
     useSession,
 } from '@supabase/auth-helpers-react'
-
-const font = Lexend({ subsets: ['latin'] })
-
-import NextNprogress from 'nextjs-progressbar'
-
-import { useRouter } from 'next/router'
-import Script from 'next/script'
 import { useEffect, useState } from 'react'
+
+import { Analytics } from '@vercel/analytics/react'
+import { DashboardContainer } from 'website/src/components/DashboardContainer'
+import { Lexend } from 'next/font/google'
+import NextNprogress from 'nextjs-progressbar'
+import { NextUIProvider } from '@nextui-org/react'
+import Script from 'next/script'
 import { Toaster } from 'react-hot-toast'
 import classNames from 'classnames'
-import { DashboardContainer } from 'website/src/components/DashboardContainer'
+import { createPagesBrowserClient } from '@supabase/auth-helpers-nextjs'
 import { dashboardContext } from 'website/src/lib/hooks'
+import { useRouter } from 'next/router'
+
+const font = Lexend({ subsets: ['latin'] })
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }) {
     const router = useRouter()
@@ -60,6 +61,8 @@ function CommonProviders({ children, pageProps }) {
     const [supabase] = useState(() => createPagesBrowserClient({}))
     return (
         <div className={classNames(font.className, 'w-full h-full')}>
+            <Analytics />
+
             <SessionContextProvider
                 supabaseClient={supabase}
                 initialSession={pageProps.initialSession}
