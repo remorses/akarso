@@ -42,7 +42,8 @@ media
 
     console.error(`Uploading ${filename} (${(stat.size / 1024).toFixed(1)} KB)...`)
 
-    const presign = await client.media.getMediaPresignedUrl({
+    const { data: presign } = await client.media.getMediaPresignedUrl({
+
       body: {
         filename,
         contentType: contentType as any,
@@ -50,8 +51,9 @@ media
       },
     })
 
+
     const fileBuffer = fsSync.readFileSync(file)
-    const uploadResp = await fetch(presign.uploadUrl!, {
+    const uploadResp = await fetch(presign!.uploadUrl!, {
       method: 'PUT',
       body: fileBuffer,
       headers: { 'Content-Type': contentType! },
@@ -64,7 +66,7 @@ media
 
     console.error('Upload complete.')
     output(
-      { publicUrl: presign.publicUrl, key: presign.key, type: presign.type },
+      { publicUrl: presign?.publicUrl, key: presign?.key, type: presign?.type },
       { json: options.json, console },
     )
   })

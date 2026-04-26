@@ -52,5 +52,8 @@
     "goke": "^6.9.0",
     "yaml": "^2.8.3",
     "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@hey-api/client-fetch": "^0.6.0"
   }
 }

@@ -12,8 +12,8 @@ profiles
       fs,
       env: process.env,
     })
-    const result = await client.profiles.listProfiles()
-    output(result, { json: options.json, console })
+    const { data } = await client.profiles.listProfiles()
+    output(data, { json: options.json, console })
   })
 
 export default profiles

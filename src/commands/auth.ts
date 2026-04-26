@@ -45,8 +45,8 @@ auth
         apiKey,
         baseURL: process.env.ZERNIO_API_URL || undefined,
       })
-      const result = await client.profiles.listProfiles()
-      const profiles = (result as any)?.data ?? result
+      const { data } = await client.profiles.listProfiles()
+      const profiles = data?.profiles ?? []
       const count = Array.isArray(profiles) ? profiles.length : 0
       console.error('API key is valid.')
       console.error(`Found ${count} profile(s).`)

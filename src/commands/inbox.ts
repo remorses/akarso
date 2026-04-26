@@ -25,14 +25,14 @@ inbox
       fs,
       env: process.env,
     })
-    const result = await client.messages.listInboxConversations({
+    const { data } = await client.messages.listInboxConversations({
       query: {
         platform: (options.platform as any) || undefined,
         accountId: options.accountId || undefined,
         limit: options.limit,
       },
     })
-    output(result, { json: options.json, console })
+    output(data, { json: options.json, console })
   })
 
 inbox
@@ -47,11 +47,11 @@ inbox
       fs,
       env: process.env,
     })
-    const result = await client.messages.getInboxConversationMessages({
+    const { data } = await client.messages.getInboxConversationMessages({
       path: { conversationId },
       query: { accountId: options.accountId },
     })
-    output(result, { json: options.json, console })
+    output(data, { json: options.json, console })
   })
 
 inbox
@@ -70,14 +70,14 @@ inbox
       fs,
       env: process.env,
     })
-    const result = await client.messages.sendInboxMessage({
+    const { data } = await client.messages.sendInboxMessage({
       path: { conversationId },
       body: {
         accountId: options.accountId,
         message: options.message,
       },
     })
-    output(result, { json: options.json, console })
+    output(data, { json: options.json, console })
   })
 
 inbox
@@ -100,14 +100,14 @@ inbox
       fs,
       env: process.env,
     })
-    const result = await client.comments.listInboxComments({
+    const { data } = await client.comments.listInboxComments({
       query: {
         platform: (options.platform as any) || undefined,
         accountId: options.accountId || undefined,
         limit: options.limit,
       },
     })
-    output(result, { json: options.json, console })
+    output(data, { json: options.json, console })
   })
 
 inbox
@@ -130,7 +130,7 @@ inbox
       fs,
       env: process.env,
     })
-    const result = await client.comments.replyToInboxPost({
+    const { data } = await client.comments.replyToInboxPost({
       path: { postId },
       body: {
         accountId: options.accountId,
@@ -138,7 +138,7 @@ inbox
         commentId: options.commentId || undefined,
       },
     })
-    output(result, { json: options.json, console })
+    output(data, { json: options.json, console })
   })
 
 inbox
@@ -161,14 +161,14 @@ inbox
       fs,
       env: process.env,
     })
-    const result = await client.reviews.listInboxReviews({
+    const { data } = await client.reviews.listInboxReviews({
       query: {
         platform: (options.platform as any) || undefined,
         accountId: options.accountId || undefined,
         limit: options.limit,
       },
     })
-    output(result, { json: options.json, console })
+    output(data, { json: options.json, console })
   })
 
 inbox
@@ -187,14 +187,14 @@ inbox
       fs,
       env: process.env,
     })
-    const result = await client.reviews.replyToInboxReview({
+    const { data } = await client.reviews.replyToInboxReview({
       path: { reviewId },
       body: {
         accountId: options.accountId,
         message: options.message,
       },
     })
-    output(result, { json: options.json, console })
+    output(data, { json: options.json, console })
   })
 
 export default inbox

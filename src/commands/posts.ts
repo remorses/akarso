@@ -51,7 +51,7 @@ posts
           .map((url) => ({ url: url.trim(), type: 'image' as const }))
       : undefined
 
-    const result = await client.posts.createPost({
+    const { data } = await client.posts.createPost({
       body: {
         content: options.text,
         title: options.title || undefined,
@@ -61,7 +61,8 @@ posts
         mediaItems: mediaItems || undefined,
       },
     })
-    output(result, { json: options.json, console })
+
+    output(data, { json: options.json, console })
   })
 
 posts
@@ -86,14 +87,14 @@ posts
       fs,
       env: process.env,
     })
-    const result = await client.posts.listPosts({
+    const { data } = await client.posts.listPosts({
       query: {
         status: options.status || undefined,
         limit: options.limit,
         profileId: options.profileId || undefined,
       },
     })
-    output(result, { json: options.json, console })
+    output(data, { json: options.json, console })
   })
 
 posts
@@ -104,8 +105,8 @@ posts
       fs,
       env: process.env,
     })
-    const result = await client.posts.getPost({ path: { postId } })
-    output(result, { json: options.json, console })
+    const { data } = await client.posts.getPost({ path: { postId } })
+    output(data, { json: options.json, console })
   })
 
 posts
@@ -116,8 +117,8 @@ posts
       fs,
       env: process.env,
     })
-    const result = await client.posts.deletePost({ path: { postId } })
-    output(result, { json: options.json, console })
+    const { data } = await client.posts.deletePost({ path: { postId } })
+    output(data, { json: options.json, console })
   })
 
 posts
@@ -128,8 +129,8 @@ posts
       fs,
       env: process.env,
     })
-    const result = await client.posts.retryPost({ path: { postId } })
-    output(result, { json: options.json, console })
+    const { data } = await client.posts.retryPost({ path: { postId } })
+    output(data, { json: options.json, console })
   })
 
 export default posts

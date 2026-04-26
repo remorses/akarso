@@ -21,13 +21,13 @@ accounts
       fs,
       env: process.env,
     })
-    const result = await client.accounts.listAccounts({
+    const { data } = await client.accounts.listAccounts({
       query: {
         profileId: options.profileId || undefined,
         platform: options.platform || undefined,
       },
     })
-    output(result, { json: options.json, console })
+    output(data, { json: options.json, console })
   })
 
 accounts
@@ -38,9 +38,9 @@ accounts
       fs,
       env: process.env,
     })
-    const result = await client.accounts.listAccounts()
-    const account = result.accounts?.find(
-      (a) => a._id === accountId || (a as any).id === accountId,
+    const { data } = await client.accounts.listAccounts()
+    const account = data?.accounts?.find(
+      (a) => a._id === accountId,
     )
     if (!account) {
       console.error(`Account ${accountId} not found.`)
@@ -65,13 +65,13 @@ accounts
       fs,
       env: process.env,
     })
-    const result = await client.accounts.getAllAccountsHealth({
+    const { data } = await client.accounts.getAllAccountsHealth({
       query: {
         profileId: options.profileId || undefined,
         platform: (options.platform as any) || undefined,
       },
     })
-    output(result, { json: options.json, console })
+    output(data, { json: options.json, console })
   })
 
 export default accounts
