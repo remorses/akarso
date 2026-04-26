@@ -28,6 +28,7 @@
   "scripts": {
     "build": "tsc && chmod +x dist/cli.js",
     "typecheck": "tsc",
+    "cli": "sigillo run -- tsx src/cli.ts",
     "test": "vitest run --no-watch",
     "prepublishOnly": "rimraf dist \"*.tsbuildinfo\" && pnpm build"
   },
