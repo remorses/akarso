@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { createGroup, platforms } from '../globals.ts'
 import { createClient } from '../zernio.ts'
 import { output } from '../output.ts'
+import { parseScheduledAt } from '../scheduling.ts'
 
 const posts = createGroup()
 
@@ -15,7 +16,7 @@ posts
   .option('--publish-now', 'Publish immediately')
   .option(
     '--scheduled-at [iso]',
-    z.string().describe('Schedule for a future time (ISO 8601)'),
+    z.string().describe('Schedule time: ISO date, 30m, 2h, 3d, or 1w'),
   )
   .option(
     '--title [title]',
@@ -50,13 +51,21 @@ posts
           .map((url) => ({ url: url.trim(), type: 'image' as const }))
       : undefined
 
+    if (options.publishNow && options.scheduledAt) {
+      throw new Error('Choose either --publish-now or --scheduled-at, not both.')
+    }
+
+    const scheduledFor = options.scheduledAt
+      ? parseScheduledAt(options.scheduledAt)
+      : undefined
+
     const { data } = await client.posts.createPost({
       body: {
         content: options.text,
         title: options.title || undefined,
         platforms,
         publishNow: options.publishNow || false,
-        scheduledFor: options.scheduledAt || undefined,
+        scheduledFor,
         mediaItems: mediaItems || undefined,
       },
     })
