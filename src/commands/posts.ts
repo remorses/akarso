@@ -130,7 +130,7 @@ posts
       env: process.env,
     })
     const { data } = await client.posts.retryPost({ path: { postId } })
-    output(data, { json: options.json, console })
+    output(data as object, { json: options.json, console })
   })
 
 export default posts

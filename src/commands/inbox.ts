@@ -9,7 +9,7 @@ inbox
   .command('inbox conversations', 'List DM conversations')
   .option(
     '--platform [platform]',
-    z.string().describe('Filter by platform (instagram, facebook, twitter, etc.)'),
+    z.enum(['facebook', 'instagram', 'twitter', 'bluesky', 'reddit', 'telegram']).describe('Filter by platform'),
   )
   .option(
     '--account-id [id]',
@@ -27,7 +27,7 @@ inbox
     })
     const { data } = await client.messages.listInboxConversations({
       query: {
-        platform: (options.platform as any) || undefined,
+        platform: options.platform || undefined,
         accountId: options.accountId || undefined,
         limit: options.limit,
       },
@@ -84,7 +84,7 @@ inbox
   .command('inbox comments', 'List post comments across accounts')
   .option(
     '--platform [platform]',
-    z.string().describe('Filter by platform'),
+    z.enum(['facebook', 'instagram', 'twitter', 'bluesky', 'threads', 'youtube', 'linkedin', 'reddit']).describe('Filter by platform'),
   )
   .option(
     '--account-id [id]',
@@ -102,7 +102,7 @@ inbox
     })
     const { data } = await client.comments.listInboxComments({
       query: {
-        platform: (options.platform as any) || undefined,
+        platform: options.platform || undefined,
         accountId: options.accountId || undefined,
         limit: options.limit,
       },
@@ -145,7 +145,7 @@ inbox
   .command('inbox reviews', 'List reviews (Facebook, Google Business)')
   .option(
     '--platform [platform]',
-    z.string().describe('Filter by platform (facebook, googlebusiness)'),
+    z.enum(['facebook', 'googlebusiness']).describe('Filter by platform'),
   )
   .option(
     '--account-id [id]',
@@ -163,7 +163,7 @@ inbox
     })
     const { data } = await client.reviews.listInboxReviews({
       query: {
-        platform: (options.platform as any) || undefined,
+        platform: options.platform || undefined,
         accountId: options.accountId || undefined,
         limit: options.limit,
       },

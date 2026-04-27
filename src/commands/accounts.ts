@@ -57,7 +57,7 @@ accounts
   )
   .option(
     '--platform [platform]',
-    z.string().describe('Filter by platform'),
+    z.enum(['facebook', 'instagram', 'linkedin', 'twitter', 'tiktok', 'youtube', 'threads', 'pinterest', 'reddit', 'bluesky', 'googlebusiness', 'telegram', 'snapchat', 'discord']).describe('Filter by platform'),
   )
   .action(async (options, { fs, console, process }) => {
     const client = await createClient({
@@ -68,7 +68,7 @@ accounts
     const { data } = await client.accounts.getAllAccountsHealth({
       query: {
         profileId: options.profileId || undefined,
-        platform: (options.platform as any) || undefined,
+        platform: options.platform || undefined,
       },
     })
     output(data, { json: options.json, console })

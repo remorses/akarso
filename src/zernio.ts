@@ -13,7 +13,7 @@ export interface AkarsoConfig {
 export async function loadConfig(fs: GokeFs): Promise<AkarsoConfig> {
   try {
     const raw = await fs.readFile(CONFIG_FILE, 'utf8')
-    return JSON.parse(raw as string) as AkarsoConfig
+    return JSON.parse(String(raw)) as AkarsoConfig
   } catch {
     return {}
   }

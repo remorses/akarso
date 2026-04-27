@@ -4,7 +4,9 @@ import { output } from '../output.ts'
 import fsSync from 'node:fs'
 import pathModule from 'node:path'
 
-const CONTENT_TYPE_MAP: Record<string, string> = {
+type ZernioContentType = 'image/jpeg' | 'image/jpg' | 'image/png' | 'image/webp' | 'image/gif' | 'video/mp4' | 'video/mpeg' | 'video/quicktime' | 'video/avi' | 'video/x-msvideo' | 'video/webm' | 'video/x-m4v' | 'application/pdf'
+
+const CONTENT_TYPE_MAP: Record<string, ZernioContentType> = {
   '.jpg': 'image/jpeg',
   '.jpeg': 'image/jpeg',
   '.png': 'image/png',
@@ -35,6 +37,7 @@ media
         `Unsupported file type: ${ext}. Supported: ${Object.keys(CONTENT_TYPE_MAP).join(', ')}`,
       )
       process.exit(1)
+      return
     }
 
     const filename = pathModule.basename(file)
@@ -46,7 +49,7 @@ media
 
       body: {
         filename,
-        contentType: contentType as any,
+        contentType,
         size: stat.size,
       },
     })

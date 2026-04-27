@@ -2,7 +2,7 @@ import { stringify } from 'yaml'
 
 /** Print structured data as YAML or JSON to stdout */
 export function output(
-  data: unknown,
+  data: object | string | number | boolean | null | undefined,
   opts: { json?: boolean; console: { log: (s: string) => void } },
 ) {
   if (opts.json) {
