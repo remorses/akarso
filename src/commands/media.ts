@@ -4,9 +4,9 @@ import { output } from '../output.ts'
 import fsSync from 'node:fs'
 import pathModule from 'node:path'
 
-type ZernioContentType = 'image/jpeg' | 'image/jpg' | 'image/png' | 'image/webp' | 'image/gif' | 'video/mp4' | 'video/mpeg' | 'video/quicktime' | 'video/avi' | 'video/x-msvideo' | 'video/webm' | 'video/x-m4v' | 'application/pdf'
+type MediaContentType = 'image/jpeg' | 'image/jpg' | 'image/png' | 'image/webp' | 'image/gif' | 'video/mp4' | 'video/mpeg' | 'video/quicktime' | 'video/avi' | 'video/x-msvideo' | 'video/webm' | 'video/x-m4v' | 'application/pdf'
 
-const CONTENT_TYPE_MAP: Record<string, ZernioContentType> = {
+const CONTENT_TYPE_MAP: Record<string, MediaContentType> = {
   '.jpg': 'image/jpeg',
   '.jpeg': 'image/jpeg',
   '.png': 'image/png',

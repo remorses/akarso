@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { createGroup } from '../globals.ts'
+import { createGroup, platforms } from '../globals.ts'
 import { createClient } from '../zernio.ts'
 import { output } from '../output.ts'
 
@@ -9,7 +9,7 @@ inbox
   .command('inbox conversations', 'List DM conversations')
   .option(
     '--platform [platform]',
-    z.enum(['facebook', 'instagram', 'twitter', 'bluesky', 'reddit', 'telegram']).describe('Filter by platform'),
+    platforms.inboxConversationsSchema.describe('Filter by platform'),
   )
   .option(
     '--account-id [id]',
@@ -84,7 +84,7 @@ inbox
   .command('inbox comments', 'List post comments across accounts')
   .option(
     '--platform [platform]',
-    z.enum(['facebook', 'instagram', 'twitter', 'bluesky', 'threads', 'youtube', 'linkedin', 'reddit']).describe('Filter by platform'),
+    platforms.inboxCommentsSchema.describe('Filter by platform'),
   )
   .option(
     '--account-id [id]',
@@ -145,7 +145,7 @@ inbox
   .command('inbox reviews', 'List reviews (Facebook, Google Business)')
   .option(
     '--platform [platform]',
-    z.enum(['facebook', 'googlebusiness']).describe('Filter by platform'),
+    platforms.inboxReviewsSchema.describe('Filter by platform'),
   )
   .option(
     '--account-id [id]',

@@ -16,13 +16,13 @@ auth
     console.error('Opening browser for login...')
     const url = 'https://zernio.com/dashboard/api-keys'
     openInBrowser(url)
-    console.error('Create an API key at the dashboard, then run:')
+    console.error('Create an API key, then run:')
     console.error('  akarso auth set --key <your-key>')
   })
 
 auth
   .command('auth set', 'Save API key manually')
-  .option('--key <key>', z.string().describe('Your Zernio API key'))
+  .option('--key <key>', z.string().describe('Your API key'))
   .action(async (options, { fs, console }) => {
     await saveConfig(fs, { apiKey: options.key })
     console.error('API key saved to ~/.akarso/config.json')

@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { createGroup } from '../globals.ts'
+import { createGroup, platforms } from '../globals.ts'
 import { createClient } from '../zernio.ts'
 import { output } from '../output.ts'
 
@@ -27,8 +27,7 @@ posts
   )
   .option(
     '--platform [platform]',
-    z
-      .string()
+    platforms.schema
       .default('twitter')
       .describe('Default platform for all accounts'),
   )

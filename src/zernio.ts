@@ -44,7 +44,7 @@ export async function resolveApiKey(opts: {
   return config.apiKey
 }
 
-/** Create a Zernio client, throwing if no API key is found */
+/** Create an API client, throwing if no API key is found */
 export async function createClient(opts: {
   apiKey?: string
   fs: GokeFs
