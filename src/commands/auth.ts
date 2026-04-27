@@ -15,7 +15,7 @@ auth
   .action(async (_options, { console }) => {
     console.error('Opening browser for login...')
     const url = 'https://zernio.com/dashboard/api-keys'
-    openInBrowser(url)
+    await openInBrowser(url)
     console.error('Create an API key, then run:')
     console.error('  akarso auth set --key <your-key>')
   })
