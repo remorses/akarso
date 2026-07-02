@@ -1,9 +1,11 @@
+import nodeProcess from 'node:process'
 import { openInBrowser } from 'goke'
 import { z } from 'zod'
+import dedent from 'string-dedent'
 import { createAuthClient } from 'better-auth/client'
 import { deviceAuthorizationClient } from 'better-auth/client/plugins'
 import { createGroup } from '../globals.ts'
-import { loadConfig, saveConfig, resolveApiKey, resolveBaseUrl, createClient } from '../zernio.ts'
+import { setServerConfig, resolveBaseUrl, createClient } from '../zernio.ts'
 
 /** Response from BetterAuth's POST /api/auth/api-key/create endpoint.
  *  The `key` field contains the plaintext API key (only returned once). */
@@ -24,6 +26,24 @@ function getWebsiteUrl(env: Record<string, string | undefined>): string {
 auth
   .command('auth login', 'Login via browser (device flow)')
   .action(async (options, { console, process, fs }) => {
+    // Device login must stay alive while the user approves in the browser,
+    // so it needs a real interactive terminal. Fail fast otherwise.
+    // goke's injected process does not expose isTTY, so use the real node process.
+    if (!nodeProcess.stdout.isTTY) {
+      console.error(dedent`
+        akarso auth login needs an interactive terminal and must stay alive while you approve the browser login.
+
+        Run it in a background terminal session like tuistory or tmux, then wait for the URL/code:
+
+          bunx tuistory launch "akarso auth login" -s akarso-login
+          bunx tuistory -s akarso-login wait "/code:|https?:\\/\\//i" --timeout 15000
+
+        The login command exits by itself after successful browser approval.
+        Alternatively save an existing API key with: akarso auth set --key <key>
+      `)
+      process.exit(1)
+    }
+
     const websiteUrl = getWebsiteUrl(process.env)
 
     const client = createAuthClient({
@@ -95,36 +115,42 @@ auth
     })
 
     if (!apiKeyResponse.ok) {
-      console.error('Failed to create API key. You can create one manually at:')
-      console.error(`  ${websiteUrl}/dashboard`)
+      console.error(dedent`
+        Failed to create API key. You can create one manually at:
+          ${websiteUrl}/dashboard
+      `)
       // Still save the bearer token as fallback
-      await saveConfig(fs, { apiKey: accessToken })
+      await setServerConfig({ fs, env: process.env, data: { apiKey: accessToken } })
       console.error('Session token saved as fallback.')
       return
     }
 
     const apiKeyData = await apiKeyResponse.json() as CreateApiKeyResponse
     if (!apiKeyData.key) {
-      console.error('Failed to create API key. Save one manually with:')
-      console.error('  akarso auth set --key <key>')
-      await saveConfig(fs, { apiKey: accessToken })
+      console.error(dedent`
+        Failed to create API key. Save one manually with:
+          akarso auth set --key <key>
+      `)
+      await setServerConfig({ fs, env: process.env, data: { apiKey: accessToken } })
       return
     }
 
-    await saveConfig(fs, { apiKey: apiKeyData.key })
-    console.error('')
-    console.error('Logged in successfully! API key saved to ~/.akarso/config.json')
-    console.error('')
-    console.error('You can now use the CLI:')
-    console.error('  akarso accounts list')
-    console.error('  akarso posts create --text "Hello!" --accounts twitter --publish-now')
+    await setServerConfig({ fs, env: process.env, data: { apiKey: apiKeyData.key } })
+    console.error(dedent`
+
+      Logged in successfully! API key saved to ~/.akarso/config.json
+
+      You can now use the CLI:
+        akarso accounts list
+        akarso posts create --text "Hello!" --accounts twitter --publish-now
+    `)
   })
 
 auth
-  .command('auth set', 'Save API key manually')
+  .command('auth set', 'Save API key manually (pass it with `--key`)')
   .option('--key <key>', z.string().describe('Your API key'))
-  .action(async (options, { fs, console }) => {
-    await saveConfig(fs, { apiKey: options.key })
+  .action(async (options, { fs, console, process }) => {
+    await setServerConfig({ fs, env: process.env, data: { apiKey: options.key } })
     console.error('API key saved to ~/.akarso/config.json')
   })
 

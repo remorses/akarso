@@ -1,5 +1,6 @@
+import nodeProcess from 'node:process'
 import { cancel, isCancel, select } from '@clack/prompts'
-import { openInBrowser } from 'goke'
+import { isAgent, openInBrowser } from 'goke'
 import { z } from 'zod'
 import { createGroup, platforms, type Platform } from '../globals.ts'
 import { createClient, resolveBaseUrl } from '../zernio.ts'
@@ -14,6 +15,14 @@ accounts
     if (platformArg) {
       platform = platforms.schema.parse(platformArg)
     } else {
+      // goke's injected process exposes stdin as a string, so TTY detection
+      // must go through the real node process.
+      if (isAgent || !nodeProcess.stdin.isTTY) {
+        console.error(
+          `Missing platform. Usage: akarso accounts connect <platform> (one of: ${platforms.schema.options.join(', ')})`,
+        )
+        process.exit(1)
+      }
       const selected = await select({
         message: 'Which platform do you want to connect?',
         options: platforms.options,

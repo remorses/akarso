@@ -65,7 +65,7 @@ export const platforms = {
   ] satisfies Array<{ value: Platform; label: string }>,
 }
 
-/** Create a goke instance with the shared global options (--api-key, --json) */
+/** Create a goke instance with the shared global options (--api-key, --api-url, --json) */
 export function createGroup() {
   return goke()
     .option(
@@ -75,6 +75,12 @@ export function createGroup() {
         .describe(
           'API key (overrides AKARSO_API_KEY env and ~/.akarso/config.json)',
         ),
+    )
+    .option(
+      '--api-url [url]',
+      z
+        .string()
+        .describe('Server URL (overrides AKARSO_API_URL env, defaults to akarso.co)'),
     )
     .option('--json', 'Output raw JSON instead of YAML')
 }

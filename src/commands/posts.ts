@@ -1,4 +1,7 @@
+import nodeProcess from 'node:process'
 import { z } from 'zod'
+import { confirm, isCancel } from '@clack/prompts'
+import { isAgent } from 'goke'
 import { createGroup, platforms } from '../globals.ts'
 import { createClient } from '../zernio.ts'
 import { output } from '../output.ts'
@@ -7,7 +10,12 @@ import { parseScheduledAt } from '../scheduling.ts'
 const posts = createGroup()
 
 posts
-  .command('posts create', 'Create, schedule, or publish a post')
+  .command(
+    'posts create',
+    'Create, schedule, or publish a post. Use `--publish-now` or `--scheduled-at`, not both.',
+  )
+  .example('akarso posts create --text "Hello!" --accounts acc_123 --publish-now')
+  .example('akarso posts create --text "Later" --accounts acc_123 --scheduled-at 2h')
   .option('--text <content>', z.string().describe('Post text content'))
   .option(
     '--accounts <ids>',
@@ -137,8 +145,24 @@ posts
   })
 
 posts
-  .command('posts delete <postId>', 'Delete a post')
+  .command('posts delete <postId>', 'Delete a post (skip confirmation with `--force`)')
+  .option('--force', 'Skip confirmation')
   .action(async (postId, options, { fs, console, process }) => {
+    if (!options.force) {
+      // goke's injected process exposes stdin as a string, so TTY detection
+      // must go through the real node process.
+      if (isAgent || !nodeProcess.stdin.isTTY) {
+        console.error('Use --force to delete non-interactively.')
+        process.exit(1)
+      }
+      const confirmed = await confirm({
+        message: `Delete post ${postId}? This cannot be undone.`,
+        initialValue: false,
+      })
+      if (isCancel(confirmed) || !confirmed) {
+        return
+      }
+    }
     const client = await createClient({
       apiKey: options.apiKey,
       fs,
