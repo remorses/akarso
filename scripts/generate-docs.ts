@@ -1,10 +1,27 @@
 // Generates CLI reference markdown pages from goke command definitions.
 // Output goes to ../website/src/pages/docs/cli/ for holocron to render.
 // Prepends holocron-compatible frontmatter (title, sidebarTitle, description).
+//
+// Also generates ../website/mcp-tools.json — the MCP tool definitions that
+// power the holocron MCP docs tab. Tools are extracted by mounting the same
+// @goke/mcp adapter used by the /mcp endpoint on an in-memory server, so
+// the docs always match production behavior exactly.
 import { generateDocs } from 'goke'
 import fs from 'node:fs'
 import path from 'node:path'
-import { cli } from '../src/cli.ts'
+import { Client } from '@modelcontextprotocol/sdk/client/index.js'
+import { Server } from '@modelcontextprotocol/sdk/server/index.js'
+import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js'
+import { addCliToolsToMcp } from '@goke/mcp'
+import { createRequire } from 'node:module'
+import { createCli, isRemoteMcpCommand } from '../src/create-cli.ts'
+
+const require = createRequire(import.meta.url)
+const packageJson = require('../package.json') as { version: string }
+
+const cli = createCli({ version: packageJson.version })
+
+// ── CLI reference markdown pages ────────────────────────────────────
 
 const outDir = path.resolve(import.meta.dirname, '../../website/src/pages/docs/cli')
 
@@ -39,3 +56,29 @@ for (const page of pages) {
 }
 
 console.log(`\nGenerated ${pages.length} CLI doc pages in ${outDir}`)
+
+// ── MCP tool definitions for the docs MCP tab ───────────────────────
+
+async function generateMcpToolsJson() {
+  const server = new Server({ name: 'akarso', version: '1.0.0' }, { capabilities: {} })
+  addCliToolsToMcp({ cli, server, commandFilter: isRemoteMcpCommand })
+
+  const client = new Client({ name: 'docs-generator', version: '1.0.0' })
+  const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair()
+  await server.connect(serverTransport)
+  await client.connect(clientTransport)
+
+  const { tools } = await client.listTools()
+  await client.close()
+  await server.close()
+
+  const outFile = path.resolve(import.meta.dirname, '../../website/mcp-tools.json')
+  const definition = {
+    serverUrl: 'https://akarso.co/mcp',
+    tools,
+  }
+  fs.writeFileSync(outFile, JSON.stringify(definition, null, 2) + '\n')
+  console.log(`wrote ${outFile} (${tools.length} tools)`)
+}
+
+await generateMcpToolsJson()
