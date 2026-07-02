@@ -3,16 +3,16 @@ import { z } from 'zod'
 import { createAuthClient } from 'better-auth/client'
 import { deviceAuthorizationClient } from 'better-auth/client/plugins'
 import { createGroup } from '../globals.ts'
-import { loadConfig, saveConfig, resolveApiKey, resolveBaseUrl } from '../zernio.ts'
+import { loadConfig, saveConfig, resolveApiKey, resolveBaseUrl, createClient } from '../zernio.ts'
 
 const auth = createGroup()
 
-/** Resolve the website base URL (not the /api/v1 proxy URL). */
+/** Resolve the website base URL (not the /api proxy URL). */
 function getWebsiteUrl(env: Record<string, string | undefined>): string {
   const apiUrl = resolveBaseUrl(env)
-  // Strip /api/v1 suffix to get the website root
-  if (apiUrl.endsWith('/api/v1')) return apiUrl.slice(0, -7)
-  return 'https://akarso-website.remorses.workers.dev'
+  // Strip /api suffix to get the website root
+  if (apiUrl.endsWith('/api')) return apiUrl.slice(0, -4)
+  return 'https://akarso.co'
 }
 
 auth
@@ -125,22 +125,15 @@ auth
 auth
   .command('auth check', 'Verify API key is valid')
   .action(async (options, { fs, console, process }) => {
-    const apiKey = await resolveApiKey({
-      apiKey: options.apiKey,
-      fs,
-      env: process.env,
-    })
-    if (!apiKey) {
-      console.error('No API key found. Run `akarso auth login` first.')
-      process.exit(1)
-    }
     try {
-      const baseUrl = resolveBaseUrl(process.env)
-      const response = await fetch(new URL('/profiles', baseUrl), {
-        headers: { 'x-api-key': apiKey! },
+      const client = await createClient({
+        apiKey: options.apiKey,
+        fs,
+        env: process.env,
       })
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${await response.text()}`)
+      const { error } = await client.profiles.listProfiles()
+      if (error) {
+        throw new Error(`API returned error: ${JSON.stringify(error)}`)
       }
       console.error('API key is valid.')
     } catch (err) {
