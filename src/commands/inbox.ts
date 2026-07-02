@@ -12,8 +12,8 @@ inbox
     platforms.inboxConversationsSchema.describe('Filter by platform'),
   )
   .option(
-    '--account-id [id]',
-    z.string().describe('Filter by account ID'),
+    '--account-id <id>',
+    z.string().describe('Account ID to list conversations for'),
   )
   .option(
     '--limit [n]',
@@ -28,7 +28,7 @@ inbox
     const { data } = await client.messages.listInboxConversations({
       query: {
         platform: options.platform || undefined,
-        accountId: options.accountId || undefined,
+        accountId: options.accountId,
         limit: options.limit,
       },
     })
@@ -87,8 +87,8 @@ inbox
     platforms.inboxCommentsSchema.describe('Filter by platform'),
   )
   .option(
-    '--account-id [id]',
-    z.string().describe('Filter by account ID'),
+    '--account-id <id>',
+    z.string().describe('Account ID to list comments for'),
   )
   .option(
     '--limit [n]',
@@ -103,7 +103,7 @@ inbox
     const { data } = await client.comments.listInboxComments({
       query: {
         platform: options.platform || undefined,
-        accountId: options.accountId || undefined,
+        accountId: options.accountId,
         limit: options.limit,
       },
     })
@@ -148,8 +148,8 @@ inbox
     platforms.inboxReviewsSchema.describe('Filter by platform'),
   )
   .option(
-    '--account-id [id]',
-    z.string().describe('Filter by account ID'),
+    '--account-id <id>',
+    z.string().describe('Account ID to list reviews for'),
   )
   .option(
     '--limit [n]',
@@ -164,7 +164,7 @@ inbox
     const { data } = await client.reviews.listInboxReviews({
       query: {
         platform: options.platform || undefined,
-        accountId: options.accountId || undefined,
+        accountId: options.accountId,
         limit: options.limit,
       },
     })
