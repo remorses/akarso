@@ -31,16 +31,17 @@ auth
       client_id: 'akarso-cli',
     })
     if (error || !data) {
-      console.error(`Failed to request device code: ${(error as any)?.error_description || 'unknown error'}`)
+      console.error(`Failed to request device code: ${error?.error_description || 'unknown error'}`)
       process.exit(1)
+      return
     }
 
-    const verificationUrl = (data as any).verification_uri_complete
-      || `${websiteUrl}/device?user_code=${(data as any).user_code}`
+    const verificationUrl = data.verification_uri_complete
+      || `${websiteUrl}/device?user_code=${data.user_code}`
 
     console.error('')
     console.error(`  Open: ${verificationUrl}`)
-    console.error(`  Code: ${(data as any).user_code}`)
+    console.error(`  Code: ${data.user_code}`)
     console.error('')
 
     // 2. Open the browser
@@ -48,25 +49,25 @@ auth
     console.error('Waiting for approval...')
 
     // 3. Poll until approved
-    const pollInterval = ((data as any).interval || 5) * 1000
-    const deadline = Date.now() + ((data as any).expires_in || 300) * 1000
+    const pollInterval = (data.interval || 5) * 1000
+    const deadline = Date.now() + (data.expires_in || 300) * 1000
 
     let accessToken: string | undefined
     while (Date.now() < deadline) {
       await new Promise((r) => { setTimeout(r, pollInterval) })
       const { data: tokenData, error: pollError } = await client.device.token({
         grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
-        device_code: (data as any).device_code,
+        device_code: data.device_code,
         client_id: 'akarso-cli',
       })
-      if ((tokenData as any)?.access_token) {
-        accessToken = (tokenData as any).access_token
+      if (tokenData?.access_token) {
+        accessToken = tokenData.access_token
         break
       }
-      const errorCode = (pollError as any)?.error
+      const errorCode = pollError?.error
       if (errorCode === 'authorization_pending' || errorCode === 'slow_down') continue
       if (pollError) {
-        console.error(`Device auth failed: ${(pollError as any)?.error_description || 'unknown'}`)
+        console.error(`Device auth failed: ${pollError?.error_description || 'unknown'}`)
         process.exit(1)
       }
     }
@@ -148,6 +149,17 @@ auth
       )
       process.exit(1)
     }
+  })
+
+auth
+  .command('subscribe', 'Open the dashboard to subscribe or manage your plan')
+  .action(async (_options, { console, process }) => {
+    const websiteUrl = getWebsiteUrl(process.env)
+    const subscribeUrl = `${websiteUrl}/dashboard`
+    console.error('Opening your browser to manage your subscription:')
+    console.error(`  ${subscribeUrl}`)
+    console.error('')
+    await openInBrowser(subscribeUrl)
   })
 
 export default auth

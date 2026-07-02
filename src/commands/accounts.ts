@@ -32,7 +32,10 @@ accounts
       env: process.env,
     })
     const { data } = await client.profiles.listProfiles()
-    const profiles: any[] = (data as any)?.profiles ?? (Array.isArray(data) ? data : [])
+    // The proxy wraps the profile in { profiles: [...] }, which doesn't match
+    // the SDK's native type. Access the raw response shape.
+    const profilesData = data as unknown as { profiles?: Array<{ _id?: string; id?: string }> }
+    const profiles = profilesData?.profiles ?? (Array.isArray(data) ? data : [])
     if (profiles.length === 0) {
       console.error('Could not resolve your profile. Make sure your subscription is active.')
       process.exit(1)

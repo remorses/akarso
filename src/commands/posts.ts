@@ -59,18 +59,35 @@ posts
       ? parseScheduledAt(options.scheduledAt)
       : undefined
 
-    const { data } = await client.posts.createPost({
-      body: {
-        content: options.text,
-        title: options.title || undefined,
-        platforms,
-        publishNow: options.publishNow || false,
-        scheduledFor,
-        mediaItems: mediaItems || undefined,
-      },
-    })
-
-    output(data, { json: options.json, console })
+    try {
+      const { data } = await client.posts.createPost({
+        body: {
+          content: options.text,
+          title: options.title || undefined,
+          platforms,
+          publishNow: options.publishNow || false,
+          scheduledFor,
+          mediaItems: mediaItems || undefined,
+        },
+      })
+      output(data, { json: options.json, console })
+    } catch (err: any) {
+      // 402 Payment Required: subscription needed
+      if (err?.statusCode === 402 || err?.status === 402) {
+        console.error('Subscription required to create posts.')
+        console.error('Start a 7-day free trial by running:')
+        console.error('')
+        console.error('  akarso subscribe')
+        console.error('')
+        process.exit(1)
+      }
+      // 403 with plan limit errors: show upgrade message
+      if ((err?.statusCode === 403 || err?.status === 403) && err?.message) {
+        console.error(err.message)
+        process.exit(1)
+      }
+      throw err
+    }
   })
 
 posts
