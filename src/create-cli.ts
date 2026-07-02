@@ -9,7 +9,7 @@
 import { goke } from 'goke'
 import { z } from 'zod'
 import { createMcpAction } from '@goke/mcp'
-import { DEFAULT_BASE_URL } from './zernio.ts'
+import { DEFAULT_BASE_URL } from './client.ts'
 import auth from './commands/auth.ts'
 import profiles from './commands/profiles.ts'
 import accounts from './commands/accounts.ts'
@@ -31,6 +31,7 @@ const MCP_REMOTE_EXCLUDED_COMMANDS = new Set([
   ...MCP_EXCLUDED_COMMANDS,
   'auth set', // writes ~/.akarso/config.json on the user's machine
   'auth check', // reads local config; remote auth is the OAuth token itself
+  'auth logout', // clears ~/.akarso/config.json on the user's machine
   'media upload', // reads a file path from the user's machine via node:fs
   'accounts connect', // opens a browser; remote users connect via dashboard
   'mcp', // the MCP server command itself

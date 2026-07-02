@@ -1,5 +1,5 @@
 import { createGroup } from '../globals.ts'
-import { createClient } from '../zernio.ts'
+import { createClient } from '../client.ts'
 import { output } from '../output.ts'
 import fsSync from 'node:fs'
 import pathModule from 'node:path'
@@ -45,21 +45,26 @@ media
 
     console.error(`Uploading ${filename} (${(stat.size / 1024).toFixed(1)} KB)...`)
 
-    const { data: presign } = await client.media.getMediaPresignedUrl({
-
+    const presign = await client('/api/v1/media/upload', {
+      method: 'POST',
       body: {
         filename,
         contentType,
         size: stat.size,
       },
     })
-
+    if (presign instanceof Error) throw presign
+    if (!presign.uploadUrl) {
+      console.error('Upload failed: no upload URL returned.')
+      process.exit(1)
+      return
+    }
 
     const fileBuffer = fsSync.readFileSync(file)
-    const uploadResp = await fetch(presign!.uploadUrl!, {
+    const uploadResp = await fetch(presign.uploadUrl, {
       method: 'PUT',
       body: fileBuffer,
-      headers: { 'Content-Type': contentType! },
+      headers: { 'Content-Type': contentType },
     })
 
     if (!uploadResp.ok) {
@@ -69,7 +74,7 @@ media
 
     console.error('Upload complete.')
     output(
-      { publicUrl: presign?.publicUrl, key: presign?.key, type: presign?.type },
+      { publicUrl: presign.publicUrl, key: presign.key, type: presign.type },
       { json: options.json, console },
     )
   })

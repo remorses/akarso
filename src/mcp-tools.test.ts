@@ -49,7 +49,7 @@ describe('MCP tool surface', () => {
 
   test('remote excludes local-machine and interactive commands', async () => {
     const names = await listToolNames(isRemoteMcpCommand)
-    for (const excluded of ['auth_login', 'auth_set', 'auth_check', 'subscribe', 'media_upload', 'accounts_connect', 'mcp']) {
+    for (const excluded of ['auth_login', 'auth_set', 'auth_check', 'auth_logout', 'subscribe', 'media_upload', 'accounts_connect', 'mcp']) {
       expect(names).not.toContain(excluded)
     }
   })

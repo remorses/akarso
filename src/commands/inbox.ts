@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { createGroup, platforms } from '../globals.ts'
-import { createClient } from '../zernio.ts'
+import { createClient } from '../client.ts'
 import { output } from '../output.ts'
 
 const inbox = createGroup()
@@ -25,13 +25,14 @@ inbox
       fs,
       env: process.env,
     })
-    const { data } = await client.messages.listInboxConversations({
+    const data = await client('/api/v1/inbox/conversations', {
       query: {
         platform: options.platform || undefined,
         accountId: options.accountId,
         limit: options.limit,
       },
     })
+    if (data instanceof Error) throw data
     output(data, { json: options.json, console })
   })
 
@@ -47,10 +48,11 @@ inbox
       fs,
       env: process.env,
     })
-    const { data } = await client.messages.getInboxConversationMessages({
-      path: { conversationId },
+    const data = await client('/api/v1/inbox/conversations/:conversationId/messages', {
+      params: { conversationId },
       query: { accountId: options.accountId },
     })
+    if (data instanceof Error) throw data
     output(data, { json: options.json, console })
   })
 
@@ -70,13 +72,15 @@ inbox
       fs,
       env: process.env,
     })
-    const { data } = await client.messages.sendInboxMessage({
-      path: { conversationId },
+    const data = await client('/api/v1/inbox/conversations/:conversationId/messages', {
+      method: 'POST',
+      params: { conversationId },
       body: {
         accountId: options.accountId,
         message: options.message,
       },
     })
+    if (data instanceof Error) throw data
     output(data, { json: options.json, console })
   })
 
@@ -100,13 +104,14 @@ inbox
       fs,
       env: process.env,
     })
-    const { data } = await client.comments.listInboxComments({
+    const data = await client('/api/v1/inbox/comments', {
       query: {
         platform: options.platform || undefined,
         accountId: options.accountId,
         limit: options.limit,
       },
     })
+    if (data instanceof Error) throw data
     output(data, { json: options.json, console })
   })
 
@@ -130,14 +135,16 @@ inbox
       fs,
       env: process.env,
     })
-    const { data } = await client.comments.replyToInboxPost({
-      path: { postId },
+    const data = await client('/api/v1/inbox/comments/:postId', {
+      method: 'POST',
+      params: { postId },
       body: {
         accountId: options.accountId,
         message: options.message,
         commentId: options.commentId || undefined,
       },
     })
+    if (data instanceof Error) throw data
     output(data, { json: options.json, console })
   })
 
@@ -161,13 +168,14 @@ inbox
       fs,
       env: process.env,
     })
-    const { data } = await client.reviews.listInboxReviews({
+    const data = await client('/api/v1/inbox/reviews', {
       query: {
         platform: options.platform || undefined,
         accountId: options.accountId,
         limit: options.limit,
       },
     })
+    if (data instanceof Error) throw data
     output(data, { json: options.json, console })
   })
 
@@ -187,13 +195,15 @@ inbox
       fs,
       env: process.env,
     })
-    const { data } = await client.reviews.replyToInboxReview({
-      path: { reviewId },
+    const data = await client('/api/v1/inbox/reviews/:reviewId/reply', {
+      method: 'POST',
+      params: { reviewId },
       body: {
         accountId: options.accountId,
         message: options.message,
       },
     })
+    if (data instanceof Error) throw data
     output(data, { json: options.json, console })
   })
 

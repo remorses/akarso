@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { confirm, isCancel } from '@clack/prompts'
 import { isAgent } from 'goke'
 import { createGroup, platforms } from '../globals.ts'
-import { createClient } from '../zernio.ts'
+import { createClient } from '../client.ts'
 import { output } from '../output.ts'
 import { parseScheduledAt } from '../scheduling.ts'
 
@@ -48,7 +48,7 @@ posts
     })
 
     const accountIds = options.accounts.split(',').map((s) => s.trim())
-    const platforms = accountIds.map((accountId) => ({
+    const platformTargets = accountIds.map((accountId) => ({
       platform: options.platform,
       accountId,
     }))
@@ -67,23 +67,21 @@ posts
       ? parseScheduledAt(options.scheduledAt)
       : undefined
 
-    try {
-      const { data } = await client.posts.createPost({
-        body: {
-          content: options.text,
-          title: options.title || undefined,
-          platforms,
-          publishNow: options.publishNow || false,
-          scheduledFor,
-          mediaItems: mediaItems || undefined,
-        },
-      })
-      output(data, { json: options.json, console })
-    } catch (err) {
+    const data = await client('/api/v1/posts', {
+      method: 'POST',
+      body: {
+        content: options.text,
+        title: options.title || undefined,
+        platforms: platformTargets,
+        publishNow: options.publishNow || false,
+        scheduledFor,
+        mediaItems: mediaItems || undefined,
+      },
+    })
+    if (data instanceof Error) {
+      // SpiceflowFetchError carries the typed HTTP status and parsed error body
       // 402 Payment Required: subscription needed
-      const statusCode = (err as { statusCode?: number })?.statusCode
-        ?? (err as { status?: number })?.status
-      if (statusCode === 402) {
+      if (data.status === 402) {
         console.error('Subscription required to create posts.')
         console.error('Start a 7-day free trial by running:')
         console.error('')
@@ -92,12 +90,13 @@ posts
         process.exit(1)
       }
       // 403 with plan limit errors: show upgrade message
-      if (statusCode === 403 && err instanceof Error) {
-        console.error(err.message)
+      if (data.status === 403) {
+        console.error(data.value.error || data.message)
         process.exit(1)
       }
-      throw err
+      throw data
     }
+    output(data, { json: options.json, console })
   })
 
 posts
@@ -112,23 +111,19 @@ posts
     '--limit [n]',
     z.number().default(10).describe('Maximum number of posts to return'),
   )
-  .option(
-    '--profile-id [id]',
-    z.string().describe('Filter by profile ID'),
-  )
   .action(async (options, { fs, console, process }) => {
     const client = await createClient({
       apiKey: options.apiKey,
       fs,
       env: process.env,
     })
-    const { data } = await client.posts.listPosts({
+    const data = await client('/api/v1/posts', {
       query: {
         status: options.status || undefined,
         limit: options.limit,
-        profileId: options.profileId || undefined,
       },
     })
+    if (data instanceof Error) throw data
     output(data, { json: options.json, console })
   })
 
@@ -140,7 +135,10 @@ posts
       fs,
       env: process.env,
     })
-    const { data } = await client.posts.getPost({ path: { postId } })
+    const data = await client('/api/v1/posts/:postId', {
+      params: { postId },
+    })
+    if (data instanceof Error) throw data
     output(data, { json: options.json, console })
   })
 
@@ -168,7 +166,11 @@ posts
       fs,
       env: process.env,
     })
-    const { data } = await client.posts.deletePost({ path: { postId } })
+    const data = await client('/api/v1/posts/:postId', {
+      method: 'DELETE',
+      params: { postId },
+    })
+    if (data instanceof Error) throw data
     output(data, { json: options.json, console })
   })
 
@@ -180,10 +182,12 @@ posts
       fs,
       env: process.env,
     })
-    // retryPost's SDK type is `PostRetryResponse | unknown` (effectively unknown)
-    // due to weak codegen in the Zernio OpenAPI spec. Cast is unavoidable here.
-    const { data } = await client.posts.retryPost({ path: { postId } })
-    output(data as object, { json: options.json, console })
+    const data = await client('/api/v1/posts/:postId/retry', {
+      method: 'POST',
+      params: { postId },
+    })
+    if (data instanceof Error) throw data
+    output(data, { json: options.json, console })
   })
 
 export default posts

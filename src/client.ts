@@ -1,7 +1,12 @@
 // Akarso API client factory and CLI config storage.
+// The client is a spiceflow typed fetch client bound to the proxy app type
+// exported by the website (type-only import, no runtime dependency), so every
+// path, query param, body, and response is typed end-to-end from the server
+// route definitions. Calls return `Error | Data`; check with `instanceof Error`.
 // Config lives at ~/.akarso/config.json and is keyed by API URL so users can
 // stay logged in to production, preview, and localhost servers simultaneously.
-import { Zernio } from '@zernio/node'
+import { createSpiceflowFetch, type SpiceflowFetch } from 'spiceflow/client'
+import type { ProxyApp } from 'akarso-website/src/proxy-api.ts'
 import type { GokeFs } from 'goke'
 import path from 'node:path'
 import os from 'node:os'
@@ -9,10 +14,11 @@ import os from 'node:os'
 const CONFIG_DIR = path.join(os.homedir(), '.akarso')
 const CONFIG_FILE = path.join(CONFIG_DIR, 'config.json')
 
-/** Default base URL for the Akarso proxy API. The CLI sends all requests
- *  here instead of directly to the upstream provider.
- *  The @zernio/node SDK appends /v1/... paths, so this must NOT include /v1. */
-export const DEFAULT_BASE_URL = 'https://akarso.co/api'
+/** Default base URL for the Akarso API and website. Routes live under
+ *  /api/v1/, which is part of each request path (not the base URL). */
+export const DEFAULT_BASE_URL = 'https://akarso.co'
+
+export type AkarsoClient = SpiceflowFetch<ProxyApp>
 
 export interface ServerConfig {
   apiKey?: string
@@ -68,6 +74,19 @@ export async function setServerConfig({
   await saveConfig({ fs, config })
 }
 
+/** Remove the config entry for the current API URL (used by `auth logout`). */
+export async function deleteServerConfig({
+  fs,
+  env,
+}: {
+  fs: GokeFs
+  env: Record<string, string | undefined>
+}): Promise<void> {
+  const config = await loadConfig({ fs })
+  delete config[resolveBaseUrl(env)]
+  await saveConfig({ fs, config })
+}
+
 /**
  * Resolve the API key from (in priority order):
  * 1. --api-key flag
@@ -85,31 +104,29 @@ export async function resolveApiKey(opts: {
   return server.apiKey
 }
 
-/** Resolve the proxy base URL. The global `--api-url` middleware in cli.ts
- *  writes the resolved URL back into process.env.AKARSO_API_URL, so this
- *  works both for flags and env vars. Trailing slashes are stripped so
- *  config keys stay consistent. */
+/** Resolve the server base URL (website root, no /api suffix). The global
+ *  `--api-url` middleware in create-cli.ts writes the resolved URL back into
+ *  process.env.AKARSO_API_URL, so this works both for flags and env vars.
+ *  Trailing slashes are stripped so config keys stay consistent. */
 export function resolveBaseUrl(env: Record<string, string | undefined>): string {
   return (env.AKARSO_API_URL || DEFAULT_BASE_URL).replace(/\/+$/, '')
 }
 
-/** Create an API client, throwing if no API key is found.
- *  Points at the Akarso proxy by default, which forwards to the upstream API
- *  with our master key and the user's profile injected. */
+/** Create a typed API client, throwing if no API key is found.
+ *  Points at the Akarso proxy, which forwards to the upstream API with our
+ *  master key and the user's profile injected. */
 export async function createClient(opts: {
   apiKey?: string
   fs: GokeFs
   env: Record<string, string | undefined>
-}): Promise<InstanceType<typeof Zernio>> {
+}): Promise<AkarsoClient> {
   const apiKey = await resolveApiKey(opts)
   if (!apiKey) {
     throw new Error(
       'No API key found. Run `akarso auth login` or `akarso auth set --key <key>` first.',
     )
   }
-  return new Zernio({
-    apiKey,
-    baseURL: resolveBaseUrl(opts.env),
-    // The proxy authenticates via x-api-key header which @zernio/node sends automatically
+  return createSpiceflowFetch<ProxyApp>(resolveBaseUrl(opts.env), {
+    headers: { 'x-api-key': apiKey },
   })
 }

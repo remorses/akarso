@@ -1,5 +1,5 @@
 import { createGroup } from '../globals.ts'
-import { createClient } from '../zernio.ts'
+import { createClient } from '../client.ts'
 import { output } from '../output.ts'
 
 const profiles = createGroup()
@@ -12,7 +12,8 @@ profiles
       fs,
       env: process.env,
     })
-    const { data } = await client.profiles.listProfiles()
+    const data = await client('/api/v1/profiles')
+    if (data instanceof Error) throw data
     output(data, { json: options.json, console })
   })
 
