@@ -1,5 +1,6 @@
 import nodeProcess from 'node:process'
 import { z } from 'zod'
+import dedent from 'string-dedent'
 import { confirm, isCancel } from '@clack/prompts'
 import { isAgent } from 'goke'
 import { createGroup, platforms } from '../globals.ts'
@@ -7,6 +8,38 @@ import { createClient } from '../client.ts'
 import { output } from '../output.ts'
 import { parseScheduledAt } from '../scheduling.ts'
 import { resolveMediaInput } from './media.ts'
+
+/** Platforms that support native drafts via platformSpecificData.draft. */
+const PLATFORM_DRAFT_PLATFORMS = new Set(['facebook', 'tiktok'])
+
+export interface PlatformTarget {
+  platform: string
+  accountId: string
+  platformSpecificData?: { draft: true }
+}
+
+/** Build the per-account platform targets for post creation. When
+ *  platformDraft is set, each target gets platformSpecificData.draft so the
+ *  post lands as a native platform draft (Facebook Publishing Tools /
+ *  TikTok Creator Inbox) instead of going live. Pure function, validated
+ *  here so both the CLI action and tests share the rules. */
+export function buildPlatformTargets(opts: {
+  accountIds: string[]
+  platform: string
+  platformDraft?: boolean
+}): PlatformTarget[] | Error {
+  if (opts.platformDraft && !PLATFORM_DRAFT_PLATFORMS.has(opts.platform)) {
+    return new Error(dedent`
+      Native platform drafts are only supported on facebook and tiktok, not "${opts.platform}".
+      For other platforms, save a regular draft instead: omit --publish-now and --scheduled-at.
+    `)
+  }
+  return opts.accountIds.map((accountId) => ({
+    platform: opts.platform,
+    accountId,
+    ...(opts.platformDraft ? { platformSpecificData: { draft: true as const } } : {}),
+  }))
+}
 
 const posts = createGroup()
 
@@ -18,6 +51,7 @@ posts
   .example('akarso posts create --text "Hello!" --accounts acc_123 --publish-now')
   .example('akarso posts create --text "Later" --accounts acc_123 --scheduled-at 2h')
   .example('akarso posts create --text "Pics" --accounts acc_123 --media ./photo.jpg,https://example.com/clip.mp4')
+  .example('akarso posts create --text "Review me" --accounts acc_fb --platform facebook --publish-now --platform-draft')
   .option('--text <content>', z.string().describe('Post text content'))
   .option(
     '--accounts <ids>',
@@ -46,6 +80,10 @@ posts
       .default('twitter')
       .describe('Default platform for all accounts'),
   )
+  .option(
+    '--platform-draft',
+    'Create a native draft on the platform instead of publishing. Only Facebook and TikTok support this. Facebook: unpublished draft in Publishing Tools (feed posts and reels only, not stories; expires after ~30 days). TikTok: sends to the Creator Inbox, where the creator gets a notification and finishes the post in TikTok\'s editing flow (requires the video.upload scope and TikTok app 31.8+). Requires `--publish-now` or `--scheduled-at`.',
+  )
   .action(async (options, { fs, console, process }) => {
     const client = await createClient({
       apiKey: options.apiKey,
@@ -53,15 +91,25 @@ posts
       env: process.env,
     })
 
-    const accountIds = options.accounts.split(',').map((s) => s.trim())
-    const platformTargets = accountIds.map((accountId) => ({
-      platform: options.platform,
-      accountId,
-    }))
-
     if (options.publishNow && options.scheduledAt) {
       throw new Error('Choose either --publish-now or --scheduled-at, not both.')
     }
+    if (options.platformDraft && !options.publishNow && !options.scheduledAt) {
+      // A platform draft is still *sent* to the platform; without a timing
+      // flag the post would become a Zernio-side draft and the platform
+      // draft data would sit unused.
+      throw new Error(
+        'A platform draft is still sent to the platform, so `--platform-draft` requires `--publish-now` or `--scheduled-at`.',
+      )
+    }
+
+    const accountIds = options.accounts.split(',').map((s) => s.trim())
+    const platformTargets = buildPlatformTargets({
+      accountIds,
+      platform: options.platform,
+      platformDraft: options.platformDraft,
+    })
+    if (platformTargets instanceof Error) throw platformTargets
 
     // Resolve media inputs: https URLs pass through, local paths get
     // uploaded first. Media type (image/video/gif/document) is inferred
