@@ -43,7 +43,7 @@ accounts
     if (data instanceof Error) throw data
     const profiles = data.profiles
     if (profiles.length === 0) {
-      console.error('Could not resolve your profile. Make sure your subscription is active.')
+      console.error('Could not resolve your profile. Run `akarso auth check` to verify your API key.')
       process.exit(1)
     }
     const profileId = profiles[0]?._id
