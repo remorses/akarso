@@ -3,7 +3,7 @@ import { z } from 'zod'
 import dedent from 'string-dedent'
 import { confirm, isCancel } from '@clack/prompts'
 import { isAgent } from 'goke'
-import { createGroup, platforms } from '../globals.ts'
+import { createGroup, platforms, type Platform } from '../globals.ts'
 import { createClient } from '../client.ts'
 import { output } from '../output.ts'
 import { parseScheduledAt } from '../scheduling.ts'
@@ -12,8 +12,11 @@ import { resolveMediaInput } from './media.ts'
 /** Platforms that support native drafts via platformSpecificData.draft. */
 const PLATFORM_DRAFT_PLATFORMS = new Set(['facebook', 'tiktok'])
 
-export interface PlatformTarget {
-  platform: string
+// Type alias (not interface) on purpose: the proxy request schema is a
+// z.looseObject with an index signature, and TS only applies implicit index
+// signatures to type aliases, not interfaces.
+export type PlatformTarget = {
+  platform: Platform
   accountId: string
   platformSpecificData?: { draft: true }
 }
@@ -25,7 +28,7 @@ export interface PlatformTarget {
  *  here so both the CLI action and tests share the rules. */
 export function buildPlatformTargets(opts: {
   accountIds: string[]
-  platform: string
+  platform: Platform
   platformDraft?: boolean
 }): PlatformTarget[] | Error {
   if (opts.platformDraft && !PLATFORM_DRAFT_PLATFORMS.has(opts.platform)) {
@@ -252,7 +255,18 @@ posts
       method: 'POST',
       params: { postId },
     })
-    if (data instanceof Error) throw data
+    if (data instanceof Error) {
+      // 402 Payment Required: retrying publishes content, gated like create
+      if (data.status === 402) {
+        console.error('Subscription required to retry posts.')
+        console.error('Start a 7-day free trial by running:')
+        console.error('')
+        console.error('  akarso subscribe')
+        console.error('')
+        process.exit(1)
+      }
+      throw data
+    }
     output(data, { json: options.json, console })
   })
 
