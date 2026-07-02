@@ -5,6 +5,12 @@ import { deviceAuthorizationClient } from 'better-auth/client/plugins'
 import { createGroup } from '../globals.ts'
 import { loadConfig, saveConfig, resolveApiKey, resolveBaseUrl, createClient } from '../zernio.ts'
 
+/** Response from BetterAuth's POST /api/auth/api-key/create endpoint.
+ *  The `key` field contains the plaintext API key (only returned once). */
+interface CreateApiKeyResponse {
+  key: string | null
+}
+
 const auth = createGroup()
 
 /** Resolve the website base URL (not the /api proxy URL). */
@@ -97,7 +103,7 @@ auth
       return
     }
 
-    const apiKeyData = await apiKeyResponse.json() as { key?: string }
+    const apiKeyData = await apiKeyResponse.json() as CreateApiKeyResponse
     if (!apiKeyData.key) {
       console.error('Failed to create API key. Save one manually with:')
       console.error('  akarso auth set --key <key>')

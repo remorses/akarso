@@ -71,9 +71,11 @@ posts
         },
       })
       output(data, { json: options.json, console })
-    } catch (err: any) {
+    } catch (err) {
       // 402 Payment Required: subscription needed
-      if (err?.statusCode === 402 || err?.status === 402) {
+      const statusCode = (err as { statusCode?: number })?.statusCode
+        ?? (err as { status?: number })?.status
+      if (statusCode === 402) {
         console.error('Subscription required to create posts.')
         console.error('Start a 7-day free trial by running:')
         console.error('')
@@ -82,7 +84,7 @@ posts
         process.exit(1)
       }
       // 403 with plan limit errors: show upgrade message
-      if ((err?.statusCode === 403 || err?.status === 403) && err?.message) {
+      if (statusCode === 403 && err instanceof Error) {
         console.error(err.message)
         process.exit(1)
       }
@@ -154,6 +156,8 @@ posts
       fs,
       env: process.env,
     })
+    // retryPost's SDK type is `PostRetryResponse | unknown` (effectively unknown)
+    // due to weak codegen in the Zernio OpenAPI spec. Cast is unavoidable here.
     const { data } = await client.posts.retryPost({ path: { postId } })
     output(data as object, { json: options.json, console })
   })

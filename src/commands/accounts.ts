@@ -25,22 +25,21 @@ accounts
       platform = platforms.schema.parse(selected)
     }
 
-    // Fetch the user's profile via the proxy to get their Zernio profile ID
+    // Fetch the user's profile via the proxy to get their Zernio profile ID.
+    // The proxy's /profiles route returns { profiles: Profile[] } matching the
+    // Zernio SDK's listProfiles response shape, so no casts needed.
     const client = await createClient({
       apiKey: options.apiKey,
       fs,
       env: process.env,
     })
     const { data } = await client.profiles.listProfiles()
-    // The proxy wraps the profile in { profiles: [...] }, which doesn't match
-    // the SDK's native type. Access the raw response shape.
-    const profilesData = data as unknown as { profiles?: Array<{ _id?: string; id?: string }> }
-    const profiles = profilesData?.profiles ?? (Array.isArray(data) ? data : [])
+    const profiles = data?.profiles ?? []
     if (profiles.length === 0) {
       console.error('Could not resolve your profile. Make sure your subscription is active.')
       process.exit(1)
     }
-    const profileId = profiles[0]?._id || profiles[0]?.id
+    const profileId = profiles[0]?._id
     if (!profileId) {
       console.error('Could not resolve profile ID.')
       process.exit(1)
