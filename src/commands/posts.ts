@@ -6,6 +6,7 @@ import { createGroup, platforms } from '../globals.ts'
 import { createClient } from '../client.ts'
 import { output } from '../output.ts'
 import { parseScheduledAt } from '../scheduling.ts'
+import { resolveMediaInput } from './media.ts'
 
 const posts = createGroup()
 
@@ -16,6 +17,7 @@ posts
   )
   .example('akarso posts create --text "Hello!" --accounts acc_123 --publish-now')
   .example('akarso posts create --text "Later" --accounts acc_123 --scheduled-at 2h')
+  .example('akarso posts create --text "Pics" --accounts acc_123 --media ./photo.jpg,https://example.com/clip.mp4')
   .option('--text <content>', z.string().describe('Post text content'))
   .option(
     '--accounts <ids>',
@@ -31,8 +33,12 @@ posts
     z.string().describe('Post title (required for YouTube)'),
   )
   .option(
-    '--media-urls [urls]',
-    z.string().describe('Comma-separated media URLs'),
+    '--media [items]',
+    z
+      .string()
+      .describe(
+        'Comma-separated media items: local file paths or `https` URLs. Paths are uploaded automatically (not available on the hosted MCP server, use URLs there).',
+      ),
   )
   .option(
     '--platform [platform]',
@@ -53,14 +59,26 @@ posts
       accountId,
     }))
 
-    const mediaItems = options.mediaUrls
-      ? options.mediaUrls
-          .split(',')
-          .map((url) => ({ url: url.trim(), type: 'image' as const }))
-      : undefined
-
     if (options.publishNow && options.scheduledAt) {
       throw new Error('Choose either --publish-now or --scheduled-at, not both.')
+    }
+
+    // Resolve media inputs: https URLs pass through, local paths get
+    // uploaded first. Media type (image/video/gif/document) is inferred
+    // from the file extension.
+    let mediaItems: { url: string; type: 'image' | 'video' | 'gif' | 'document' }[] | undefined
+    if (options.media) {
+      mediaItems = []
+      for (const item of options.media.split(',').map((s) => s.trim()).filter(Boolean)) {
+        const resolved = await resolveMediaInput({
+          input: item,
+          client,
+          fs,
+          env: process.env,
+          log: (message) => console.error(message),
+        })
+        mediaItems.push({ url: resolved.url, type: resolved.mediaKind })
+      }
     }
 
     const scheduledFor = options.scheduledAt
@@ -75,7 +93,7 @@ posts
         platforms: platformTargets,
         publishNow: options.publishNow || false,
         scheduledFor,
-        mediaItems: mediaItems || undefined,
+        mediaItems: mediaItems?.length ? mediaItems : undefined,
       },
     })
     if (data instanceof Error) {

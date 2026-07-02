@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { createGroup, platforms } from '../globals.ts'
 import { createClient } from '../client.ts'
 import { output } from '../output.ts'
+import { resolveMediaInput } from './media.ts'
 
 const inbox = createGroup()
 
@@ -58,13 +59,29 @@ inbox
 
 inbox
   .command('inbox send <conversationId>', 'Send a DM')
+  .example('akarso inbox send conv_123 --account-id acc_123 --message "Hi!"')
+  .example('akarso inbox send conv_123 --account-id acc_123 --attachment ./photo.jpg')
   .option(
     '--account-id <id>',
     z.string().describe('Account ID to send from'),
   )
   .option(
-    '--message <text>',
-    z.string().describe('Message text'),
+    '--message [text]',
+    z.string().describe('Message text (optional when sending an attachment)'),
+  )
+  .option(
+    '--attachment [fileOrUrl]',
+    z
+      .string()
+      .describe(
+        'Attachment: local file path or `https` URL. Paths are uploaded automatically (not available on the hosted MCP server, use URLs there).',
+      ),
+  )
+  .option(
+    '--attachment-type [type]',
+    z
+      .enum(['image', 'video', 'audio', 'file'])
+      .describe('Attachment type (inferred from the file extension by default)'),
   )
   .action(async (conversationId, options, { fs, console, process }) => {
     const client = await createClient({
@@ -72,12 +89,32 @@ inbox
       fs,
       env: process.env,
     })
+
+    let attachmentUrl: string | undefined
+    let attachmentType = options.attachmentType
+    if (options.attachment) {
+      const resolved = await resolveMediaInput({
+        input: options.attachment,
+        client,
+        fs,
+        env: process.env,
+        log: (message) => console.error(message),
+      })
+      attachmentUrl = resolved.url
+      // DM attachments use image|video|audio|file; map post media kinds.
+      attachmentType ??= (
+        { image: 'image', gif: 'image', video: 'video', document: 'file' } as const
+      )[resolved.mediaKind]
+    }
+
     const data = await client('/api/v1/inbox/conversations/:conversationId/messages', {
       method: 'POST',
       params: { conversationId },
       body: {
         accountId: options.accountId,
         message: options.message,
+        attachmentUrl,
+        attachmentType,
       },
     })
     if (data instanceof Error) throw data

@@ -36,6 +36,7 @@ describe('MCP tool surface', () => {
         "posts_get",
         "posts_delete",
         "posts_retry",
+        "media_upload",
         "inbox_conversations",
         "inbox_messages",
         "inbox_send",
@@ -49,8 +50,11 @@ describe('MCP tool surface', () => {
 
   test('remote excludes local-machine and interactive commands', async () => {
     const names = await listToolNames(isRemoteMcpCommand)
-    for (const excluded of ['auth_login', 'auth_set', 'auth_check', 'auth_logout', 'subscribe', 'media_upload', 'accounts_connect', 'mcp']) {
+    for (const excluded of ['auth_login', 'auth_set', 'auth_check', 'auth_logout', 'subscribe', 'accounts_connect', 'mcp']) {
       expect(names).not.toContain(excluded)
     }
+    // media upload stays remote: it accepts https URLs; local paths are
+    // rejected at runtime via AKARSO_REMOTE_MCP.
+    expect(names).toContain('media_upload')
   })
 })

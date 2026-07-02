@@ -32,7 +32,9 @@ const MCP_REMOTE_EXCLUDED_COMMANDS = new Set([
   'auth set', // writes ~/.akarso/config.json on the user's machine
   'auth check', // reads local config; remote auth is the OAuth token itself
   'auth logout', // clears ~/.akarso/config.json on the user's machine
-  'media upload', // reads a file path from the user's machine via node:fs
+  // media upload IS exposed remotely: it accepts https URLs. Local paths
+  // are rejected server-side via the AKARSO_REMOTE_MCP env check in
+  // commands/media.ts (set by website/src/mcp.ts on each tenant clone).
   'accounts connect', // opens a browser; remote users connect via dashboard
   'mcp', // the MCP server command itself
 ])
