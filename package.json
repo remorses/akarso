@@ -30,6 +30,7 @@
     "typecheck": "tsc",
     "cli": "sigillo run -- tsx src/cli.ts",
     "test": "vitest run --no-watch",
+    "generate-docs": "tsx scripts/generate-docs.ts",
     "prepublishOnly": "rimraf dist \"*.tsbuildinfo\" && pnpm build"
   },
   "keywords": [
@@ -50,7 +51,8 @@
   "dependencies": {
     "@clack/prompts": "^1.2.0",
     "@zernio/node": "^0.2.88",
-    "goke": "^6.9.0",
+    "better-auth": "^1.2.8",
+    "goke": "^6.13.0",
     "yaml": "^2.8.3",
     "zod": "^4.3.6"
   },

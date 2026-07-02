@@ -1,23 +1,116 @@
 import { openInBrowser } from 'goke'
-import { Zernio } from '@zernio/node'
 import { z } from 'zod'
+import { createAuthClient } from 'better-auth/client'
+import { deviceAuthorizationClient } from 'better-auth/client/plugins'
 import { createGroup } from '../globals.ts'
-import { loadConfig, saveConfig, resolveApiKey } from '../zernio.ts'
+import { loadConfig, saveConfig, resolveApiKey, resolveBaseUrl } from '../zernio.ts'
 
 const auth = createGroup()
 
+/** Resolve the website base URL (not the /api/v1 proxy URL). */
+function getWebsiteUrl(env: Record<string, string | undefined>): string {
+  const apiUrl = resolveBaseUrl(env)
+  // Strip /api/v1 suffix to get the website root
+  if (apiUrl.endsWith('/api/v1')) return apiUrl.slice(0, -7)
+  return 'https://akarso-website.remorses.workers.dev'
+}
+
 auth
-  .command('auth login', 'Log in via browser OAuth (creates API key automatically)')
-  .option(
-    '--device-name [name]',
-    z.string().describe('Custom device name for the API key label'),
-  )
-  .action(async (_options, { console }) => {
-    console.error('Opening browser for login...')
-    const url = 'https://zernio.com/dashboard/api-keys'
-    await openInBrowser(url)
-    console.error('Create an API key, then run:')
-    console.error('  akarso auth set --key <your-key>')
+  .command('auth login', 'Login via browser (device flow)')
+  .action(async (options, { console, process, fs }) => {
+    const websiteUrl = getWebsiteUrl(process.env)
+
+    const client = createAuthClient({
+      baseURL: websiteUrl,
+      plugins: [deviceAuthorizationClient()],
+    })
+
+    // 1. Request a device code
+    console.error('Requesting device code...')
+    const { data, error } = await client.device.code({
+      client_id: 'akarso-cli',
+    })
+    if (error || !data) {
+      console.error(`Failed to request device code: ${(error as any)?.error_description || 'unknown error'}`)
+      process.exit(1)
+    }
+
+    const verificationUrl = (data as any).verification_uri_complete
+      || `${websiteUrl}/device?user_code=${(data as any).user_code}`
+
+    console.error('')
+    console.error(`  Open: ${verificationUrl}`)
+    console.error(`  Code: ${(data as any).user_code}`)
+    console.error('')
+
+    // 2. Open the browser
+    await openInBrowser(verificationUrl)
+    console.error('Waiting for approval...')
+
+    // 3. Poll until approved
+    const pollInterval = ((data as any).interval || 5) * 1000
+    const deadline = Date.now() + ((data as any).expires_in || 300) * 1000
+
+    let accessToken: string | undefined
+    while (Date.now() < deadline) {
+      await new Promise((r) => { setTimeout(r, pollInterval) })
+      const { data: tokenData, error: pollError } = await client.device.token({
+        grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
+        device_code: (data as any).device_code,
+        client_id: 'akarso-cli',
+      })
+      if ((tokenData as any)?.access_token) {
+        accessToken = (tokenData as any).access_token
+        break
+      }
+      const errorCode = (pollError as any)?.error
+      if (errorCode === 'authorization_pending' || errorCode === 'slow_down') continue
+      if (pollError) {
+        console.error(`Device auth failed: ${(pollError as any)?.error_description || 'unknown'}`)
+        process.exit(1)
+      }
+    }
+
+    if (!accessToken) {
+      console.error('Device code expired. Try again.')
+      process.exit(1)
+    }
+
+    // 4. Create an API key using the authenticated session
+    console.error('Creating API key...')
+    const apiKeyResponse = await fetch(new URL('/api/auth/api-key/create', websiteUrl), {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name: 'CLI Login', prefix: 'ak_' }),
+    })
+
+    if (!apiKeyResponse.ok) {
+      console.error('Failed to create API key. You can create one manually at:')
+      console.error(`  ${websiteUrl}/dashboard`)
+      // Still save the bearer token as fallback
+      await saveConfig(fs, { apiKey: accessToken })
+      console.error('Session token saved as fallback.')
+      return
+    }
+
+    const apiKeyData = await apiKeyResponse.json() as { key?: string }
+    if (!apiKeyData.key) {
+      console.error('Failed to create API key. Save one manually with:')
+      console.error('  akarso auth set --key <key>')
+      await saveConfig(fs, { apiKey: accessToken })
+      return
+    }
+
+    await saveConfig(fs, { apiKey: apiKeyData.key })
+    console.error('')
+    console.error('Logged in successfully! API key saved to ~/.akarso/config.json')
+    console.error('')
+    console.error('You can now use the CLI:')
+    console.error('  akarso accounts list')
+    console.error('  akarso posts create --text "Hello!" --accounts twitter --publish-now')
   })
 
 auth
@@ -41,15 +134,14 @@ auth
       process.exit(1)
     }
     try {
-      const client = new Zernio({
-        apiKey,
-        baseURL: process.env.ZERNIO_API_URL || undefined,
+      const baseUrl = resolveBaseUrl(process.env)
+      const response = await fetch(new URL('/profiles', baseUrl), {
+        headers: { 'x-api-key': apiKey! },
       })
-      const { data } = await client.profiles.listProfiles()
-      const profiles = data?.profiles ?? []
-      const count = Array.isArray(profiles) ? profiles.length : 0
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${await response.text()}`)
+      }
       console.error('API key is valid.')
-      console.error(`Found ${count} profile(s).`)
     } catch (err) {
       console.error(
         `API key validation failed: ${err instanceof Error ? err.message : String(err)}`,

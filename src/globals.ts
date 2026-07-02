@@ -73,7 +73,7 @@ export function createGroup() {
       z
         .string()
         .describe(
-          'API key (overrides ZERNIO_API_KEY env and ~/.akarso/config.json)',
+          'API key (overrides AKARSO_API_KEY env and ~/.akarso/config.json)',
         ),
     )
     .option('--json', 'Output raw JSON instead of YAML')

@@ -1,35 +1,14 @@
 import { cancel, isCancel, select } from '@clack/prompts'
 import { openInBrowser } from 'goke'
-import nodeProcess from 'node:process'
 import { z } from 'zod'
 import { createGroup, platforms, type Platform } from '../globals.ts'
-import { createClient } from '../zernio.ts'
+import { createClient, resolveBaseUrl } from '../zernio.ts'
 import { output } from '../output.ts'
 
 const accounts = createGroup()
 
-const defaultConnectUrl = 'https://akarso-website-preview.remorses.workers.dev'
-
-type Profile = {
-  _id?: string
-  id?: string
-  name?: string
-}
-
-function getProfileId(profile: Profile) {
-  return profile._id || profile.id
-}
-
 accounts
   .command('accounts connect [platform]', 'Connect a social account')
-  .option(
-    '--profile-id [id]',
-    z.string().describe('Profile ID to connect the account to'),
-  )
-  .option(
-    '--connect-url [url]',
-    z.string().describe('Akarso connect website URL'),
-  )
   .action(async (platformArg, options, { fs, console, process }) => {
     let platform: Platform
     if (platformArg) {
@@ -46,70 +25,36 @@ accounts
       platform = platforms.schema.parse(selected)
     }
 
-    let profileId = options.profileId
-    if (!profileId) {
-      const client = await createClient({
-        apiKey: options.apiKey,
-        fs,
-        env: process.env,
-      })
-      const { data } = await client.profiles.listProfiles()
-      const profiles: Profile[] = data?.profiles ?? []
-      if (profiles.length === 0) {
-        console.error('No profiles found. Create a profile before connecting accounts.')
-        process.exit(1)
-      }
-
-      if (profiles.length === 1) {
-        const profile = profiles[0]
-        profileId = profile ? getProfileId(profile) : undefined
-      } else {
-        if (!nodeProcess.stdin.isTTY) {
-          console.error('Multiple profiles found. Pass --profile-id <id> in non-interactive environments.')
-          process.exit(1)
-        }
-
-        const selected = await select({
-          message: 'Which profile do you want to connect this account to?',
-          options: profiles
-            .map((profile) => {
-              const id = getProfileId(profile)
-              if (!id) return undefined
-              return {
-                value: id,
-                label: profile.name ? `${profile.name} (${id})` : id,
-              }
-            })
-            .filter((profile) => profile !== undefined),
-        })
-        if (isCancel(selected)) {
-          cancel('Connection cancelled.')
-          process.exit(0)
-        }
-        profileId = z.string().min(1).parse(selected)
-      }
+    // Fetch the user's profile via the proxy to get their Zernio profile ID
+    const client = await createClient({
+      apiKey: options.apiKey,
+      fs,
+      env: process.env,
+    })
+    const { data } = await client.profiles.listProfiles()
+    const profiles: any[] = (data as any)?.profiles ?? (Array.isArray(data) ? data : [])
+    if (profiles.length === 0) {
+      console.error('Could not resolve your profile. Make sure your subscription is active.')
+      process.exit(1)
     }
-
+    const profileId = profiles[0]?._id || profiles[0]?.id
     if (!profileId) {
-      console.error('Could not resolve a profile ID.')
+      console.error('Could not resolve profile ID.')
       process.exit(1)
       return
     }
-    const resolvedProfileId = profileId
 
-    const connectUrl = options.connectUrl || process.env.AKARSO_CONNECT_URL || defaultConnectUrl
-    const url = new URL(`/connect/${platform}`, connectUrl)
-    url.searchParams.set('profileId', resolvedProfileId)
+    // Build connect URL using the website (not the /api/v1 proxy)
+    const apiUrl = resolveBaseUrl(process.env)
+    const websiteUrl = apiUrl.endsWith('/api/v1') ? apiUrl.slice(0, -7) : apiUrl
+    const url = new URL(`/connect/${platform}`, websiteUrl)
+    url.searchParams.set('profileId', profileId)
 
     console.error(`Opening browser to connect ${platform}...`)
     await openInBrowser(url.toString())
 
     output(
-      {
-        platform,
-        profileId: resolvedProfileId,
-        url: url.toString(),
-      },
+      { platform, profileId, url: url.toString() },
       { json: options.json, console },
     )
   })
