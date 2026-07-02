@@ -199,6 +199,15 @@ auth
   .command('auth check', 'Verify API key is valid (exits 1 if not logged in)')
   .action(async (options, ctx) => {
     const { fs, console, process } = ctx
+    // A login daemon still waiting for browser approval means the saved key
+    // (if any) is about to be replaced — report "in progress" instead of
+    // validating a stale key. Skip this when a key is passed explicitly.
+    const loginDaemon = ctx.daemon.forCommand('auth login')
+    if (!options.apiKey && await loginDaemon.isRunning()) {
+      console.error('Login in progress. Approve in the browser first, then re-run `akarso auth check`.')
+      process.exit(1)
+      return
+    }
     try {
       const client = await createClient({
         apiKey: options.apiKey,
@@ -211,13 +220,6 @@ auth
       }
       console.error('API key is valid.')
     } catch (err) {
-      // A login daemon may still be waiting for browser approval.
-      const loginDaemon = ctx.daemon.forCommand('auth login')
-      if (await loginDaemon.isRunning()) {
-        console.error('Login in progress. Approve in the browser first, then re-run `akarso auth check`.')
-        process.exit(1)
-        return
-      }
       console.error(
         `API key validation failed: ${err instanceof Error ? err.message : String(err)}`,
       )

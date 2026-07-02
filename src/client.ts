@@ -126,7 +126,11 @@ export async function createClient(opts: {
       'No API key found. Run `akarso auth login` or `akarso auth set --key <key>` first.',
     )
   }
-  return createSpiceflowFetch<ProxyApp>(resolveBaseUrl(opts.env), {
-    headers: { 'x-api-key': apiKey },
-  })
+  // Real API keys are prefixed `ak_` and go in x-api-key. When login could
+  // not create an API key it saves the device-flow session token as a
+  // fallback, which the server only accepts as a bearer credential.
+  const headers: Record<string, string> = apiKey.startsWith('ak_')
+    ? { 'x-api-key': apiKey }
+    : { Authorization: `Bearer ${apiKey}` }
+  return createSpiceflowFetch<ProxyApp>(resolveBaseUrl(opts.env), { headers })
 }
