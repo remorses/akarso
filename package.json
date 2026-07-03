@@ -40,13 +40,7 @@
     "scheduling",
     "posting"
   ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/remorses/akarso",
-    "directory": "cli"
-  },
-  "homepage": "https://github.com/remorses/akarso",
-  "bugs": "https://github.com/remorses/akarso/issues",
+  "homepage": "https://akarso.co",
   "license": "MIT",
   "dependencies": {
     "@clack/prompts": "^1.2.0",
