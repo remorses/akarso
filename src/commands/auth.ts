@@ -91,6 +91,7 @@ auth
 
     if (ctx.daemon.isDaemon) {
       // ── BACKGROUND DAEMON: poll until the user approves in the browser ──
+      // Logs are visible to the parent when started with attach: true.
       const deviceCode = process.env.AKARSO_DEVICE_CODE
       if (!deviceCode) {
         console.error('Missing AKARSO_DEVICE_CODE for login daemon')
@@ -98,7 +99,8 @@ auth
         return
       }
       const pollInterval = Number(process.env.AKARSO_POLL_INTERVAL || 5) * 1000
-      const deadline = Date.now() + 10 * 60 * 1000
+      const expiresIn = Number(process.env.AKARSO_DEVICE_EXPIRES_IN || 300)
+      const deadline = Date.now() + expiresIn * 1000
 
       while (Date.now() < deadline) {
         await new Promise((r) => { setTimeout(r, pollInterval) })
@@ -119,8 +121,14 @@ auth
         }
         const errorCode = pollError?.error
         if (errorCode === 'authorization_pending' || errorCode === 'slow_down') continue
-        if (pollError) return // unrecoverable error, exit
+        if (pollError) {
+          console.error(`Device authorization failed: ${pollError.error_description || pollError.error}`)
+          process.exit(1)
+          return
+        }
       }
+      console.error('Device authorization timed out.')
+      process.exit(1)
       return
     }
 
@@ -149,42 +157,33 @@ auth
 
     await openInBrowser(verificationUrl)
 
-    // Start a detached daemon that re-runs this command and polls for
-    // approval, so this process can return control to the user or agent.
-    await ctx.daemon.start({
-      timeoutMs: 10 * 60 * 1000,
-      env: {
-        AKARSO_DEVICE_CODE: data.device_code,
-        AKARSO_POLL_INTERVAL: String(data.interval || 5),
-      },
-    })
+    const expiresIn = data.expires_in || 300
+    const daemonEnv = {
+      AKARSO_DEVICE_CODE: data.device_code,
+      AKARSO_POLL_INTERVAL: String(data.interval || 5),
+      AKARSO_DEVICE_EXPIRES_IN: String(expiresIn),
+    }
+    const timeoutMs = expiresIn * 1000
 
     if (isAgent) {
+      // Agent: start daemon detached, return immediately
+      await ctx.daemon.start({ timeoutMs, env: daemonEnv })
       console.error('Login running in background.')
       console.error('After approving in the browser, verify with: akarso auth check')
       return
     }
 
-    // Interactive: wait until the daemon saves a fresh API key.
+    // Interactive: attach to daemon, see real-time logs and errors
     console.error('Waiting for approval...')
-    const deadline = Date.now() + (data.expires_in || 300) * 1000
-    while (Date.now() < deadline) {
-      const server = await getServerConfig({ fs, env: process.env })
-      if (server.apiKey && server.apiKey !== previousKey) {
-        console.error(dedent`
+    await ctx.daemon.start({ attach: true, timeoutMs, env: daemonEnv })
+    console.error(dedent`
 
-          Logged in successfully! API key saved to ~/.akarso/config.json
+      Logged in successfully! API key saved to ~/.akarso/config.json
 
-          You can now use the CLI:
-            akarso accounts list
-            akarso posts create --text "Hello!" --accounts twitter --publish-now
-        `)
-        return
-      }
-      await new Promise((r) => { setTimeout(r, 2000) })
-    }
-    console.error('Device authorization timed out. Try again.')
-    process.exit(1)
+      You can now use the CLI:
+        akarso accounts list
+        akarso posts create --text "Hello!" --accounts twitter --publish-now
+    `)
   })
 
 auth
