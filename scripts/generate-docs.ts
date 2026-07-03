@@ -14,6 +14,7 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js'
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js'
 import { addCliToolsToMcp } from '@goke/mcp'
 import { createRequire } from 'node:module'
+import dedent from 'string-dedent'
 import { createCli, isRemoteMcpCommand } from '../src/create-cli.ts'
 
 const require = createRequire(import.meta.url)
@@ -28,6 +29,62 @@ const outDir = path.resolve(import.meta.dirname, '../../website/src/pages/docs/c
 fs.mkdirSync(outDir, { recursive: true })
 
 const pages = generateDocs({ cli })
+
+// Intro section prepended to the index page only. Covers installation,
+// the agent skill, and MCP usage so the CLI reference landing page is
+// useful on its own without jumping to the quickstart first.
+const indexIntro = dedent`
+  ## Install
+
+  ${'```'}sh
+  npm install -g akarso
+  akarso auth login
+  ${'```'}
+
+  This opens your browser for sign-in (device flow, safe for agents) and saves an API key to \`~/.akarso/config.json\`. Verify with \`akarso auth check\`.
+
+  For CI or headless environments, set the key directly:
+
+  ${'```'}sh
+  akarso auth set --key ak_your_key_here
+  # or use the env var
+  export AKARSO_API_KEY=ak_your_key_here
+  ${'```'}
+
+  ## Use with AI agents
+
+  ### Skill
+
+  Akarso ships with a **skill** that teaches any compatible AI agent (Claude Code, Cursor, Kimaki, OpenCode, etc.) how to use the CLI. Install it so agents can post, schedule, and manage social accounts without extra prompting:
+
+  ${'```'}sh
+  kimaki skill install remorses/akarso
+  ${'```'}
+
+  Once installed, the agent loads the skill automatically when you ask it to post to social media, schedule content, or manage accounts.
+
+  ### MCP server
+
+  Akarso can also run as an [MCP server](/docs/mcp), exposing every command as a tool that MCP-compatible agents can call directly:
+
+  ${'```'}sh
+  # Local stdio server (can upload local files)
+  akarso mcp
+
+  # Or use the hosted server (no install, OAuth sign-in)
+  claude mcp add --transport http akarso https://akarso.co/mcp
+  ${'```'}
+
+  ### Output format
+
+  All structured data goes to **stdout as YAML**, pipeable through \`yq\`. Pass \`--json\` for raw JSON (pipeable through \`jq\`). Progress and errors go to **stderr**, so agents can parse stdout cleanly.
+
+  ${'```'}sh
+  akarso posts list --json | jq '.[0].id'
+  akarso accounts list | yq '.[].type'
+  ${'```'}
+
+`
 
 for (const page of pages) {
   const isIndex = page.slug === 'index'
@@ -50,8 +107,14 @@ for (const page of pages) {
     '',
   ].join('\n')
 
+  // For the index page, insert the intro section between frontmatter and the
+  // generated command table so readers see install/agent info first.
+  const body = isIndex
+    ? indexIntro + contentWithoutFirstHeading
+    : contentWithoutFirstHeading
+
   const filePath = path.join(outDir, `${page.slug}.md`)
-  fs.writeFileSync(filePath, frontmatter + contentWithoutFirstHeading)
+  fs.writeFileSync(filePath, frontmatter + body)
   console.log(`wrote ${filePath}`)
 }
 
