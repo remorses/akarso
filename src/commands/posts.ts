@@ -55,8 +55,8 @@ posts
     'posts create',
     'Create, schedule, or publish a post. Use `--publish-now` or `--scheduled-at`; neither saves a draft.',
   )
-  .example('akarso posts create --text "Hello!" --platforms twitter --publish-now')
-  .example('akarso posts create --text "Later" --platforms twitter,linkedin --scheduled-at 2h')
+  .example('akarso posts create --text "Hello!" --platforms x --publish-now')
+  .example('akarso posts create --text "Later" --platforms x,linkedin --scheduled-at 2h')
   .example('akarso posts create --text "Pics" --platforms instagram --media ./photo.jpg,https://example.com/clip.mp4 --publish-now')
   .option('--text <content>', z.string().describe('Post text content, applied to every platform'))
   .option(

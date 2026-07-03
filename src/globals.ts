@@ -7,6 +7,7 @@ const platformValues = [
   'facebook',
   'instagram',
   'linkedin',
+  'x',
   'twitter',
   'tiktok',
   'youtube',
@@ -59,11 +60,12 @@ const channelSelectPlatformValues = [
 
 export type Platform = (typeof platformValues)[number]
 
-/** API platform type for a CLI platform name (twitter → TWITTER,
+/** API platform type for a CLI platform name (x/twitter → TWITTER,
  *  googlebusiness → GOOGLE_BUSINESS). */
 export function toApiPlatform(platform: string) {
   const upper = platform.toUpperCase()
-  return (upper === 'GOOGLEBUSINESS' ? 'GOOGLE_BUSINESS' : upper) as
+  const mapped = upper === 'X' ? 'TWITTER' : upper === 'GOOGLEBUSINESS' ? 'GOOGLE_BUSINESS' : upper
+  return mapped as
     | 'TIKTOK' | 'YOUTUBE' | 'INSTAGRAM' | 'FACEBOOK' | 'TWITTER' | 'THREADS'
     | 'LINKEDIN' | 'PINTEREST' | 'REDDIT' | 'MASTODON' | 'DISCORD' | 'SLACK'
     | 'BLUESKY' | 'GOOGLE_BUSINESS'
@@ -75,7 +77,8 @@ export const platforms = {
   commentRepliesSchema: z.enum(commentReplyPlatformValues),
   channelSelectSchema: z.enum(channelSelectPlatformValues),
   options: [
-    { value: 'twitter', label: 'Twitter / X' },
+    { value: 'x', label: 'X (Twitter)' },
+    { value: 'twitter', label: 'X (Twitter)' },
     { value: 'instagram', label: 'Instagram' },
     { value: 'linkedin', label: 'LinkedIn' },
     { value: 'facebook', label: 'Facebook' },

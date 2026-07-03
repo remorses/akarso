@@ -182,7 +182,7 @@ auth
 
       You can now use the CLI:
         akarso accounts list
-        akarso posts create --text "Hello!" --accounts twitter --publish-now
+        akarso posts create --text "Hello!" --accounts x --publish-now
     `)
   })
 

@@ -12,7 +12,7 @@ const inbox = createGroup()
 
 inbox
   .command('inbox sync <postId>', 'Import the comments on a published post')
-  .example('akarso inbox sync post_123 --platform twitter')
+  .example('akarso inbox sync post_123 --platform x')
   .option(
     '--platform <platform>',
     platforms.commentsSchema.describe('Platform to import comments from'),
@@ -81,7 +81,7 @@ inbox
 
 inbox
   .command('inbox reply <postId>', 'Publish a reply in a post comment section')
-  .example('akarso inbox reply post_123 --platform twitter --text "Thanks!"')
+  .example('akarso inbox reply post_123 --platform x --text "Thanks!"')
   .example('akarso inbox reply post_123 --platform youtube --text "Fixed" --comment-id cmt_456')
   .option(
     '--platform <platform>',
