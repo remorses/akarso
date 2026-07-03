@@ -213,11 +213,17 @@ auth
         fs,
         env: process.env,
       })
+      // /profiles validates the key AND reports which workspace it
+      // targets (the profile pinned at key creation, or the default).
       const data = await client('/api/v1/profiles')
       if (data instanceof Error) {
         throw new Error(`API returned error: ${data.message}`)
       }
+      const current = data.profiles.find((profile) => profile.current)
       console.error('API key is valid.')
+      if (current) {
+        console.error(`Profile: ${current.name}${current.default ? ' (default)' : ''}`)
+      }
     } catch (err) {
       console.error(
         `API key validation failed: ${err instanceof Error ? err.message : String(err)}`,

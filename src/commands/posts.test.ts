@@ -1,7 +1,8 @@
-// Tests the scheduling input parser used by the posts command.
+// Tests the scheduling input parser and post body builder used by the
+// posts command.
 import { describe, expect, test } from 'vitest'
 import { parseScheduledAt } from '../scheduling.ts'
-import { buildPlatformTargets } from './posts.ts'
+import { buildPostBody } from './posts.ts'
 
 const now = new Date('2026-04-27T12:00:00.000Z')
 
@@ -40,63 +41,78 @@ describe('parseScheduledAt', () => {
   })
 })
 
-describe('buildPlatformTargets', () => {
-  test('plain targets without platform draft', () => {
+describe('buildPostBody', () => {
+  test('publish now schedules at the current time', () => {
     expect(
-      buildPlatformTargets({ accountIds: ['acc_1', 'acc_2'], platform: 'twitter' }),
+      buildPostBody({ text: 'Hello!', platforms: ['twitter', 'linkedin'], publishNow: true, now }),
     ).toMatchInlineSnapshot(`
-      [
-        {
-          "accountId": "acc_1",
-          "platform": "twitter",
+      {
+        "data": {
+          "LINKEDIN": {
+            "text": "Hello!",
+          },
+          "TWITTER": {
+            "text": "Hello!",
+          },
         },
-        {
-          "accountId": "acc_2",
-          "platform": "twitter",
-        },
-      ]
+        "postDate": "2026-04-27T12:00:00.000Z",
+        "socialAccountTypes": [
+          "TWITTER",
+          "LINKEDIN",
+        ],
+        "status": "SCHEDULED",
+        "title": "Hello!",
+      }
     `)
   })
 
-  test('facebook and tiktok targets get platformSpecificData.draft', () => {
+  test('scheduled-at parses relative times and applies media to every platform', () => {
     expect(
-      buildPlatformTargets({ accountIds: ['acc_fb'], platform: 'facebook', platformDraft: true }),
+      buildPostBody({
+        text: 'Later',
+        platforms: ['googlebusiness'],
+        scheduledAt: '2h',
+        uploadIds: ['upl_1', 'upl_2'],
+        now,
+      }),
     ).toMatchInlineSnapshot(`
-      [
-        {
-          "accountId": "acc_fb",
-          "platform": "facebook",
-          "platformSpecificData": {
-            "draft": true,
+      {
+        "data": {
+          "GOOGLE_BUSINESS": {
+            "text": "Later",
+            "uploadIds": [
+              "upl_1",
+              "upl_2",
+            ],
           },
         },
-      ]
-    `)
-    expect(
-      buildPlatformTargets({ accountIds: ['acc_tt'], platform: 'tiktok', platformDraft: true }),
-    ).toMatchInlineSnapshot(`
-      [
-        {
-          "accountId": "acc_tt",
-          "platform": "tiktok",
-          "platformSpecificData": {
-            "draft": true,
-          },
-        },
-      ]
+        "postDate": "2026-04-27T14:00:00.000Z",
+        "socialAccountTypes": [
+          "GOOGLE_BUSINESS",
+        ],
+        "status": "SCHEDULED",
+        "title": "Later",
+      }
     `)
   })
 
-  test('platform draft on unsupported platform is an error', () => {
-    const result = buildPlatformTargets({
-      accountIds: ['acc_1'],
-      platform: 'twitter',
-      platformDraft: true,
-    })
-    if (!(result instanceof Error)) throw new Error('expected an Error result')
-    expect(result.message).toMatchInlineSnapshot(`
-      "Native platform drafts are only supported on facebook and tiktok, not "twitter".
-      For other platforms, save a regular draft instead: omit --publish-now and --scheduled-at."
+  test('no timing flags saves a draft with a custom title', () => {
+    expect(
+      buildPostBody({ text: 'Draft text', title: 'My title', platforms: ['tiktok'], now }),
+    ).toMatchInlineSnapshot(`
+      {
+        "data": {
+          "TIKTOK": {
+            "text": "Draft text",
+          },
+        },
+        "postDate": "2026-04-27T12:00:00.000Z",
+        "socialAccountTypes": [
+          "TIKTOK",
+        ],
+        "status": "DRAFT",
+        "title": "My title",
+      }
     `)
   })
 })

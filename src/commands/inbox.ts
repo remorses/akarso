@@ -1,35 +1,52 @@
+// Inbox commands: comments and reviews on published posts.
+// Comments work as async imports: `inbox sync <postId>` starts an import,
+// `inbox syncs` shows its status, `inbox comments` reads the imported
+// comments, `inbox reply` publishes replies, and `inbox comment-action`
+// moderates. Reviews (Google Business) follow the same sync-then-read flow.
 import { z } from 'zod'
-import { createGroup, platforms } from '../globals.ts'
+import { createGroup, platforms, toApiPlatform } from '../globals.ts'
 import { createClient } from '../client.ts'
 import { output } from '../output.ts'
-import { resolveMediaInput } from './media.ts'
 
 const inbox = createGroup()
 
 inbox
-  .command('inbox conversations', 'List DM conversations')
+  .command('inbox sync <postId>', 'Import the comments on a published post')
+  .example('akarso inbox sync post_123 --platform twitter')
   .option(
-    '--platform [platform]',
-    platforms.inboxConversationsSchema.describe('Filter by platform'),
+    '--platform <platform>',
+    platforms.commentsSchema.describe('Platform to import comments from'),
   )
-  .option(
-    '--account-id <id>',
-    z.string().describe('Account ID to list conversations for'),
-  )
-  .option(
-    '--limit [n]',
-    z.number().default(20).describe('Maximum conversations to return'),
-  )
+  .action(async (postId, options, { fs, console, process }) => {
+    const client = await createClient({
+      apiKey: options.apiKey,
+      fs,
+      env: process.env,
+    })
+    const data = await client('/api/v1/inbox/comments/sync', {
+      method: 'POST',
+      body: {
+        postId,
+        platform: toApiPlatform(options.platform) as 'FACEBOOK',
+      },
+    })
+    if (data instanceof Error) throw data
+    output(data, { json: options.json, console })
+  })
+
+inbox
+  .command('inbox syncs', 'List comment import jobs and their status')
+  .option('--post-id [id]', z.string().describe('Filter by post ID'))
+  .option('--limit [n]', z.number().default(20).describe('Maximum imports to return'))
   .action(async (options, { fs, console, process }) => {
     const client = await createClient({
       apiKey: options.apiKey,
       fs,
       env: process.env,
     })
-    const data = await client('/api/v1/inbox/conversations', {
+    const data = await client('/api/v1/inbox/comments/sync', {
       query: {
-        platform: options.platform || undefined,
-        accountId: options.accountId,
+        postId: options.postId || undefined,
         limit: options.limit,
       },
     })
@@ -38,103 +55,13 @@ inbox
   })
 
 inbox
-  .command('inbox messages <conversationId>', 'Get messages in a conversation')
-  .option(
-    '--account-id <id>',
-    z.string().describe('Account ID for the conversation'),
-  )
-  .action(async (conversationId, options, { fs, console, process }) => {
-    const client = await createClient({
-      apiKey: options.apiKey,
-      fs,
-      env: process.env,
-    })
-    const data = await client('/api/v1/inbox/conversations/:conversationId/messages', {
-      params: { conversationId },
-      query: { accountId: options.accountId },
-    })
-    if (data instanceof Error) throw data
-    output(data, { json: options.json, console })
-  })
-
-inbox
-  .command('inbox send <conversationId>', 'Send a DM')
-  .example('akarso inbox send conv_123 --account-id acc_123 --message "Hi!"')
-  .example('akarso inbox send conv_123 --account-id acc_123 --attachment ./photo.jpg')
-  .option(
-    '--account-id <id>',
-    z.string().describe('Account ID to send from'),
-  )
-  .option(
-    '--message [text]',
-    z.string().describe('Message text (optional when sending an attachment)'),
-  )
-  .option(
-    '--attachment [fileOrUrl]',
-    z
-      .string()
-      .describe(
-        'Attachment: local file path or `https` URL. Paths are uploaded automatically (not available on the hosted MCP server, use URLs there).',
-      ),
-  )
-  .option(
-    '--attachment-type [type]',
-    z
-      .enum(['image', 'video', 'audio', 'file'])
-      .describe('Attachment type (inferred from the file extension by default)'),
-  )
-  .action(async (conversationId, options, { fs, console, process }) => {
-    const client = await createClient({
-      apiKey: options.apiKey,
-      fs,
-      env: process.env,
-    })
-
-    let attachmentUrl: string | undefined
-    let attachmentType = options.attachmentType
-    if (options.attachment) {
-      const resolved = await resolveMediaInput({
-        input: options.attachment,
-        client,
-        fs,
-        env: process.env,
-        log: (message) => console.error(message),
-      })
-      attachmentUrl = resolved.url
-      // DM attachments use image|video|audio|file; map post media kinds.
-      attachmentType ??= (
-        { image: 'image', gif: 'image', video: 'video', document: 'file' } as const
-      )[resolved.mediaKind]
-    }
-
-    const data = await client('/api/v1/inbox/conversations/:conversationId/messages', {
-      method: 'POST',
-      params: { conversationId },
-      body: {
-        accountId: options.accountId,
-        message: options.message,
-        attachmentUrl,
-        attachmentType,
-      },
-    })
-    if (data instanceof Error) throw data
-    output(data, { json: options.json, console })
-  })
-
-inbox
-  .command('inbox comments', 'List post comments across accounts')
+  .command('inbox comments', 'List imported comments (run `inbox sync` first)')
+  .option('--post-id [id]', z.string().describe('Filter by post ID'))
   .option(
     '--platform [platform]',
-    platforms.inboxCommentsSchema.describe('Filter by platform'),
+    platforms.commentsSchema.describe('Filter by platform'),
   )
-  .option(
-    '--account-id <id>',
-    z.string().describe('Account ID to list comments for'),
-  )
-  .option(
-    '--limit [n]',
-    z.number().default(20).describe('Maximum comments to return'),
-  )
+  .option('--limit [n]', z.number().default(20).describe('Maximum comments to return'))
   .action(async (options, { fs, console, process }) => {
     const client = await createClient({
       apiKey: options.apiKey,
@@ -143,8 +70,8 @@ inbox
     })
     const data = await client('/api/v1/inbox/comments', {
       query: {
-        platform: options.platform || undefined,
-        accountId: options.accountId,
+        postId: options.postId || undefined,
+        platform: options.platform ? (toApiPlatform(options.platform) as 'FACEBOOK') : undefined,
         limit: options.limit,
       },
     })
@@ -153,18 +80,17 @@ inbox
   })
 
 inbox
-  .command('inbox reply <postId>', 'Reply to a comment on a post')
+  .command('inbox reply <postId>', 'Publish a reply in a post comment section')
+  .example('akarso inbox reply post_123 --platform twitter --text "Thanks!"')
+  .example('akarso inbox reply post_123 --platform youtube --text "Fixed" --comment-id cmt_456')
   .option(
-    '--account-id <id>',
-    z.string().describe('Account ID to reply from'),
+    '--platform <platform>',
+    platforms.commentRepliesSchema.describe('Platform to reply on'),
   )
-  .option(
-    '--message <text>',
-    z.string().describe('Reply text'),
-  )
+  .option('--text <text>', z.string().describe('Reply text'))
   .option(
     '--comment-id [id]',
-    z.string().describe('Specific comment ID to reply to'),
+    z.string().describe('Imported comment ID to reply to (omit to comment on the post itself)'),
   )
   .action(async (postId, options, { fs, console, process }) => {
     const client = await createClient({
@@ -172,13 +98,13 @@ inbox
       fs,
       env: process.env,
     })
-    const data = await client('/api/v1/inbox/comments/:postId', {
+    const data = await client('/api/v1/inbox/reply', {
       method: 'POST',
-      params: { postId },
       body: {
-        accountId: options.accountId,
-        message: options.message,
-        commentId: options.commentId || undefined,
+        postId,
+        platform: toApiPlatform(options.platform) as 'FACEBOOK',
+        text: options.text,
+        parentCommentId: options.commentId || undefined,
       },
     })
     if (data instanceof Error) throw data
@@ -186,19 +112,38 @@ inbox
   })
 
 inbox
-  .command('inbox reviews', 'List reviews (Facebook, Google Business)')
+  .command('inbox comment-action <commentId>', 'Moderate an imported comment')
+  .example('akarso inbox comment-action cmt_123 --action HIDE')
   .option(
-    '--platform [platform]',
-    platforms.inboxReviewsSchema.describe('Filter by platform'),
+    '--action <action>',
+    z
+      .enum(['DELETE', 'HIDE', 'UNHIDE', 'LIKE', 'UNLIKE', 'APPROVE', 'REJECT'])
+      .describe('Moderation action to run'),
   )
-  .option(
-    '--account-id <id>',
-    z.string().describe('Account ID to list reviews for'),
-  )
-  .option(
-    '--limit [n]',
-    z.number().default(20).describe('Maximum reviews to return'),
-  )
+  .option('--reason [reason]', z.string().describe('Optional reason for the action'))
+  .option('--ban-author', 'Also ban the comment author where the platform supports it')
+  .action(async (commentId, options, { fs, console, process }) => {
+    const client = await createClient({
+      apiKey: options.apiKey,
+      fs,
+      env: process.env,
+    })
+    const data = await client('/api/v1/inbox/comments/:commentId/action', {
+      method: 'POST',
+      params: { commentId },
+      body: {
+        action: options.action,
+        reason: options.reason || undefined,
+        banAuthor: options.banAuthor || undefined,
+      },
+    })
+    if (data instanceof Error) throw data
+    output(data, { json: options.json, console })
+  })
+
+inbox
+  .command('inbox reviews', 'List imported Google Business reviews (run `inbox reviews-sync` first)')
+  .option('--limit [n]', z.number().default(20).describe('Maximum reviews to return'))
   .action(async (options, { fs, console, process }) => {
     const client = await createClient({
       apiKey: options.apiKey,
@@ -206,26 +151,32 @@ inbox
       env: process.env,
     })
     const data = await client('/api/v1/inbox/reviews', {
-      query: {
-        platform: options.platform || undefined,
-        accountId: options.accountId,
-        limit: options.limit,
-      },
+      query: { limit: options.limit },
     })
     if (data instanceof Error) throw data
     output(data, { json: options.json, console })
   })
 
 inbox
-  .command('inbox review-reply <reviewId>', 'Reply to a review')
-  .option(
-    '--account-id <id>',
-    z.string().describe('Account ID to reply from'),
-  )
-  .option(
-    '--message <text>',
-    z.string().describe('Reply text'),
-  )
+  .command('inbox reviews-sync', 'Import your Google Business location reviews')
+  .option('--count [n]', z.number().default(50).describe('Number of most recent reviews to import'))
+  .action(async (options, { fs, console, process }) => {
+    const client = await createClient({
+      apiKey: options.apiKey,
+      fs,
+      env: process.env,
+    })
+    const data = await client('/api/v1/inbox/reviews/sync', {
+      method: 'POST',
+      body: { count: options.count },
+    })
+    if (data instanceof Error) throw data
+    output(data, { json: options.json, console })
+  })
+
+inbox
+  .command('inbox review-reply <reviewId>', 'Reply to a Google Business review as the owner')
+  .option('--text <text>', z.string().describe('Reply text'))
   .action(async (reviewId, options, { fs, console, process }) => {
     const client = await createClient({
       apiKey: options.apiKey,
@@ -235,10 +186,7 @@ inbox
     const data = await client('/api/v1/inbox/reviews/:reviewId/reply', {
       method: 'POST',
       params: { reviewId },
-      body: {
-        accountId: options.accountId,
-        message: options.message,
-      },
+      body: { text: options.text },
     })
     if (data instanceof Error) throw data
     output(data, { json: options.json, console })

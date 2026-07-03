@@ -15,35 +15,30 @@ describe('classifyMediaInput', () => {
           "filename": "photo.jpg",
           "input": "./photo.jpg",
           "kind": "path",
-          "mediaKind": "image",
         },
         {
           "contentType": "video/quicktime",
           "filename": "clip.MOV",
           "input": "/tmp/clip.MOV",
           "kind": "path",
-          "mediaKind": "video",
         },
         {
           "contentType": "image/gif",
           "filename": "animation.gif",
           "input": "animation.gif",
           "kind": "path",
-          "mediaKind": "gif",
         },
         {
           "contentType": "application/pdf",
           "filename": "deck.pdf",
           "input": "docs/deck.pdf",
           "kind": "path",
-          "mediaKind": "document",
         },
         {
           "contentType": "video/webm",
           "filename": "video.webm",
           "input": "video.webm",
           "kind": "path",
-          "mediaKind": "video",
         },
       ]
     `)
@@ -55,7 +50,6 @@ describe('classifyMediaInput', () => {
         "contentType": "video/mp4",
         "filename": "clip.mp4",
         "kind": "url",
-        "mediaKind": "video",
       }
     `)
     // URL without recognized extension defaults to image
@@ -64,7 +58,6 @@ describe('classifyMediaInput', () => {
         "contentType": undefined,
         "filename": "abc123",
         "kind": "url",
-        "mediaKind": "image",
       }
     `)
   })

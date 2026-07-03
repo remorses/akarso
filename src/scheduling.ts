@@ -1,4 +1,4 @@
-// Parses user-friendly post scheduling times into ISO timestamps for Zernio.
+// Parses user-friendly post scheduling times into ISO timestamps for the API.
 export function parseScheduledAt(input: string, now = new Date()): string {
   const value = input.trim()
   const compact = /^(\d+)([mhdw])$/i.exec(value)

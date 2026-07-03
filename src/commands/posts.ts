@@ -1,47 +1,51 @@
 import nodeProcess from 'node:process'
 import { z } from 'zod'
-import dedent from 'string-dedent'
 import { confirm, isCancel } from '@clack/prompts'
 import { isAgent } from 'goke'
-import { createGroup, platforms, type Platform } from '../globals.ts'
+import { createGroup, platforms, toApiPlatform, type Platform } from '../globals.ts'
 import { createClient } from '../client.ts'
 import { output } from '../output.ts'
 import { parseScheduledAt } from '../scheduling.ts'
-import { resolveMediaInput } from './media.ts'
+import { resolveMediaToUploadId } from './media.ts'
 
-/** Platforms that support native drafts via platformSpecificData.draft. */
-const PLATFORM_DRAFT_PLATFORMS = new Set(['facebook', 'tiktok'])
+const POST_STATUSES = [
+  'draft', 'scheduled', 'posted', 'error', 'deleted', 'processing', 'review', 'retrying',
+] as const
 
-// Type alias (not interface) on purpose: the proxy request schema is a
-// z.looseObject with an index signature, and TS only applies implicit index
-// signatures to type aliases, not interfaces.
-export type PlatformTarget = {
-  platform: Platform
-  accountId: string
-  platformSpecificData?: { draft: true }
-}
-
-/** Build the per-account platform targets for post creation. When
- *  platformDraft is set, each target gets platformSpecificData.draft so the
- *  post lands as a native platform draft (Facebook Publishing Tools /
- *  TikTok Creator Inbox) instead of going live. Pure function, validated
- *  here so both the CLI action and tests share the rules. */
-export function buildPlatformTargets(opts: {
-  accountIds: string[]
-  platform: Platform
-  platformDraft?: boolean
-}): PlatformTarget[] | Error {
-  if (opts.platformDraft && !PLATFORM_DRAFT_PLATFORMS.has(opts.platform)) {
-    return new Error(dedent`
-      Native platform drafts are only supported on facebook and tiktok, not "${opts.platform}".
-      For other platforms, save a regular draft instead: omit --publish-now and --scheduled-at.
-    `)
+/** Build the create-post request body. Content is per-platform under
+ *  `data.<PLATFORM>`; the CLI applies the same text and media to every
+ *  selected platform. Pure function so the CLI action and tests share the
+ *  rules:
+ *  - publish now  → status SCHEDULED with postDate = now
+ *  - scheduled-at → status SCHEDULED with the parsed postDate
+ *  - neither      → status DRAFT (postDate still required upstream) */
+export function buildPostBody(opts: {
+  text: string
+  title?: string
+  platforms: Platform[]
+  uploadIds?: string[]
+  publishNow?: boolean
+  scheduledAt?: string
+  now?: Date
+}) {
+  const now = opts.now ?? new Date()
+  const postDate = opts.scheduledAt
+    ? parseScheduledAt(opts.scheduledAt, now)
+    : now.toISOString()
+  const status = opts.publishNow || opts.scheduledAt ? ('SCHEDULED' as const) : ('DRAFT' as const)
+  const socialAccountTypes = opts.platforms.map((platform) => toApiPlatform(platform))
+  return {
+    title: opts.title || opts.text.slice(0, 80) || 'Untitled post',
+    postDate,
+    status,
+    socialAccountTypes,
+    data: Object.fromEntries(
+      socialAccountTypes.map((type) => [
+        type,
+        { text: opts.text, ...(opts.uploadIds?.length ? { uploadIds: opts.uploadIds } : {}) },
+      ]),
+    ),
   }
-  return opts.accountIds.map((accountId) => ({
-    platform: opts.platform,
-    accountId,
-    ...(opts.platformDraft ? { platformSpecificData: { draft: true as const } } : {}),
-  }))
 }
 
 const posts = createGroup()
@@ -49,16 +53,15 @@ const posts = createGroup()
 posts
   .command(
     'posts create',
-    'Create, schedule, or publish a post. Use `--publish-now` or `--scheduled-at`, not both.',
+    'Create, schedule, or publish a post. Use `--publish-now` or `--scheduled-at`; neither saves a draft.',
   )
-  .example('akarso posts create --text "Hello!" --accounts acc_123 --publish-now')
-  .example('akarso posts create --text "Later" --accounts acc_123 --scheduled-at 2h')
-  .example('akarso posts create --text "Pics" --accounts acc_123 --media ./photo.jpg,https://example.com/clip.mp4')
-  .example('akarso posts create --text "Review me" --accounts acc_fb --platform facebook --publish-now --platform-draft')
-  .option('--text <content>', z.string().describe('Post text content'))
+  .example('akarso posts create --text "Hello!" --platforms twitter --publish-now')
+  .example('akarso posts create --text "Later" --platforms twitter,linkedin --scheduled-at 2h')
+  .example('akarso posts create --text "Pics" --platforms instagram --media ./photo.jpg,https://example.com/clip.mp4 --publish-now')
+  .option('--text <content>', z.string().describe('Post text content, applied to every platform'))
   .option(
-    '--accounts <ids>',
-    z.string().describe('Comma-separated account IDs'),
+    '--platforms <list>',
+    z.string().describe(`Comma-separated platforms to publish to (${platforms.schema.options.join(', ')})`),
   )
   .option('--publish-now', 'Publish immediately')
   .option(
@@ -67,25 +70,15 @@ posts
   )
   .option(
     '--title [title]',
-    z.string().describe('Post title (required for YouTube)'),
+    z.string().describe('Internal post title, shown in the dashboard (defaults to the text)'),
   )
   .option(
     '--media [items]',
     z
       .string()
       .describe(
-        'Comma-separated media items: local file paths or `https` URLs. Paths are uploaded automatically (not available on the hosted MCP server, use URLs there).',
+        'Comma-separated media items: local file paths or `https` URLs. Both are uploaded and attached to every platform (local paths are not available on the hosted MCP server, use URLs there).',
       ),
-  )
-  .option(
-    '--platform [platform]',
-    platforms.schema
-      .default('twitter')
-      .describe('Default platform for all accounts'),
-  )
-  .option(
-    '--platform-draft',
-    'Create a native draft on the platform instead of publishing. Only Facebook and TikTok support this. Facebook: unpublished draft in Publishing Tools (feed posts and reels only, not stories; expires after ~30 days). TikTok: sends to the Creator Inbox, where the creator gets a notification and finishes the post in TikTok\'s editing flow (requires the video.upload scope and TikTok app 31.8+). Requires `--publish-now` or `--scheduled-at`.',
   )
   .action(async (options, { fs, console, process }) => {
     const client = await createClient({
@@ -97,56 +90,39 @@ posts
     if (options.publishNow && options.scheduledAt) {
       throw new Error('Choose either --publish-now or --scheduled-at, not both.')
     }
-    if (options.platformDraft && !options.publishNow && !options.scheduledAt) {
-      // A platform draft is still *sent* to the platform; without a timing
-      // flag the post would become a Zernio-side draft and the platform
-      // draft data would sit unused.
-      throw new Error(
-        'A platform draft is still sent to the platform, so `--platform-draft` requires `--publish-now` or `--scheduled-at`.',
-      )
-    }
 
-    const accountIds = options.accounts.split(',').map((s) => s.trim())
-    const platformTargets = buildPlatformTargets({
-      accountIds,
-      platform: options.platform,
-      platformDraft: options.platformDraft,
-    })
-    if (platformTargets instanceof Error) throw platformTargets
+    const selectedPlatforms = options.platforms
+      .split(',')
+      .map((value) => platforms.schema.parse(value.trim()))
 
-    // Resolve media inputs: https URLs pass through, local paths get
-    // uploaded first. Media type (image/video/gif/document) is inferred
-    // from the file extension.
-    let mediaItems: { url: string; type: 'image' | 'video' | 'gif' | 'document' }[] | undefined
+    // Resolve media inputs to upload IDs: local paths are uploaded as raw
+    // bytes, https URLs are imported server-side.
+    let uploadIds: string[] | undefined
     if (options.media) {
-      mediaItems = []
+      uploadIds = []
       for (const item of options.media.split(',').map((s) => s.trim()).filter(Boolean)) {
-        const resolved = await resolveMediaInput({
+        const uploadId = await resolveMediaToUploadId({
           input: item,
           client,
+          apiKey: options.apiKey,
           fs,
           env: process.env,
           log: (message) => console.error(message),
         })
-        mediaItems.push({ url: resolved.url, type: resolved.mediaKind })
+        uploadIds.push(uploadId)
       }
     }
 
-    const scheduledFor = options.scheduledAt
-      ? parseScheduledAt(options.scheduledAt)
-      : undefined
-
-    const data = await client('/api/v1/posts', {
-      method: 'POST',
-      body: {
-        content: options.text,
-        title: options.title || undefined,
-        platforms: platformTargets,
-        publishNow: options.publishNow || false,
-        scheduledFor,
-        mediaItems: mediaItems?.length ? mediaItems : undefined,
-      },
+    const body = buildPostBody({
+      text: options.text,
+      title: options.title || undefined,
+      platforms: selectedPlatforms,
+      uploadIds,
+      publishNow: options.publishNow,
+      scheduledAt: options.scheduledAt || undefined,
     })
+
+    const data = await client('/api/v1/posts', { method: 'POST', body })
     if (data instanceof Error) {
       // SpiceflowFetchError carries the typed HTTP status and parsed error body
       // 402 Payment Required: subscription needed
@@ -172,10 +148,13 @@ posts
   .command('posts list', 'List posts')
   .option(
     '--status [status]',
-    z
-      .enum(['draft', 'scheduled', 'published', 'failed'])
-      .describe('Filter by status'),
+    z.enum(POST_STATUSES).describe('Filter by status'),
   )
+  .option(
+    '--platforms [list]',
+    z.string().describe('Comma-separated platforms to filter by'),
+  )
+  .option('--search [q]', z.string().describe('Search post titles and content'))
   .option(
     '--limit [n]',
     z.number().default(10).describe('Maximum number of posts to return'),
@@ -188,7 +167,11 @@ posts
     })
     const data = await client('/api/v1/posts', {
       query: {
-        status: options.status || undefined,
+        status: options.status
+          ? (options.status.toUpperCase() as Uppercase<typeof options.status>)
+          : undefined,
+        platforms: options.platforms || undefined,
+        q: options.search || undefined,
         limit: options.limit,
       },
     })

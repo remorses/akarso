@@ -1,7 +1,13 @@
+// Account commands: connect (browser OAuth via the website), list, get,
+// health checks, disconnect, and channel selection for platforms that
+// need a publishing target (Facebook Page, LinkedIn org, YouTube channel,
+// Google Business location). Accounts are addressed by platform name —
+// each workspace holds at most one account per platform.
 import nodeProcess from 'node:process'
+import { z } from 'zod'
 import { cancel, isCancel, select } from '@clack/prompts'
 import { isAgent, openInBrowser } from 'goke'
-import { createGroup, platforms, type Platform } from '../globals.ts'
+import { createGroup, platforms, toApiPlatform, type Platform } from '../globals.ts'
 import { createClient, resolveBaseUrl } from '../client.ts'
 import { output } from '../output.ts'
 
@@ -33,74 +39,44 @@ accounts
       platform = platforms.schema.parse(selected)
     }
 
-    // Fetch the user's profile via the proxy to get their profile ID.
-    const client = await createClient({
-      apiKey: options.apiKey,
-      fs,
-      env: process.env,
-    })
-    const data = await client('/api/v1/profiles')
-    if (data instanceof Error) throw data
-    const profiles = data.profiles
-    if (profiles.length === 0) {
-      console.error('Could not resolve your profile. Run `akarso auth check` to verify your API key.')
-      process.exit(1)
-    }
-    const profileId = profiles[0]?._id
-    if (!profileId) {
-      console.error('Could not resolve profile ID.')
-      process.exit(1)
-      return
-    }
-
-    // Build the connect URL on the website (same host as the API)
+    // The connect page authenticates in the browser and resolves the org
+    // (personal org by default) server-side.
     const url = new URL(`/connect/${platform}`, resolveBaseUrl(process.env))
-    url.searchParams.set('profileId', profileId)
 
     console.error(`Opening browser to connect ${platform}...`)
     await openInBrowser(url.toString())
 
-    output(
-      { platform, profileId, url: url.toString() },
-      { json: options.json, console },
-    )
+    output({ platform, url: url.toString() }, { json: options.json, console })
   })
 
 accounts
   .command('accounts list', 'List connected social accounts')
-  .option(
-    '--platform [platform]',
-    platforms.schema.describe('Filter by platform'),
-  )
   .action(async (options, { fs, console, process }) => {
     const client = await createClient({
       apiKey: options.apiKey,
       fs,
       env: process.env,
     })
-    const data = await client('/api/v1/accounts', {
-      query: {
-        platform: options.platform || undefined,
-      },
-    })
+    const data = await client('/api/v1/accounts')
     if (data instanceof Error) throw data
     output(data, { json: options.json, console })
   })
 
 accounts
-  .command('accounts get <accountId>', 'Get account details')
-  .action(async (accountId, options, { fs, console, process }) => {
+  .command('accounts get <platform>', 'Get the connected account for a platform, including its selectable channels')
+  .action(async (platformArg, options, { fs, console, process }) => {
+    const platform = platforms.schema.parse(platformArg)
     const client = await createClient({
       apiKey: options.apiKey,
       fs,
       env: process.env,
     })
-    const data = await client('/api/v1/accounts/:accountId', {
-      params: { accountId },
+    const data = await client('/api/v1/accounts/:platform', {
+      params: { platform: toApiPlatform(platform) },
     })
     if (data instanceof Error) {
       if (data.status === 404) {
-        console.error(`Account ${accountId} not found.`)
+        console.error(`No ${platform} account connected. Run \`akarso accounts connect ${platform}\`.`)
         process.exit(1)
       }
       throw data
@@ -109,10 +85,10 @@ accounts
   })
 
 accounts
-  .command('accounts health', 'Check token health for all accounts')
+  .command('accounts health', 'Check connection health for all accounts')
   .option(
     '--platform [platform]',
-    platforms.schema.describe('Filter by platform'),
+    platforms.schema.describe('Only check this platform'),
   )
   .action(async (options, { fs, console, process }) => {
     const client = await createClient({
@@ -122,8 +98,48 @@ accounts
     })
     const data = await client('/api/v1/accounts/health', {
       query: {
-        platform: options.platform || undefined,
+        platform: options.platform ? toApiPlatform(options.platform) : undefined,
       },
+    })
+    if (data instanceof Error) throw data
+    output(data, { json: options.json, console })
+  })
+
+accounts
+  .command('accounts disconnect <platform>', 'Disconnect the platform account from your workspace')
+  .action(async (platformArg, options, { fs, console, process }) => {
+    const platform = platforms.schema.parse(platformArg)
+    const client = await createClient({
+      apiKey: options.apiKey,
+      fs,
+      env: process.env,
+    })
+    const data = await client('/api/v1/accounts/:platform', {
+      method: 'DELETE',
+      params: { platform: toApiPlatform(platform) },
+    })
+    if (data instanceof Error) throw data
+    output(data, { json: options.json, console })
+  })
+
+accounts
+  .command(
+    'accounts set-channel <platform>',
+    'Select the publishing target (Page, organization, channel, or location) for a connected account',
+  )
+  .example('akarso accounts set-channel facebook --channel-id page_123')
+  .option('--channel-id <id>', z.string().describe('Channel ID from `accounts get <platform>`'))
+  .action(async (platformArg, options, { fs, console, process }) => {
+    const platform = platforms.channelSelectSchema.parse(platformArg)
+    const client = await createClient({
+      apiKey: options.apiKey,
+      fs,
+      env: process.env,
+    })
+    const data = await client('/api/v1/accounts/:platform/set-channel', {
+      method: 'POST',
+      params: { platform: toApiPlatform(platform) as 'FACEBOOK' },
+      body: { channelId: options.channelId },
     })
     if (data instanceof Error) throw data
     output(data, { json: options.json, console })

@@ -28,21 +28,25 @@ describe('MCP tool surface', () => {
     expect(await listToolNames(isRemoteMcpCommand)).toMatchInlineSnapshot(`
       [
         "profiles_list",
+        "profiles_create",
         "accounts_list",
         "accounts_get",
         "accounts_health",
+        "accounts_disconnect",
+        "accounts_set-channel",
         "posts_create",
         "posts_list",
         "posts_get",
         "posts_delete",
         "posts_retry",
         "media_upload",
-        "inbox_conversations",
-        "inbox_messages",
-        "inbox_send",
+        "inbox_sync",
+        "inbox_syncs",
         "inbox_comments",
         "inbox_reply",
+        "inbox_comment-action",
         "inbox_reviews",
+        "inbox_reviews-sync",
         "inbox_review-reply",
       ]
     `)
