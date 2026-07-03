@@ -178,7 +178,7 @@ auth
     await ctx.daemon.start({ attach: true, timeoutMs, env: daemonEnv })
     console.error(dedent`
 
-      Logged in successfully! API key saved to ~/.akarso/config.json
+      Logged in successfully!
 
       You can now use the CLI:
         akarso accounts list
@@ -191,7 +191,7 @@ auth
   .option('--key <key>', z.string().describe('Your API key'))
   .action(async (options, { fs, console, process }) => {
     await setServerConfig({ fs, env: process.env, data: { apiKey: options.key } })
-    console.error('API key saved to ~/.akarso/config.json')
+    console.error('API key saved.')
   })
 
 auth
