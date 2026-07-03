@@ -123,7 +123,11 @@ export async function uploadMedia(opts: {
     }
     contentType = info.contentType
     const data = await opts.fs.readFile(opts.input)
-    bytes = typeof data === 'string' ? new TextEncoder().encode(data) : new Uint8Array(data)
+    // Uint8Array.from copies into a fresh ArrayBuffer-backed array. Both Buffer
+    // and @types/node's TextEncoder.encode are typed Uint8Array<ArrayBufferLike>,
+    // which is not assignable to the Uint8Array<ArrayBuffer> fetch body type.
+    const raw = typeof data === 'string' ? new TextEncoder().encode(data) : data
+    bytes = Uint8Array.from(raw)
   }
 
   opts.log(`Uploading ${info.filename} (${(bytes.byteLength / 1024).toFixed(1)} KB)...`)
