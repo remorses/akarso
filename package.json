@@ -28,7 +28,6 @@
   "scripts": {
     "build": "tsc && chmod +x dist/cli.js",
     "typecheck": "tsc",
-    "akarso": "node dist/cli.js",
     "cli": "sigillo run -- tsx src/cli.ts",
     "test": "vitest run --no-watch",
     "generate-docs": "tsx scripts/generate-docs.ts",
