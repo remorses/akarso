@@ -80,11 +80,9 @@ auth
     dedent`
       Authenticate with Akarso via browser-based device flow.
 
-      Prints a verification URL and code, opens the browser, then polls for approval in a background daemon so the command returns immediately. Once approved, an API key is created and saved automatically.
+      Prints a verification URL and a short code, then opens the browser for the user to approve. Once approved, an API key is created and saved automatically. Run \`akarso auth check\` afterwards to confirm the login succeeded and see which profile the key targets.
 
-      **For agents:** the daemon runs detached; run \`akarso auth check\` after a few seconds to confirm the login succeeded. If running in a non-TTY shell, launch this command inside a persistent terminal session (tuistory or tmux) since the process must stay alive until the user approves in the browser.
-
-      **For humans:** the command attaches to the daemon and waits interactively until the browser approval completes.
+      This command must stay alive while the user approves in the browser. It returns on its own once approval completes or the code expires (default: 5 minutes).
     `,
   )
   .example('akarso auth login')
@@ -262,7 +260,7 @@ auth
   .command(
     'auth logout',
     dedent`
-      Clear saved credentials for the current server and stop any pending login daemon.
+      Clear saved credentials for the current server.
 
       Only affects the credentials for the current \`--api-url\` target. Credentials for other servers are not touched. After logout you need to run \`auth login\` or \`auth set\` again before using other commands.
     `,
@@ -281,9 +279,9 @@ auth
   .command(
     'subscribe',
     dedent`
-      Open the Akarso dashboard in your browser to subscribe or manage your plan.
+      Open the Akarso dashboard to subscribe or manage your plan.
 
-      This is a convenience shortcut that opens the billing page. No API call is made. A subscription is required to create and publish posts; without one, \`posts create\` returns a 402 error.
+      A convenience shortcut that opens the billing page. No API call is made. A subscription is required to create and publish posts; without one, \`posts create\` returns a 402 error.
     `,
   )
   .action(async (_options, { console, process }) => {

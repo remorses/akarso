@@ -166,7 +166,7 @@ media
 
       The returned \`id\` can be passed to \`posts create --media\` to attach the upload to a post. You can also pass file paths and URLs directly to \`posts create --media\` without a separate upload step; they are resolved automatically.
 
-      **Limitation:** on the hosted MCP server, local file paths are not available (there is no filesystem). Use \`https\` URLs instead, or run the CLI locally with \`akarso mcp\`.
+      **Limitation:** on the hosted MCP server, local file paths are not available. Use \`https\` URLs instead, or run Akarso locally with \`akarso mcp\` to access local files.
     `,
   )
   .example('akarso media upload ./photo.jpg')

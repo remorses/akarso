@@ -232,7 +232,7 @@ posts
     dedent`
       Delete a post by its ID. This action cannot be undone.
 
-      In interactive mode, prompts for confirmation before deleting. Pass \`--force\` to skip the confirmation (required in non-TTY and agent environments).
+      Pass \`--force\` to skip the confirmation prompt (required when called programmatically or by agents).
 
       Deleting a post removes it from the dashboard. If the post was already published, it may or may not be removed from the social platforms depending on platform support.
     `,

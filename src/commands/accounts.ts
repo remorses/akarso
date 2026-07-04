@@ -18,13 +18,11 @@ accounts
   .command(
     'accounts connect [platform]',
     dedent`
-      Connect a social media account via browser OAuth.
+      Connect a social media account via OAuth.
 
-      Opens your browser to authorize Akarso to post on your behalf. Each workspace (profile) holds **at most one account per platform**. Connecting the same platform again replaces the existing connection.
+      Starts an OAuth flow to authorize Akarso to post on your behalf. Each workspace (profile) holds **at most one account per platform**. Connecting the same platform again replaces the existing connection.
 
-      If \`[platform]\` is omitted, an interactive picker is shown (TTY only). In non-TTY or agent mode, you must pass the platform explicitly.
-
-      Supported platforms: \`x\`, \`twitter\`, \`instagram\`, \`facebook\`, \`linkedin\`, \`tiktok\`, \`youtube\`, \`threads\`, \`reddit\`, \`pinterest\`, \`bluesky\`, \`googlebusiness\`, \`mastodon\`, \`discord\`, \`slack\`.
+      The \`[platform]\` argument is required when called programmatically. Supported platforms: \`x\`, \`twitter\`, \`instagram\`, \`facebook\`, \`linkedin\`, \`tiktok\`, \`youtube\`, \`threads\`, \`reddit\`, \`pinterest\`, \`bluesky\`, \`googlebusiness\`, \`mastodon\`, \`discord\`, \`slack\`.
 
       **Important:** some platforms (facebook, instagram, linkedin, youtube, googlebusiness) require a channel selection after connecting. Use \`accounts get <platform>\` to see available channels, then \`accounts set-channel <platform> --channel-id <id>\` to pick one. Posting will fail until a channel is selected.
     `,
