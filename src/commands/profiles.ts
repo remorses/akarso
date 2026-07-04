@@ -4,6 +4,7 @@
 // creation (dashboard picker) — every other CLI command automatically
 // operates on the key's profile, so nothing else needs a --profile flag.
 import { z } from 'zod'
+import dedent from 'string-dedent'
 import { createGroup } from '../globals.ts'
 import { createClient } from '../client.ts'
 import { output } from '../output.ts'
@@ -11,7 +12,16 @@ import { output } from '../output.ts'
 const profiles = createGroup()
 
 profiles
-  .command('profiles list', 'List the profiles (workspaces) of your organization')
+  .command(
+    'profiles list',
+    dedent`
+      List all profiles (workspaces) in your organization.
+
+      Each profile is an isolated workspace with its own connected social accounts and posts. The response marks which profile is \`current\` (the one your API key targets) and which is the \`default\`.
+
+      API keys are pinned to one profile at creation, so all other commands automatically operate on the key's profile without needing a \`--profile\` flag.
+    `,
+  )
   .example('akarso profiles list')
   .action(async (options, { fs, console, process }) => {
     const client = await createClient({
@@ -25,7 +35,16 @@ profiles
   })
 
 profiles
-  .command('profiles create', 'Create a new profile (admin only, plan limits apply)')
+  .command(
+    'profiles create',
+    dedent`
+      Create a new profile (workspace) in your organization.
+
+      **Admin only.** The number of profiles is limited by your plan (Starter: 1, Pro: 3, Business: 15). Each profile gets its own set of connected accounts and posts, but billing and team members are shared across the org.
+
+      After creating a profile, generate a new API key from the dashboard pinned to that profile, or use the dashboard workspace tabs to manage it.
+    `,
+  )
   .option('--name <name>', z.string().describe('Display name for the new profile'))
   .example('akarso profiles create --name "Client Acme"')
   .action(async (options, { fs, console, process }) => {

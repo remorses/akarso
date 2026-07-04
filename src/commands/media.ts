@@ -157,7 +157,17 @@ const media = createGroup()
 media
   .command(
     'media upload <fileOrUrl>',
-    'Upload media from a local file path or `https` URL, returns an upload ID for use in posts',
+    dedent`
+      Upload a media file or import a URL, returning an upload ID for use with \`posts create --media\`.
+
+      **Two input modes:**
+      - **Local file path:** the file is read from disk and uploaded as raw bytes through the proxy. Supported formats: jpg, png, webp, gif, mp4, mov, avi, webm, pdf.
+      - **https URL:** the URL is passed to the server which imports the media remotely. Any file type the server supports is accepted.
+
+      The returned \`id\` can be passed to \`posts create --media\` to attach the upload to a post. You can also pass file paths and URLs directly to \`posts create --media\` without a separate upload step; they are resolved automatically.
+
+      **Limitation:** on the hosted MCP server, local file paths are not available (there is no filesystem). Use \`https\` URLs instead, or run the CLI locally with \`akarso mcp\`.
+    `,
   )
   .example('akarso media upload ./photo.jpg')
   .example('akarso media upload https://example.com/video.mp4')

@@ -8,6 +8,7 @@
 // createRequire) so it can be imported from Cloudflare Workers.
 import { goke } from 'goke'
 import { z } from 'zod'
+import dedent from 'string-dedent'
 import { createMcpAction } from '@goke/mcp'
 import { DEFAULT_BASE_URL } from './client.ts'
 import auth from './commands/auth.ts'
@@ -93,7 +94,18 @@ export function createCli({ version }: { version?: string } = {}) {
   // Expose the CLI as an MCP server over stdio. Every command becomes an
   // MCP tool with a typed input schema derived from the Zod options.
   cli
-    .command('mcp', 'Start Akarso as an MCP server over stdio')
+    .command(
+      'mcp',
+      dedent`
+        Start Akarso as a local MCP (Model Context Protocol) server over stdio.
+
+        Exposes all CLI commands as MCP tools with typed input schemas derived from their Zod options. AI agents (Claude, Cursor, etc.) can connect to this server to manage social media accounts, create posts, upload media, and moderate comments programmatically.
+
+        Install into your MCP client with: \`npx @playwriter/install-mcp 'akarso mcp' --client claude-code\`
+
+        The local server can read local files (for \`media upload\` with file paths) and access saved credentials. For a hosted version that does not require local setup, see the remote MCP endpoint at \`akarso.co/mcp\`.
+      `,
+    )
     .example('akarso mcp')
     .example("npx @playwriter/install-mcp 'akarso mcp' --client claude-code")
     .action(

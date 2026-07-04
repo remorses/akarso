@@ -5,6 +5,7 @@
 // each workspace holds at most one account per platform.
 import nodeProcess from 'node:process'
 import { z } from 'zod'
+import dedent from 'string-dedent'
 import { cancel, isCancel, select } from '@clack/prompts'
 import { isAgent, openInBrowser } from 'goke'
 import { createGroup, platforms, toApiPlatform, type Platform } from '../globals.ts'
@@ -14,7 +15,20 @@ import { output } from '../output.ts'
 const accounts = createGroup()
 
 accounts
-  .command('accounts connect [platform]', 'Connect a social account')
+  .command(
+    'accounts connect [platform]',
+    dedent`
+      Connect a social media account via browser OAuth.
+
+      Opens your browser to authorize Akarso to post on your behalf. Each workspace (profile) holds **at most one account per platform**. Connecting the same platform again replaces the existing connection.
+
+      If \`[platform]\` is omitted, an interactive picker is shown (TTY only). In non-TTY or agent mode, you must pass the platform explicitly.
+
+      Supported platforms: \`x\`, \`twitter\`, \`instagram\`, \`facebook\`, \`linkedin\`, \`tiktok\`, \`youtube\`, \`threads\`, \`reddit\`, \`pinterest\`, \`bluesky\`, \`googlebusiness\`, \`mastodon\`, \`discord\`, \`slack\`.
+
+      **Important:** some platforms (facebook, instagram, linkedin, youtube, googlebusiness) require a channel selection after connecting. Use \`accounts get <platform>\` to see available channels, then \`accounts set-channel <platform> --channel-id <id>\` to pick one. Posting will fail until a channel is selected.
+    `,
+  )
   .action(async (platformArg, options, { fs, console, process }) => {
     let platform: Platform
     if (platformArg) {
@@ -50,7 +64,14 @@ accounts
   })
 
 accounts
-  .command('accounts list', 'List connected social accounts')
+  .command(
+    'accounts list',
+    dedent`
+      List all connected social accounts in the current workspace.
+
+      Returns each account's platform, connection status, username, and whether a publishing channel has been selected. Use this to see which platforms are ready for posting and which still need channel selection.
+    `,
+  )
   .action(async (options, { fs, console, process }) => {
     const client = await createClient({
       apiKey: options.apiKey,
@@ -63,7 +84,16 @@ accounts
   })
 
 accounts
-  .command('accounts get <platform>', 'Get the connected account for a platform, including its selectable channels')
+  .command(
+    'accounts get <platform>',
+    dedent`
+      Get detailed information about the connected account for a specific platform.
+
+      Returns account metadata, connection status, and the list of **selectable channels** (Facebook Pages, LinkedIn organizations, YouTube channels, Google Business locations). Use this before \`accounts set-channel\` to find the correct \`channel-id\`.
+
+      Returns a 404 error if no account is connected for the given platform.
+    `,
+  )
   .action(async (platformArg, options, { fs, console, process }) => {
     const platform = platforms.schema.parse(platformArg)
     const client = await createClient({
@@ -85,7 +115,14 @@ accounts
   })
 
 accounts
-  .command('accounts health', 'Check connection health for all accounts')
+  .command(
+    'accounts health',
+    dedent`
+      Check the connection health of all connected accounts, or a single platform with \`--platform\`.
+
+      Reports whether each account's OAuth token is still valid and the connection is functional. Use this to diagnose posting failures caused by expired or revoked tokens. Accounts with health issues need to be reconnected with \`accounts connect\`.
+    `,
+  )
   .option(
     '--platform [platform]',
     platforms.schema.describe('Only check this platform'),
@@ -106,7 +143,14 @@ accounts
   })
 
 accounts
-  .command('accounts disconnect <platform>', 'Disconnect the platform account from your workspace')
+  .command(
+    'accounts disconnect <platform>',
+    dedent`
+      Disconnect a social account from your workspace.
+
+      Removes the OAuth connection for the given platform. Existing posts are not deleted, but you will no longer be able to publish or manage content on that platform until you reconnect.
+    `,
+  )
   .action(async (platformArg, options, { fs, console, process }) => {
     const platform = platforms.schema.parse(platformArg)
     const client = await createClient({
@@ -125,7 +169,15 @@ accounts
 accounts
   .command(
     'accounts set-channel <platform>',
-    'Select the publishing target (Page, organization, channel, or location) for a connected account',
+    dedent`
+      Select the publishing target for a connected account that requires channel selection.
+
+      Some platforms have multiple publishing destinations (e.g. a Facebook user manages several Pages, a LinkedIn user has personal profile vs company pages). This command picks which one to publish to.
+
+      **Platforms that require this:** \`facebook\`, \`instagram\` (via Facebook Page), \`linkedin\`, \`youtube\`, \`googlebusiness\`. Other platforms post directly to the connected account without channel selection.
+
+      **Posting will fail** if the account requires channel selection and none has been set. Run \`accounts get <platform>\` first to see the list of available channels and their IDs.
+    `,
   )
   .example('akarso accounts set-channel facebook --channel-id page_123')
   .option('--channel-id <id>', z.string().describe('Channel ID from `accounts get <platform>`'))

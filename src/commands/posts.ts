@@ -1,5 +1,6 @@
 import nodeProcess from 'node:process'
 import { z } from 'zod'
+import dedent from 'string-dedent'
 import { confirm, isCancel } from '@clack/prompts'
 import { isAgent } from 'goke'
 import { createGroup, platforms, toApiPlatform, type Platform } from '../globals.ts'
@@ -53,7 +54,20 @@ const posts = createGroup()
 posts
   .command(
     'posts create',
-    'Create, schedule, or publish a post. Use `--publish-now` or `--scheduled-at`; neither saves a draft.',
+    dedent`
+      Create a social media post as a draft, publish it immediately, or schedule it for later.
+
+      **Three modes:**
+      - No flag: saves as a **draft** (visible in dashboard, not published)
+      - \`--publish-now\`: publishes immediately to all selected platforms
+      - \`--scheduled-at\`: schedules for a future time (accepts ISO dates like \`2026-03-15T14:00:00Z\`, or relative values: \`30m\`, \`2h\`, \`3d\`, \`1w\`)
+
+      The same text and media are applied to every selected platform. Platforms are specified as a comma-separated list (e.g. \`--platforms x,linkedin,instagram\`).
+
+      **Media:** attach images or videos with \`--media\`. Accepts local file paths and \`https\` URLs, comma-separated. Files are uploaded first; the returned upload IDs are attached to the post. Supported formats: jpg, png, webp, gif, mp4, mov, avi, webm, pdf.
+
+      **Requires an active subscription.** Returns 402 if no subscription exists. Run \`akarso subscribe\` to start a free trial. Returns 403 if the org has hit its plan's monthly post limit or channel limit.
+    `,
   )
   .example('akarso posts create --text "Hello!" --platforms x --publish-now')
   .example('akarso posts create --text "Later" --platforms x,linkedin --scheduled-at 2h')
@@ -145,7 +159,18 @@ posts
   })
 
 posts
-  .command('posts list', 'List posts')
+  .command(
+    'posts list',
+    dedent`
+      List posts in the current workspace, with optional filters.
+
+      Returns posts sorted by creation date (newest first). Each post includes its status, title, platforms, and scheduled/published date.
+
+      **Statuses:** \`draft\`, \`scheduled\`, \`posted\`, \`error\`, \`deleted\`, \`processing\`, \`review\`, \`retrying\`. Filter with \`--status\`.
+
+      Use \`--platforms\` to filter by target platform(s), \`--search\` to search post titles and content, and \`--limit\` to control how many results are returned (default: 10).
+    `,
+  )
   .option(
     '--status [status]',
     z.enum(POST_STATUSES).describe('Filter by status'),
@@ -180,7 +205,14 @@ posts
   })
 
 posts
-  .command('posts get <postId>', 'Get post details')
+  .command(
+    'posts get <postId>',
+    dedent`
+      Get full details for a single post by its ID.
+
+      Returns the post's content, status, per-platform publishing results (including published URLs and platform-specific errors), scheduled date, and attached media. Use this to check whether a published post succeeded on all target platforms or to retrieve the live URLs.
+    `,
+  )
   .action(async (postId, options, { fs, console, process }) => {
     const client = await createClient({
       apiKey: options.apiKey,
@@ -195,7 +227,16 @@ posts
   })
 
 posts
-  .command('posts delete <postId>', 'Delete a post (skip confirmation with `--force`)')
+  .command(
+    'posts delete <postId>',
+    dedent`
+      Delete a post by its ID. This action cannot be undone.
+
+      In interactive mode, prompts for confirmation before deleting. Pass \`--force\` to skip the confirmation (required in non-TTY and agent environments).
+
+      Deleting a post removes it from the dashboard. If the post was already published, it may or may not be removed from the social platforms depending on platform support.
+    `,
+  )
   .option('--force', 'Skip confirmation')
   .action(async (postId, options, { fs, console, process }) => {
     if (!options.force) {
@@ -227,7 +268,16 @@ posts
   })
 
 posts
-  .command('posts retry <postId>', 'Retry a failed post')
+  .command(
+    'posts retry <postId>',
+    dedent`
+      Retry publishing a post that previously failed.
+
+      Only works on posts with \`error\` status. Re-submits the post for publishing with the original content and target platforms. Check the result with \`posts get <postId>\`.
+
+      **Requires an active subscription** (same as \`posts create\`). Returns 402 without one.
+    `,
+  )
   .action(async (postId, options, { fs, console, process }) => {
     const client = await createClient({
       apiKey: options.apiKey,

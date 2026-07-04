@@ -4,6 +4,7 @@
 // comments, `inbox reply` publishes replies, and `inbox comment-action`
 // moderates. Reviews (Google Business) follow the same sync-then-read flow.
 import { z } from 'zod'
+import dedent from 'string-dedent'
 import { createGroup, platforms, toApiPlatform } from '../globals.ts'
 import { createClient } from '../client.ts'
 import { output } from '../output.ts'
@@ -11,7 +12,16 @@ import { output } from '../output.ts'
 const inbox = createGroup()
 
 inbox
-  .command('inbox sync <postId>', 'Import the comments on a published post')
+  .command(
+    'inbox sync <postId>',
+    dedent`
+      Start an async import of comments on a published post.
+
+      Comments are not fetched in real time; they are imported as a background job. After starting a sync, check its progress with \`inbox syncs\`, then read the results with \`inbox comments\`.
+
+      **Supported platforms for comment import:** \`facebook\`, \`instagram\`, \`linkedin\`, \`youtube\`, \`tiktok\`, \`reddit\`, \`threads\`, \`mastodon\`, \`bluesky\`.
+    `,
+  )
   .example('akarso inbox sync post_123 --platform x')
   .option(
     '--platform <platform>',
@@ -35,7 +45,14 @@ inbox
   })
 
 inbox
-  .command('inbox syncs', 'List comment import jobs and their status')
+  .command(
+    'inbox syncs',
+    dedent`
+      List comment import jobs and their current status.
+
+      Shows all sync jobs (pending, in progress, completed, failed) for the current workspace. Use \`--post-id\` to filter by a specific post. Use this to check if a \`inbox sync\` job has completed before reading comments with \`inbox comments\`.
+    `,
+  )
   .option('--post-id [id]', z.string().describe('Filter by post ID'))
   .option('--limit [n]', z.number().default(20).describe('Maximum imports to return'))
   .action(async (options, { fs, console, process }) => {
@@ -55,7 +72,14 @@ inbox
   })
 
 inbox
-  .command('inbox comments', 'List imported comments (run `inbox sync` first)')
+  .command(
+    'inbox comments',
+    dedent`
+      List previously imported comments. You must run \`inbox sync <postId>\` first.
+
+      Returns comments with their author, text, timestamp, and platform. Filter by \`--post-id\` or \`--platform\`. Each comment has an ID that can be used with \`inbox reply\` (to reply to it) or \`inbox comment-action\` (to moderate it).
+    `,
+  )
   .option('--post-id [id]', z.string().describe('Filter by post ID'))
   .option(
     '--platform [platform]',
@@ -80,7 +104,16 @@ inbox
   })
 
 inbox
-  .command('inbox reply <postId>', 'Publish a reply in a post comment section')
+  .command(
+    'inbox reply <postId>',
+    dedent`
+      Publish a reply in a post's comment section on a specific platform.
+
+      Without \`--comment-id\`, posts a new top-level comment on the post. With \`--comment-id\`, replies to a specific imported comment (threaded reply).
+
+      **Supported platforms for replies:** \`tiktok\`, \`youtube\`, \`instagram\`, \`facebook\`, \`threads\`, \`linkedin\`, \`reddit\`, \`mastodon\`, \`discord\`, \`slack\`, \`bluesky\`.
+    `,
+  )
   .example('akarso inbox reply post_123 --platform x --text "Thanks!"')
   .example('akarso inbox reply post_123 --platform youtube --text "Fixed" --comment-id cmt_456')
   .option(
@@ -112,7 +145,16 @@ inbox
   })
 
 inbox
-  .command('inbox comment-action <commentId>', 'Moderate an imported comment')
+  .command(
+    'inbox comment-action <commentId>',
+    dedent`
+      Perform a moderation action on an imported comment.
+
+      **Available actions:** \`DELETE\`, \`HIDE\`, \`UNHIDE\`, \`LIKE\`, \`UNLIKE\`, \`APPROVE\`, \`REJECT\`. Not all actions are supported on every platform; unsupported actions return an error.
+
+      Optionally pass \`--reason\` to attach a moderation reason, and \`--ban-author\` to also ban the comment author (where the platform supports it).
+    `,
+  )
   .example('akarso inbox comment-action cmt_123 --action HIDE')
   .option(
     '--action <action>',
@@ -142,7 +184,14 @@ inbox
   })
 
 inbox
-  .command('inbox reviews', 'List imported Google Business reviews (run `inbox reviews-sync` first)')
+  .command(
+    'inbox reviews',
+    dedent`
+      List previously imported Google Business reviews. You must run \`inbox reviews-sync\` first.
+
+      Returns reviews with their author, rating, text, and timestamp. Only available for accounts connected to Google Business Profile. Use \`inbox review-reply\` to respond as the business owner.
+    `,
+  )
   .option('--limit [n]', z.number().default(20).describe('Maximum reviews to return'))
   .action(async (options, { fs, console, process }) => {
     const client = await createClient({
@@ -158,7 +207,14 @@ inbox
   })
 
 inbox
-  .command('inbox reviews-sync', 'Import your Google Business location reviews')
+  .command(
+    'inbox reviews-sync',
+    dedent`
+      Import reviews from your connected Google Business Profile location.
+
+      Starts an async import of the most recent reviews (default: 50, configurable with \`--count\`). After the import completes, read the results with \`inbox reviews\`. Only works if a Google Business account is connected and a location (channel) has been selected.
+    `,
+  )
   .option('--count [n]', z.number().default(50).describe('Number of most recent reviews to import'))
   .action(async (options, { fs, console, process }) => {
     const client = await createClient({
@@ -175,7 +231,14 @@ inbox
   })
 
 inbox
-  .command('inbox review-reply <reviewId>', 'Reply to a Google Business review as the owner')
+  .command(
+    'inbox review-reply <reviewId>',
+    dedent`
+      Reply to a Google Business review as the business owner.
+
+      Posts a public owner response to the specified review. The review must have been previously imported with \`inbox reviews-sync\`. Use \`inbox reviews\` to find review IDs.
+    `,
+  )
   .option('--text <text>', z.string().describe('Reply text'))
   .action(async (reviewId, options, { fs, console, process }) => {
     const client = await createClient({

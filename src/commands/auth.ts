@@ -77,7 +77,15 @@ async function exchangeTokenForApiKey({
 auth
   .command(
     'auth login',
-    'Login via browser (device flow). Prints a URL, keeps polling in a background daemon, and returns immediately. Verify with `akarso auth check`.',
+    dedent`
+      Authenticate with Akarso via browser-based device flow.
+
+      Prints a verification URL and code, opens the browser, then polls for approval in a background daemon so the command returns immediately. Once approved, an API key is created and saved automatically.
+
+      **For agents:** the daemon runs detached; run \`akarso auth check\` after a few seconds to confirm the login succeeded. If running in a non-TTY shell, launch this command inside a persistent terminal session (tuistory or tmux) since the process must stay alive until the user approves in the browser.
+
+      **For humans:** the command attaches to the daemon and waits interactively until the browser approval completes.
+    `,
   )
   .example('akarso auth login')
   .action(async (options, ctx) => {
@@ -187,7 +195,16 @@ auth
   })
 
 auth
-  .command('auth set', 'Save API key manually (pass it with `--key`)')
+  .command(
+    'auth set',
+    dedent`
+      Save an API key manually instead of using \`auth login\`.
+
+      Use this when you already have an API key (e.g. created from the dashboard or shared by a team admin). The key is persisted locally and used for all subsequent CLI commands targeting the current \`--api-url\` server.
+
+      Keys are prefixed with \`ak_\`. You can also set the \`AKARSO_API_KEY\` environment variable instead of saving to disk.
+    `,
+  )
   .option('--key <key>', z.string().describe('Your API key'))
   .action(async (options, { fs, console, process }) => {
     await setServerConfig({ fs, env: process.env, data: { apiKey: options.key } })
@@ -195,7 +212,16 @@ auth
   })
 
 auth
-  .command('auth check', 'Verify API key is valid (exits 1 if not logged in)')
+  .command(
+    'auth check',
+    dedent`
+      Verify the current API key is valid and print the active profile.
+
+      Makes a request to the server to validate the key. On success, prints the profile (workspace) the key is pinned to. Exits with code 1 if no key is found, the key is invalid, or a login is still in progress.
+
+      Use this after \`auth login\` to confirm the login completed, or to check which profile your key targets before running other commands.
+    `,
+  )
   .action(async (options, ctx) => {
     const { fs, console, process } = ctx
     // A login daemon still waiting for browser approval means the saved key
@@ -233,7 +259,14 @@ auth
   })
 
 auth
-  .command('auth logout', 'Clear saved credentials for the current server')
+  .command(
+    'auth logout',
+    dedent`
+      Clear saved credentials for the current server and stop any pending login daemon.
+
+      Only affects the credentials for the current \`--api-url\` target. Credentials for other servers are not touched. After logout you need to run \`auth login\` or \`auth set\` again before using other commands.
+    `,
+  )
   .action(async (_options, ctx) => {
     const { fs, console, process } = ctx
     // Stop any login daemon still polling for approval
@@ -245,7 +278,14 @@ auth
   })
 
 auth
-  .command('subscribe', 'Open the dashboard to subscribe or manage your plan')
+  .command(
+    'subscribe',
+    dedent`
+      Open the Akarso dashboard in your browser to subscribe or manage your plan.
+
+      This is a convenience shortcut that opens the billing page. No API call is made. A subscription is required to create and publish posts; without one, \`posts create\` returns a 402 error.
+    `,
+  )
   .action(async (_options, { console, process }) => {
     const websiteUrl = resolveBaseUrl(process.env)
     const subscribeUrl = `${websiteUrl}/dashboard`
