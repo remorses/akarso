@@ -128,6 +128,9 @@ export async function uploadMedia(opts: {
       ...(apiKey.startsWith('ak_')
         ? { 'x-api-key': apiKey }
         : { Authorization: `Bearer ${apiKey}` }),
+      ...(opts.env.AKARSO_PROFILE_ID
+        ? { 'x-akarso-profile-id': opts.env.AKARSO_PROFILE_ID }
+        : undefined),
     },
   })
   if (!response.ok) {

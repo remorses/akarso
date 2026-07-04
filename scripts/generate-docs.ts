@@ -43,6 +43,16 @@ const indexIntro = dedent`
 
   This opens your browser for sign-in (device flow, safe for agents) and saves an API key to \`~/.akarso/config.json\`. Verify with \`akarso auth check\`.
 
+  API keys are scoped to one organization and one profile. Commands using that key publish from the pinned profile's connected accounts. Override the profile per-command with \`--profile\`:
+
+  ${'```'}sh
+  # List profiles to find their IDs
+  akarso profiles list
+
+  # Post from a specific profile
+  akarso posts create --text "Hello!" --platforms x --publish-now --profile 01JXYZ...
+  ${'```'}
+
   For CI or headless environments, set the key directly:
 
   ${'```'}sh

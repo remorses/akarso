@@ -95,7 +95,7 @@ export const platforms = {
   ] satisfies Array<{ value: Platform; label: string }>,
 }
 
-/** Create a goke instance with the shared global options (--api-key, --api-url, --json) */
+/** Create a goke instance with the shared global options (--api-key, --api-url, --json, --profile) */
 export function createGroup() {
   return goke()
     .option(
@@ -111,6 +111,14 @@ export function createGroup() {
       z
         .string()
         .describe('Server URL (overrides AKARSO_API_URL env, defaults to akarso.co)'),
+    )
+    .option(
+      '--profile [id]',
+      z
+        .string()
+        .describe(
+          'Profile (workspace) ID to operate on, overriding the API key\'s pinned profile. Use `profiles list` to see available IDs.',
+        ),
     )
     .option('--json', 'Output raw JSON instead of YAML')
 }

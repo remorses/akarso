@@ -114,7 +114,9 @@ export function resolveBaseUrl(env: Record<string, string | undefined>): string 
 
 /** Create a typed API client, throwing if no API key is found.
  *  Points at the Akarso proxy, which forwards to the upstream API with our
- *  master key and the user's profile injected. */
+ *  master key and the user's profile injected. When --profile is set
+ *  (AKARSO_PROFILE_ID env), the x-akarso-profile-id header overrides the
+ *  API key's pinned profile on the server side. */
 export async function createClient(opts: {
   apiKey?: string
   fs: GokeFs
@@ -132,5 +134,11 @@ export async function createClient(opts: {
   const headers: Record<string, string> = apiKey.startsWith('ak_')
     ? { 'x-api-key': apiKey }
     : { Authorization: `Bearer ${apiKey}` }
+  // --profile flag (or AKARSO_PROFILE_ID env) overrides the key's pinned
+  // profile, letting one key operate on any profile in the same org.
+  const profileId = opts.env.AKARSO_PROFILE_ID
+  if (profileId) {
+    headers['x-akarso-profile-id'] = profileId
+  }
   return createSpiceflowFetch<ProxyApp>(resolveBaseUrl(opts.env), { headers })
 }

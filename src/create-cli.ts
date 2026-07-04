@@ -73,14 +73,29 @@ export function createCli({ version }: { version?: string } = {}) {
         .string()
         .describe('Server URL (overrides AKARSO_API_URL env, defaults to akarso.co)'),
     )
+    .option(
+      '--profile [id]',
+      z
+        .string()
+        .describe(
+          'Profile (workspace) ID to operate on, overriding the API key\'s pinned profile. Use `profiles list` to see available IDs.',
+        ),
+    )
     .option('--json', 'Output raw JSON instead of YAML')
-    // Resolve the API URL once and write it back to process.env so all code
-    // (config helpers, client factory) reads a single source of truth instead
-    // of threading options.apiUrl through every command.
+    // Resolve the API URL and profile once and write them back to process.env
+    // so all code (config helpers, client factory) reads a single source of
+    // truth instead of threading options through every command.
     .use((options, { process }) => {
       const apiUrl = (options.apiUrl || process.env.AKARSO_API_URL || DEFAULT_BASE_URL)
         .replace(/\/+$/, '')
       process.env.AKARSO_API_URL = apiUrl
+      // Set or clear so a previous MCP tool call's --profile does not
+      // leak into the next call that omits it.
+      if (options.profile) {
+        process.env.AKARSO_PROFILE_ID = options.profile
+      } else {
+        delete process.env.AKARSO_PROFILE_ID
+      }
     })
 
   // Compose all command groups

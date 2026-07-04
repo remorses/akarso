@@ -61,4 +61,30 @@ profiles
     output(data, { json: options.json, console })
   })
 
+profiles
+  .command(
+    'profiles rename <profileId>',
+    dedent`
+      Rename a profile (workspace) in your organization.
+
+      **Admin only.** Changes the display name shown in the dashboard and in \`profiles list\`. Use \`profiles list\` to find profile IDs.
+    `,
+  )
+  .option('--name <name>', z.string().describe('New display name for the profile'))
+  .example('akarso profiles rename 01JXYZ... --name "Client Acme"')
+  .action(async (profileId, options, { fs, console, process }) => {
+    const client = await createClient({
+      apiKey: options.apiKey,
+      fs,
+      env: process.env,
+    })
+    const data = await client('/api/v1/profiles/:profileId', {
+      method: 'PATCH',
+      params: { profileId },
+      body: { name: options.name },
+    })
+    if (data instanceof Error) throw data
+    output(data, { json: options.json, console })
+  })
+
 export default profiles

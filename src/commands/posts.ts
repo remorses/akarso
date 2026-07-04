@@ -62,7 +62,7 @@ posts
       - \`--publish-now\`: publishes immediately to all selected platforms
       - \`--scheduled-at\`: schedules for a future time (accepts ISO dates like \`2026-03-15T14:00:00Z\`, or relative values: \`30m\`, \`2h\`, \`3d\`, \`1w\`)
 
-      The same text and media are applied to every selected platform. Platforms are specified as a comma-separated list (e.g. \`--platforms x,linkedin,instagram\`).
+      The same text and media are applied to every selected platform. Platforms are specified as a comma-separated list (e.g. \`--platforms x,linkedin,instagram\`). Run \`accounts list\` to see which platforms are connected in the current profile.
 
       **Media:** attach images or videos with \`--media\`. Accepts local file paths and \`https\` URLs, comma-separated. Files are uploaded first; the returned upload IDs are attached to the post. Supported formats: jpg, png, webp, gif, mp4, mov, avi, webm, pdf.
 

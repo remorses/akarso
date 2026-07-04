@@ -52,8 +52,12 @@ accounts
     }
 
     // The connect page authenticates in the browser and resolves the org
-    // (personal org by default) server-side.
+    // (personal org by default) server-side. When --profile is set, pass
+    // it as a query param so the connect page targets the right workspace.
     const url = new URL(`/connect/${platform}`, resolveBaseUrl(process.env))
+    if (process.env.AKARSO_PROFILE_ID) {
+      url.searchParams.set('profile', process.env.AKARSO_PROFILE_ID)
+    }
 
     console.error(`Opening browser to connect ${platform}...`)
     await openInBrowser(url.toString())
@@ -67,7 +71,7 @@ accounts
     dedent`
       List all connected social accounts in the current workspace.
 
-      Returns each account's platform, connection status, username, and whether a publishing channel has been selected. Use this to see which platforms are ready for posting and which still need channel selection.
+      Returns each account's platform, connection status, username, and whether a publishing channel has been selected. Use this to see which platforms are ready for posting and which still need channel selection. Pass \`--profile\` to list accounts from a different profile.
     `,
   )
   .action(async (options, { fs, console, process }) => {
