@@ -48,7 +48,7 @@ akarso accounts connect x
 
 Opens OAuth in the browser. Some platforms (Facebook, Instagram, LinkedIn, YouTube, Google Business) also need a publishing target selected; the flow shows the picker automatically.
 
-Connecting accounts is **free** for up to 3 channels.
+You can connect accounts before subscribing. Publishing requires a subscription.
 
 ### 3. Post
 
