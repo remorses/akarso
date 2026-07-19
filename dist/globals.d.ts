@@ -13,8 +13,8 @@ export declare const platforms: {
         linkedin: "linkedin";
         tiktok: "tiktok";
         reddit: "reddit";
-        instagram: "instagram";
         x: "x";
+        instagram: "instagram";
         youtube: "youtube";
         threads: "threads";
         pinterest: "pinterest";

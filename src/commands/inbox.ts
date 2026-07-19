@@ -22,7 +22,7 @@ inbox
       **Supported platforms for comment import:** \`facebook\`, \`instagram\`, \`linkedin\`, \`youtube\`, \`tiktok\`, \`reddit\`, \`threads\`, \`mastodon\`, \`bluesky\`.
     `,
   )
-  .example('akarso inbox sync post_123 --platform x')
+  .example('akarso inbox sync post_123 --platform instagram')
   .option(
     '--platform <platform>',
     platforms.commentsSchema.describe('Platform to import comments from'),
@@ -114,7 +114,7 @@ inbox
       **Supported platforms for replies:** \`tiktok\`, \`youtube\`, \`instagram\`, \`facebook\`, \`threads\`, \`linkedin\`, \`reddit\`, \`mastodon\`, \`discord\`, \`slack\`, \`bluesky\`.
     `,
   )
-  .example('akarso inbox reply post_123 --platform x --text "Thanks!"')
+  .example('akarso inbox reply post_123 --platform youtube --text "Thanks!"')
   .example('akarso inbox reply post_123 --platform youtube --text "Fixed" --comment-id cmt_456')
   .option(
     '--platform <platform>',
