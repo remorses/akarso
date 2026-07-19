@@ -1,5 +1,36 @@
 # akarso
 
+## 0.2.0
+
+1. **New `--profile` global flag** — override the API key's pinned profile on any command, letting one key operate on multiple workspaces:
+
+   ```bash
+   # List available profiles
+   akarso profiles list
+
+   # Post from a specific profile
+   akarso posts create --text "Hello!" --platforms x --publish-now --profile 01JXYZ...
+
+   # List accounts in a different profile
+   akarso accounts list --profile 01JXYZ...
+   ```
+
+   Also settable via the `AKARSO_PROFILE_ID` env var. The profile must belong to the same org as the API key.
+
+2. **New `profiles rename` command** — rename a workspace from the CLI:
+
+   ```bash
+   akarso profiles rename 01JXYZ... --name "Client Acme"
+   ```
+
+3. **Simplified pricing** — plans consolidated from 3 tiers to 2 (Hobby $29/mo, Business $199/mo). Plan references in help text and command descriptions updated to match.
+
+4. **Fixed inbox CLI examples** — `inbox sync` and `inbox reply` examples now use supported platforms (`instagram`, `youtube`) instead of `x`, which doesn't support comment import
+
+5. **Added README** with quickstart, full command reference, MCP server setup, and platform support matrix
+
+6. **Bumped spiceflow** to `1.26.0-rsc.8`
+
 ## 0.1.0
 
 First public release of the Akarso CLI. Post, schedule, and moderate across 14 social platforms from the terminal.
