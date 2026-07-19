@@ -29,6 +29,7 @@ describe('MCP tool surface', () => {
       [
         "profiles_list",
         "profiles_create",
+        "profiles_rename",
         "accounts_list",
         "accounts_get",
         "accounts_health",

@@ -188,7 +188,7 @@ auth
 
       You can now use the CLI:
         akarso accounts list
-        akarso posts create --text "Hello!" --accounts x --publish-now
+        akarso posts create --text "Hello!" --platforms x --publish-now
     `)
   })
 
@@ -286,7 +286,7 @@ auth
   )
   .action(async (_options, { console, process }) => {
     const websiteUrl = resolveBaseUrl(process.env)
-    const subscribeUrl = `${websiteUrl}/dashboard`
+    const subscribeUrl = `${websiteUrl}/dashboard/subscription`
     console.error('Opening your browser to manage your subscription:')
     console.error(`  ${subscribeUrl}`)
     console.error('')
