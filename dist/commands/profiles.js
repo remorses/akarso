@@ -33,7 +33,7 @@ profiles
     .command('profiles create', dedent `
       Create a new profile (workspace) in your organization.
 
-      **Admin only.** The number of profiles is limited by your plan (Starter: 1, Pro: 3, Business: 15). Each profile gets its own set of connected accounts and posts, but billing and team members are shared across the org.
+      **Admin only.** The number of profiles is limited by your plan (Hobby: 1, Business: 20). Each profile gets its own set of connected accounts and posts, but billing and team members are shared across the org.
 
       After creating a profile, generate a new API key from the dashboard pinned to that profile, or use the dashboard workspace tabs to manage it.
     `)
