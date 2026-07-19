@@ -1,6 +1,11 @@
-# Akarso
-
-Post, schedule, and reply across 14 social platforms from the terminal or any MCP client.
+<div align='center' class='hidden'>
+    <br/>
+    <br/>
+    <h3>akarso</h3>
+    <p>Post, schedule, and reply across 14 social platforms from the terminal.</p>
+    <br/>
+    <br/>
+</div>
 
 ```sh
 npm install -g akarso
@@ -8,17 +13,17 @@ akarso auth login
 akarso posts create --text "Hello world!" --platforms x --publish-now
 ```
 
-**Docs:** [akarso.co/docs](https://akarso.co/docs) · **Dashboard:** [akarso.co/dashboard](https://akarso.co/dashboard)
+[Docs](https://akarso.co/docs/getting-started/quickstart) · [Dashboard](https://akarso.co/dashboard) · [npm](https://www.npmjs.com/package/akarso)
 
 ## Features
 
-- **14 platforms** — X, Instagram, LinkedIn, Facebook, TikTok, YouTube, Threads, Reddit, Pinterest, Bluesky, Mastodon, Discord, Slack, Google Business
+- **14 platforms**: X, Instagram, LinkedIn, Facebook, TikTok, YouTube, Threads, Reddit, Pinterest, Bluesky, Mastodon, Discord, Slack, Google Business
 - **Schedule posts** with relative shortcuts (`2h`, `3d`, `1w`) or ISO timestamps
-- **Multi-platform** — one command posts to multiple platforms at once
-- **Media uploads** — attach local files or URLs, up to ~90 MB
-- **Comments and reviews** — import, reply, and moderate across platforms
-- **MCP server** — every CLI command is an MCP tool for AI agents
-- **YAML output** — pipe through `yq`; use `--json` for JSON
+- **Multi-platform**: one command posts to multiple platforms at once
+- **Media uploads**: attach local files or URLs, up to ~90 MB
+- **Comments and reviews**: import, reply, and moderate across platforms
+- **MCP server**: every CLI command is an MCP tool for AI agents
+- **YAML output**: pipe through `yq`; use `--json` for JSON
 
 ## Quickstart
 
@@ -196,20 +201,28 @@ npx @playwriter/install-mcp 'akarso mcp' --client cursor
 
 | Platform | CLI name | Posting | Scheduling | Comments | Reviews |
 |----------|----------|---------|------------|----------|---------|
-| X / Twitter | `x` | Yes | Yes | — | — |
-| Instagram | `instagram` | Yes | Yes | Yes | — |
-| LinkedIn | `linkedin` | Yes | Yes | Yes | — |
-| Facebook | `facebook` | Yes | Yes | Yes | — |
-| TikTok | `tiktok` | Yes | Yes | Yes | — |
-| YouTube | `youtube` | Yes | Yes | Yes | — |
-| Threads | `threads` | Yes | Yes | Yes | — |
-| Reddit | `reddit` | Yes | Yes | Yes | — |
-| Pinterest | `pinterest` | Yes | Yes | — | — |
-| Bluesky | `bluesky` | Yes | Yes | Yes | — |
-| Mastodon | `mastodon` | Yes | Yes | Yes | — |
-| Discord | `discord` | Yes | Yes | — | — |
-| Slack | `slack` | Yes | Yes | — | — |
-| Google Business | `googlebusiness` | Yes | Yes | — | Yes |
+| X / Twitter | `x` | Yes | Yes | - | - |
+| Instagram | `instagram` | Yes | Yes | Yes | - |
+| LinkedIn | `linkedin` | Yes | Yes | Yes | - |
+| Facebook | `facebook` | Yes | Yes | Yes | - |
+| TikTok | `tiktok` | Yes | Yes | Yes | - |
+| YouTube | `youtube` | Yes | Yes | Yes | - |
+| Threads | `threads` | Yes | Yes | Yes | - |
+| Reddit | `reddit` | Yes | Yes | Yes | - |
+| Pinterest | `pinterest` | Yes | Yes | - | - |
+| Bluesky | `bluesky` | Yes | Yes | Yes | - |
+| Mastodon | `mastodon` | Yes | Yes | Yes | - |
+| Discord | `discord` | Yes | Yes | - | - |
+| Slack | `slack` | Yes | Yes | - | - |
+| Google Business | `googlebusiness` | Yes | Yes | - | Yes |
+
+## Agent Skill
+
+This package ships a skill file that teaches AI coding agents how and when to use it. Install it with:
+
+```bash
+npx -y skills add https://akarso.co
+```
 
 ## License
 
