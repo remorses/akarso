@@ -168,19 +168,17 @@ posts
 
       **Statuses:** \`draft\`, \`scheduled\`, \`posted\`, \`error\`, \`deleted\`, \`processing\`, \`review\`, \`retrying\`. Filter with \`--status\`.
 
-      Use \`--upcoming\` to show only future scheduled posts (shorthand for \`--status scheduled --post-date-from now\`). Use \`--post-date-from\` and \`--post-date-to\` for custom date range filtering.
+      Use \`--post-date-from\` and \`--post-date-to\` for custom date range filtering.
 
       Use \`--platforms\` to filter by target platform(s), \`--search\` to search post titles and content, and \`--limit\` to control how many results are returned (default: 10).
     `,
   )
-  .example('akarso posts list --upcoming')
   .example('akarso posts list --status scheduled')
   .example('akarso posts list --post-date-from 2026-07-01T00:00:00Z --post-date-to 2026-08-01T00:00:00Z')
   .option(
     '--status [status]',
     z.enum(POST_STATUSES).describe('Filter by status'),
   )
-  .option('--upcoming', 'Show only future scheduled posts')
   .option(
     '--post-date-from [date]',
     z.string().describe('Only posts scheduled after this ISO date'),
@@ -205,22 +203,14 @@ posts
       env: process.env,
     })
 
-    // --upcoming is a shorthand for --status scheduled --post-date-from now
-    let status = options.status
-      ? (options.status.toUpperCase() as Uppercase<typeof options.status>)
-      : undefined
-    let postDateFrom = options.postDateFrom || undefined
-    if (options.upcoming) {
-      status = 'SCHEDULED'
-      postDateFrom = postDateFrom || new Date().toISOString()
-    }
-
     const data = await client('/api/v1/posts', {
       query: {
-        status,
+        status: options.status
+          ? (options.status.toUpperCase() as Uppercase<typeof options.status>)
+          : undefined,
         platforms: options.platforms || undefined,
         q: options.search || undefined,
-        postDateFrom,
+        postDateFrom: options.postDateFrom || undefined,
         postDateTo: options.postDateTo || undefined,
         limit: options.limit,
       },
