@@ -19,7 +19,7 @@ const POST_STATUSES = [
  *  rules:
  *  - publish now  → status SCHEDULED with postDate = now
  *  - scheduled-at → status SCHEDULED with the parsed postDate
- *  - neither      → status DRAFT (postDate still required upstream) */
+ *  - neither      → status DRAFT (postDate still required by the API) */
 export function buildPostBody(opts: {
   text: string
   title?: string

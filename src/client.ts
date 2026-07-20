@@ -113,8 +113,8 @@ export function resolveBaseUrl(env: Record<string, string | undefined>): string 
 }
 
 /** Create a typed API client, throwing if no API key is found.
- *  Points at the Akarso proxy, which forwards to the upstream API with our
- *  master key and the user's profile injected. When --profile is set
+ *  Points at the Akarso API, with the user's profile resolved server-side.
+ *  When --profile is set
  *  (AKARSO_PROFILE_ID env), the x-akarso-profile-id header overrides the
  *  API key's pinned profile on the server side. */
 export async function createClient(opts: {
