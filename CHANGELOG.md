@@ -1,5 +1,70 @@
 # akarso
 
+## 0.3.0
+
+1. **Posts publish immediately by default** — `posts create` with no timing flag now publishes right away. The `--publish-now` flag is gone; use `--draft` to save without publishing or `--scheduled-at` to schedule:
+
+   ```bash
+   # Publish now
+   akarso posts create --text "Hello!" --platforms x
+
+   # Schedule for later (ISO date or 30m / 2h / 3d / 1w)
+   akarso posts create --text "Later" --platforms x,linkedin --scheduled-at 2h
+
+   # Save as a draft
+   akarso posts create --text "Idea" --platforms x --draft
+   ```
+
+   `--scheduled-at` now requires a value; a bare flag errors instead of silently saving a draft.
+
+2. **New `drafts` commands** — drafts are stored by Akarso, are free, and don't require a subscription. Billing applies only when you publish:
+
+   ```bash
+   akarso drafts list
+   akarso drafts get <draftId>
+   akarso drafts publish <draftId>                    # publish now
+   akarso drafts publish <draftId> --scheduled-at 2h  # or schedule
+   akarso drafts delete <draftId>
+   ```
+
+   Account resolution is deferred until publish time, so drafts survive account reconnects.
+
+3. **New `posts reschedule` and `posts cancel` commands** — manage scheduled posts without deleting them:
+
+   ```bash
+   akarso posts reschedule <postId> --scheduled-at 2026-03-15T14:00:00Z
+   akarso posts cancel <postId>
+   ```
+
+   `posts delete` gained `--delete-from-platforms` to also remove the published post from the social platforms. `posts retry` was removed.
+
+4. **New `posts list` filters** — date ranges and lowercase statuses:
+
+   ```bash
+   akarso posts list --status scheduled
+   akarso posts list --created-after 2026-07-01T00:00:00Z
+   akarso posts list --scheduled-after 2026-07-01T00:00:00Z --scheduled-before 2026-08-01T00:00:00Z
+   ```
+
+   Statuses are now lowercase: `draft`, `pending`, `scheduled`, `publishing`, `published`, `failed`, `partial`. The old `postDateFrom`/`postDateTo` and text search filters were replaced by `--created-after`/`--created-before` and `--scheduled-after`/`--scheduled-before`.
+
+5. **Pinterest support** — new `accounts pinterest-boards` command lists your board IDs, and `posts create --pinterest-board <id>` targets a board (required when posting to pinterest):
+
+   ```bash
+   akarso accounts pinterest-boards
+   akarso posts create --text "Pin this" --platforms pinterest --pinterest-board 1234567890
+   ```
+
+6. **Platforms trimmed from 14 to 10** — reddit, mastodon, discord, and slack were dropped. Supported: `twitter` (alias `x`), `instagram`, `facebook`, `linkedin`, `tiktok`, `youtube`, `threads`, `pinterest`, `bluesky`, `googlebusiness`. Platform names are lowercase everywhere.
+
+7. **Simpler account management** — `accounts get <platform>` and `accounts disconnect <platform>` address accounts by platform name. `accounts set-channel` and `accounts health` were removed; page/channel selection now happens inside the hosted OAuth flow when you connect.
+
+8. **Media handling reworked** — `posts create --media` accepts local paths and `https` URLs, comma-separated. URLs are referenced directly; local files upload via presigned URLs. Supported formats: jpg, png, webp, gif, mp4, mov (pdf/webm/avi are no longer accepted). URLs without a recognized extension are rejected instead of guessing the media type.
+
+9. **Inbox commands removed** — the comments/reviews inbox feature was discontinued.
+
+10. **Fixed onboarding rough edges** — the `auth login` success message now shows the correct `--platforms` flag, and `akarso subscribe` opens the subscription page directly instead of the dashboard home.
+
 ## 0.2.0
 
 1. **New `--profile` global flag** — override the API key's pinned profile on any command, letting one key operate on multiple workspaces:
