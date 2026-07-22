@@ -2,7 +2,7 @@
 // posts command.
 import { describe, expect, test } from 'vitest'
 import { parseScheduledAt } from '../scheduling.ts'
-import { buildPostBody } from './posts.ts'
+import { buildPostBody, parsePlatformsList } from './posts.ts'
 
 const now = new Date('2026-04-27T12:00:00.000Z')
 
@@ -41,77 +41,83 @@ describe('parseScheduledAt', () => {
   })
 })
 
-describe('buildPostBody', () => {
-  test('publish now schedules at the current time', () => {
-    expect(
-      buildPostBody({ text: 'Hello!', platforms: ['twitter', 'linkedin'], publishNow: true, now }),
-    ).toMatchInlineSnapshot(`
-      {
-        "data": {
-          "LINKEDIN": {
-            "text": "Hello!",
-          },
-          "TWITTER": {
-            "text": "Hello!",
-          },
-        },
-        "postDate": "2026-04-27T12:00:00.000Z",
-        "socialAccountTypes": [
-          "TWITTER",
-          "LINKEDIN",
-        ],
-        "status": "SCHEDULED",
-        "title": "Hello!",
-      }
+describe('parsePlatformsList', () => {
+  test('parses, maps x to twitter, and dedupes', () => {
+    expect(parsePlatformsList('x,twitter,linkedin, googlebusiness')).toMatchInlineSnapshot(`
+      [
+        "twitter",
+        "linkedin",
+        "googlebusiness",
+      ]
     `)
   })
 
-  test('scheduled-at parses relative times and applies media to every platform', () => {
+  test('rejects unknown platforms', () => {
+    expect(() => parsePlatformsList('x,myspace')).toThrow()
+  })
+})
+
+describe('buildPostBody', () => {
+  test('publish now sets publishNow', () => {
     expect(
       buildPostBody({
-        text: 'Later',
-        platforms: ['googlebusiness'],
-        scheduledAt: '2h',
-        uploadIds: ['upl_1', 'upl_2'],
+        text: 'Hello!',
+        targets: [
+          { platform: 'twitter', accountId: 'acc_tw' },
+          { platform: 'linkedin', accountId: 'acc_li' },
+        ],
         now,
       }),
     ).toMatchInlineSnapshot(`
       {
-        "data": {
-          "GOOGLE_BUSINESS": {
-            "text": "Later",
-            "uploadIds": [
-              "upl_1",
-              "upl_2",
-            ],
+        "content": "Hello!",
+        "platforms": [
+          {
+            "accountId": "acc_tw",
+            "platform": "twitter",
           },
-        },
-        "postDate": "2026-04-27T14:00:00.000Z",
-        "socialAccountTypes": [
-          "GOOGLE_BUSINESS",
+          {
+            "accountId": "acc_li",
+            "platform": "linkedin",
+          },
         ],
-        "status": "SCHEDULED",
-        "title": "Later",
+        "publishNow": true,
       }
     `)
   })
 
-  test('no timing flags saves a draft with a custom title', () => {
+  test('scheduled-at parses relative times and carries media items', () => {
     expect(
-      buildPostBody({ text: 'Draft text', title: 'My title', platforms: ['tiktok'], now }),
+      buildPostBody({
+        text: 'Later',
+        targets: [{ platform: 'googlebusiness', accountId: 'acc_gb' }],
+        scheduledAt: '2h',
+        mediaItems: [
+          { type: 'image', url: 'https://example.com/a.jpg' },
+          { type: 'video', url: 'https://example.com/b.mp4' },
+        ],
+        now,
+      }),
     ).toMatchInlineSnapshot(`
       {
-        "data": {
-          "TIKTOK": {
-            "text": "Draft text",
+        "content": "Later",
+        "mediaItems": [
+          {
+            "type": "image",
+            "url": "https://example.com/a.jpg",
           },
-        },
-        "postDate": "2026-04-27T12:00:00.000Z",
-        "socialAccountTypes": [
-          "TIKTOK",
+          {
+            "type": "video",
+            "url": "https://example.com/b.mp4",
+          },
         ],
-        "status": "DRAFT",
-        "title": "My title",
+        "platforms": [
+          {
+            "accountId": "acc_gb",
+            "platform": "googlebusiness",
+          },
+        ],
+        "scheduledFor": "2026-04-27T14:00:00.000Z",
       }
     `)
   })

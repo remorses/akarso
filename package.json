@@ -2,7 +2,7 @@
   "name": "akarso",
   "version": "0.2.0",
   "type": "module",
-  "description": "CLI for posting and replying across 14 social platforms via Akarso.",
+  "description": "CLI for posting and scheduling across 10 social platforms via Akarso.",
   "bin": "dist/cli.js",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

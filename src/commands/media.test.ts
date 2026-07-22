@@ -6,7 +6,7 @@ import { classifyMediaInput } from './media.ts'
 
 describe('classifyMediaInput', () => {
   test('local paths with known extensions', () => {
-    const inputs = ['./photo.jpg', '/tmp/clip.MOV', 'animation.gif', 'docs/deck.pdf', 'video.webm']
+    const inputs = ['./photo.jpg', '/tmp/clip.MOV', 'animation.gif', 'video.mp4']
     const results = inputs.map((input) => ({ input, ...classifyMediaInput(input) }))
     expect(results).toMatchInlineSnapshot(`
       [
@@ -15,30 +15,28 @@ describe('classifyMediaInput', () => {
           "filename": "photo.jpg",
           "input": "./photo.jpg",
           "kind": "path",
+          "mediaType": "image",
         },
         {
           "contentType": "video/quicktime",
           "filename": "clip.MOV",
           "input": "/tmp/clip.MOV",
           "kind": "path",
+          "mediaType": "video",
         },
         {
           "contentType": "image/gif",
           "filename": "animation.gif",
           "input": "animation.gif",
           "kind": "path",
+          "mediaType": "gif",
         },
         {
-          "contentType": "application/pdf",
-          "filename": "deck.pdf",
-          "input": "docs/deck.pdf",
+          "contentType": "video/mp4",
+          "filename": "video.mp4",
+          "input": "video.mp4",
           "kind": "path",
-        },
-        {
-          "contentType": "video/webm",
-          "filename": "video.webm",
-          "input": "video.webm",
-          "kind": "path",
+          "mediaType": "video",
         },
       ]
     `)
@@ -50,21 +48,21 @@ describe('classifyMediaInput', () => {
         "contentType": "video/mp4",
         "filename": "clip.mp4",
         "kind": "url",
+        "mediaType": "video",
       }
     `)
-    // URL without recognized extension defaults to image
-    expect(classifyMediaInput('https://cdn.example.com/abc123?sig=xyz')).toMatchInlineSnapshot(`
-      {
-        "contentType": undefined,
-        "filename": "abc123",
-        "kind": "url",
-      }
-    `)
+    // URL without a recognized extension is rejected: the post body must
+    // declare image vs video vs gif, and guessing wrong breaks publishing.
+    const ambiguous = classifyMediaInput('https://cdn.example.com/abc123?sig=xyz')
+    if (!(ambiguous instanceof Error)) throw new Error('expected an Error result')
+    expect(ambiguous.message).toContain('no recognized file extension')
   })
 
-  test('local path with unknown extension is an error', () => {
-    const result = classifyMediaInput('notes.txt')
-    if (!(result instanceof Error)) throw new Error('expected an Error result')
-    expect(result.message).toContain('Unsupported file type')
+  test('local paths with unsupported extensions are errors', () => {
+    for (const input of ['notes.txt', 'docs/deck.pdf', 'video.webm']) {
+      const result = classifyMediaInput(input)
+      if (!(result instanceof Error)) throw new Error(`expected an Error result for ${input}`)
+      expect(result.message).toContain('Unsupported file type')
+    }
   })
 })

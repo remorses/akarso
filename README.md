@@ -2,7 +2,7 @@
     <br/>
     <br/>
     <h3>akarso</h3>
-    <p>Post, schedule, and reply across 14 social platforms from the terminal.</p>
+    <p>Post and schedule across 10 social platforms from the terminal.</p>
     <br/>
     <br/>
 </div>
@@ -17,11 +17,11 @@ akarso posts create --text "Hello world!" --platforms x --publish-now
 
 ## Features
 
-- **14 platforms**: X, Instagram, LinkedIn, Facebook, TikTok, YouTube, Threads, Reddit, Pinterest, Bluesky, Mastodon, Discord, Slack, Google Business
+- **10 platforms**: X, Instagram, LinkedIn, Facebook, TikTok, YouTube, Threads, Pinterest, Bluesky, Google Business
 - **Schedule posts** with relative shortcuts (`2h`, `3d`, `1w`) or ISO timestamps
 - **Multi-platform**: one command posts to multiple platforms at once
-- **Media uploads**: attach local files or URLs, up to ~90 MB
-- **Comments and reviews**: import, reply, and moderate across platforms
+- **Media**: attach local files or public URLs (jpg, png, webp, gif, mp4, mov)
+- **Drafts**: save posts for free, publish or schedule them later
 - **MCP server**: every CLI command is an MCP tool for AI agents
 - **YAML output**: pipe through `yq`; use `--json` for JSON
 
@@ -46,7 +46,7 @@ akarso auth check   # verify it works
 akarso accounts connect x
 ```
 
-Opens OAuth in the browser. Some platforms (Facebook, Instagram, LinkedIn, YouTube, Google Business) also need a publishing target selected; the flow shows the picker automatically.
+Opens OAuth in the browser. Any page or channel selection (Facebook Pages, LinkedIn organizations, YouTube channels) happens inside the OAuth flow itself.
 
 You can connect accounts before subscribing. Publishing requires a subscription.
 
@@ -82,7 +82,10 @@ All commands use **space-separated subcommands** (`akarso auth login`, not `auth
 | `posts list` | List posts (filter by `--status`, `--platforms`) |
 | `posts get <id>` | Get post details |
 | `posts delete <id>` | Delete a post |
-| `posts retry <id>` | Retry a failed post |
+| `posts reschedule <id>` | Move a scheduled post to a new time |
+| `posts cancel <id>` | Cancel a scheduled post |
+| `drafts list` | List saved drafts |
+| `drafts publish <id>` | Publish or schedule a saved draft |
 
 ```sh
 # Post to multiple platforms with media
@@ -105,10 +108,9 @@ akarso posts create \
 |---------|-------------|
 | `accounts connect [platform]` | Browser OAuth connect |
 | `accounts list` | List connected social accounts |
-| `accounts get <platform>` | Account details and selectable channels |
-| `accounts health` | Check connection health |
-| `accounts set-channel <platform> --channel-id <id>` | Pick publishing target |
+| `accounts get <platform>` | Account details |
 | `accounts disconnect <platform>` | Disconnect a platform |
+| `accounts pinterest-boards` | List Pinterest board IDs for `--pinterest-board` |
 
 ### Profiles (workspaces)
 
@@ -123,24 +125,9 @@ API keys are pinned to one profile. Override per-command with `--profile <id>`.
 
 ```sh
 akarso media upload ./video.mp4
-akarso media upload https://cdn.example.com/image.jpg
 ```
 
-Returns an upload ID for use with `posts create --media`.
-
-### Inbox
-
-```sh
-akarso inbox sync <postId> --platform instagram   # import comments
-akarso inbox comments --post-id <postId>           # list imported comments
-akarso inbox reply <postId> --platform instagram --text "Thanks!"
-akarso inbox comment-action <commentId> --action HIDE
-
-# Google Business reviews
-akarso inbox reviews-sync --count 50
-akarso inbox reviews
-akarso inbox review-reply <reviewId> --text "Thank you for your review!"
-```
+Uploads the file and returns a public URL. `posts create --media` accepts local paths and https URLs directly, so a separate upload step is rarely needed.
 
 ## Global options
 
@@ -199,22 +186,18 @@ npx @playwriter/install-mcp 'akarso mcp' --client cursor
 
 ## Supported platforms
 
-| Platform | CLI name | Posting | Scheduling | Comments | Reviews |
-|----------|----------|---------|------------|----------|---------|
-| X / Twitter | `x` | Yes | Yes | - | - |
-| Instagram | `instagram` | Yes | Yes | Yes | - |
-| LinkedIn | `linkedin` | Yes | Yes | Yes | - |
-| Facebook | `facebook` | Yes | Yes | Yes | - |
-| TikTok | `tiktok` | Yes | Yes | Yes | - |
-| YouTube | `youtube` | Yes | Yes | Yes | - |
-| Threads | `threads` | Yes | Yes | Yes | - |
-| Reddit | `reddit` | Yes | Yes | Yes | - |
-| Pinterest | `pinterest` | Yes | Yes | - | - |
-| Bluesky | `bluesky` | Yes | Yes | Yes | - |
-| Mastodon | `mastodon` | Yes | Yes | Yes | - |
-| Discord | `discord` | Yes | Yes | - | - |
-| Slack | `slack` | Yes | Yes | - | - |
-| Google Business | `googlebusiness` | Yes | Yes | - | Yes |
+| Platform | CLI name |
+|----------|----------|
+| X / Twitter | `x` |
+| Instagram | `instagram` |
+| LinkedIn | `linkedin` |
+| Facebook | `facebook` |
+| TikTok | `tiktok` |
+| YouTube | `youtube` |
+| Threads | `threads` |
+| Pinterest | `pinterest` (requires `--pinterest-board`) |
+| Bluesky | `bluesky` (connects via app password) |
+| Google Business | `googlebusiness` |
 
 ## Agent Skill
 

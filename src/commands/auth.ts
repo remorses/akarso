@@ -239,7 +239,7 @@ auth
       })
       // /profiles validates the key AND reports which workspace it
       // targets (the profile pinned at key creation, or the default).
-      const data = await client('/api/v1/profiles')
+      const data = await client('/api/v2/profiles')
       if (data instanceof Error) {
         throw new Error(`API returned error: ${data.message}`)
       }

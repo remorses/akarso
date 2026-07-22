@@ -29,7 +29,7 @@ profiles
       fs,
       env: process.env,
     })
-    const data = await client('/api/v1/profiles')
+    const data = await client('/api/v2/profiles')
     if (data instanceof Error) throw data
     output(data, { json: options.json, console })
   })
@@ -53,7 +53,7 @@ profiles
       fs,
       env: process.env,
     })
-    const data = await client('/api/v1/profiles', {
+    const data = await client('/api/v2/profiles', {
       method: 'POST',
       body: { name: options.name },
     })
@@ -78,7 +78,7 @@ profiles
       fs,
       env: process.env,
     })
-    const data = await client('/api/v1/profiles/:profileId', {
+    const data = await client('/api/v2/profiles/:profileId', {
       method: 'PATCH',
       params: { profileId },
       body: { name: options.name },

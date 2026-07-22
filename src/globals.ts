@@ -1,81 +1,34 @@
 import { goke } from 'goke'
 import { z } from 'zod'
 
-// CLI options accept friendly lowercase platform names; the API uses
-// UPPER_SNAKE platform types. toApiPlatform maps between the two.
+// CLI options accept friendly lowercase platform names, matching the API
+// platform names 1:1. The only alias is `x` → `twitter`.
 const platformValues = [
-  'facebook',
-  'instagram',
-  'linkedin',
   'x',
   'twitter',
+  'instagram',
+  'facebook',
+  'linkedin',
   'tiktok',
   'youtube',
   'threads',
-  'reddit',
   'pinterest',
   'bluesky',
-  'googlebusiness',
-  'mastodon',
-  'discord',
-  'slack',
-] as const
-
-/** Platforms that support importing comments from published posts. */
-const commentPlatformValues = [
-  'facebook',
-  'instagram',
-  'linkedin',
-  'youtube',
-  'tiktok',
-  'reddit',
-  'threads',
-  'mastodon',
-  'bluesky',
-] as const
-
-/** Platforms that support publishing comment replies. */
-const commentReplyPlatformValues = [
-  'tiktok',
-  'youtube',
-  'instagram',
-  'facebook',
-  'threads',
-  'linkedin',
-  'reddit',
-  'mastodon',
-  'discord',
-  'slack',
-  'bluesky',
-] as const
-
-/** Platforms whose account needs a selected channel before posting works. */
-const channelSelectPlatformValues = [
-  'facebook',
-  'instagram',
-  'linkedin',
-  'youtube',
   'googlebusiness',
 ] as const
 
 export type Platform = (typeof platformValues)[number]
 
-/** API platform type for a CLI platform name (x/twitter → TWITTER,
- *  googlebusiness → GOOGLE_BUSINESS). */
+/** API platform name for a CLI platform name (x → twitter, everything
+ *  else passes through unchanged). */
 export function toApiPlatform(platform: string) {
-  const upper = platform.toUpperCase()
-  const mapped = upper === 'X' ? 'TWITTER' : upper === 'GOOGLEBUSINESS' ? 'GOOGLE_BUSINESS' : upper
-  return mapped as
-    | 'TIKTOK' | 'YOUTUBE' | 'INSTAGRAM' | 'FACEBOOK' | 'TWITTER' | 'THREADS'
-    | 'LINKEDIN' | 'PINTEREST' | 'REDDIT' | 'MASTODON' | 'DISCORD' | 'SLACK'
-    | 'BLUESKY' | 'GOOGLE_BUSINESS'
+  return (platform === 'x' ? 'twitter' : platform) as
+    | 'twitter' | 'instagram' | 'facebook' | 'linkedin' | 'tiktok'
+    | 'youtube' | 'threads' | 'pinterest' | 'bluesky' | 'googlebusiness'
 }
 
 export const platforms = {
   schema: z.enum(platformValues),
-  commentsSchema: z.enum(commentPlatformValues),
-  commentRepliesSchema: z.enum(commentReplyPlatformValues),
-  channelSelectSchema: z.enum(channelSelectPlatformValues),
   options: [
     { value: 'x', label: 'X (Twitter)' },
     { value: 'twitter', label: 'X (Twitter)' },
@@ -85,13 +38,9 @@ export const platforms = {
     { value: 'tiktok', label: 'TikTok' },
     { value: 'youtube', label: 'YouTube' },
     { value: 'threads', label: 'Threads' },
-    { value: 'reddit', label: 'Reddit' },
     { value: 'pinterest', label: 'Pinterest' },
     { value: 'bluesky', label: 'Bluesky' },
     { value: 'googlebusiness', label: 'Google Business Profile' },
-    { value: 'mastodon', label: 'Mastodon' },
-    { value: 'discord', label: 'Discord' },
-    { value: 'slack', label: 'Slack' },
   ] satisfies Array<{ value: Platform; label: string }>,
 }
 

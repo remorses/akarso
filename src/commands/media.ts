@@ -1,18 +1,25 @@
 // Media upload command plus the shared media input resolver used by every
-// command that accepts media (posts create). Inputs can be local file paths
-// or https URLs; paths are uploaded as raw bytes through the proxy, URLs are
-// imported server-side — both produce an upload ID referenced by posts via
-// `data.<PLATFORM>.uploadIds`. On the hosted MCP server (AKARSO_REMOTE_MCP=1)
-// local paths are rejected with a pointer to the docs, since there is no
-// filesystem with the user's files server-side.
+// command that accepts media (posts create). Media is URL-based: post
+// bodies reference public URLs directly. https URLs pass straight through;
+// local file paths are uploaded via a presigned URL from the proxy (the
+// bytes go directly to storage, then the returned public URL goes into the
+// post body). On the hosted MCP server (AKARSO_REMOTE_MCP=1) local paths
+// are rejected with a pointer to the docs, since there is no filesystem
+// with the user's files server-side.
 import dedent from 'string-dedent'
 import type { GokeFs } from 'goke'
 import { createGroup } from '../globals.ts'
-import { createClient, resolveApiKey, resolveBaseUrl, type AkarsoClient } from '../client.ts'
+import { createClient, type AkarsoClient } from '../client.ts'
 import { output } from '../output.ts'
 import pathModule from 'node:path'
 
-type MediaContentType = 'image/jpeg' | 'image/jpg' | 'image/png' | 'image/webp' | 'image/gif' | 'video/mp4' | 'video/mpeg' | 'video/quicktime' | 'video/avi' | 'video/x-msvideo' | 'video/webm' | 'video/x-m4v' | 'application/pdf'
+type MediaContentType =
+  | 'image/jpeg'
+  | 'image/png'
+  | 'image/webp'
+  | 'image/gif'
+  | 'video/mp4'
+  | 'video/quicktime'
 
 const EXTENSION_MAP: Record<string, MediaContentType> = {
   '.jpg': 'image/jpeg',
@@ -22,21 +29,30 @@ const EXTENSION_MAP: Record<string, MediaContentType> = {
   '.gif': 'image/gif',
   '.mp4': 'video/mp4',
   '.mov': 'video/quicktime',
-  '.avi': 'video/avi',
-  '.webm': 'video/webm',
-  '.pdf': 'application/pdf',
 }
 
 const SUPPORTED_EXTENSIONS = Object.keys(EXTENSION_MAP).join(', ')
 
+export type MediaKind = 'image' | 'video' | 'gif'
+
 export interface MediaInputInfo {
   kind: 'url' | 'path'
-  contentType?: MediaContentType
+  contentType: MediaContentType
   filename: string
+  /** Media kind for the post body, inferred from the extension. */
+  mediaType: MediaKind
+}
+
+function mediaTypeForContentType(contentType: MediaContentType): MediaKind {
+  if (contentType === 'image/gif') return 'gif'
+  if (contentType.startsWith('video/')) return 'video'
+  return 'image'
 }
 
 /** Classify a media input as URL or local path and infer its content type
- *  from the extension. Pure function, no I/O. */
+ *  from the extension. Pure function, no I/O. URLs without a recognized
+ *  extension are rejected: the post body must declare image vs video vs
+ *  gif, and guessing wrong breaks publishing. */
 export function classifyMediaInput(input: string): MediaInputInfo | Error {
   const isUrl = /^https?:\/\//i.test(input)
   const pathname = isUrl ? new URL(input).pathname : input
@@ -44,12 +60,21 @@ export function classifyMediaInput(input: string): MediaInputInfo | Error {
   const contentType = EXTENSION_MAP[ext]
   const filename = pathModule.basename(pathname) || `file${ext}`
 
-  if (!contentType && !isUrl) {
-    return new Error(
-      `Unsupported file type "${ext || input}". Supported extensions: ${SUPPORTED_EXTENSIONS}`,
-    )
+  if (!contentType) {
+    return isUrl
+      ? new Error(
+          `Cannot infer the media type of "${input}" — its URL has no recognized file extension (${SUPPORTED_EXTENSIONS}). Use a URL ending in one of those extensions, or download the file and pass the local path.`,
+        )
+      : new Error(
+          `Unsupported file type "${ext || input}". Supported extensions: ${SUPPORTED_EXTENSIONS}`,
+        )
   }
-  return { kind: isUrl ? 'url' : 'path', contentType, filename }
+  return {
+    kind: isUrl ? 'url' : 'path',
+    contentType,
+    filename,
+    mediaType: mediaTypeForContentType(contentType),
+  }
 }
 
 /** Error message for local paths on the hosted multi-tenant MCP server. */
@@ -65,44 +90,33 @@ function remotePathError(input: string): Error {
   `)
 }
 
-export interface UploadedMedia {
-  /** Upload ID for use in post `data.<PLATFORM>.uploadIds`. */
-  id: string
-  url?: string | null
-  type?: string
+/** Media attachment for a post body. The index signature matches the
+ *  server schema (a loose object that passes unknown fields through). */
+export interface MediaItem {
+  type: MediaKind
+  url: string
+  [key: string]: unknown
 }
 
-/** Upload a local file (raw bytes through the proxy) or import a remote
- *  URL (server-side), returning the upload record. */
-export async function uploadMedia(opts: {
+/** Resolve a media input to a post-body media item. https URLs pass
+ *  through unchanged; local files upload via a presigned URL (the bytes
+ *  go straight to storage, never through the proxy). */
+export async function resolveMediaItem(opts: {
   input: string
   client: AkarsoClient
-  apiKey?: string
   fs: GokeFs
   env: Record<string, string | undefined>
   /** stderr logger (progress messages must not pollute stdout) */
   log: (message: string) => void
-}): Promise<UploadedMedia> {
+}): Promise<MediaItem> {
   const info = classifyMediaInput(opts.input)
   if (info instanceof Error) throw info
 
   if (info.kind === 'url') {
-    opts.log(`Importing ${opts.input}...`)
-    const data = await opts.client('/api/v1/media/from-url', {
-      method: 'POST',
-      body: { url: opts.input },
-    })
-    if (data instanceof Error) throw data
-    opts.log('Import complete.')
-    return { id: data.id, url: data.url, type: data.type }
+    return { type: info.mediaType, url: opts.input }
   }
 
   if (opts.env.AKARSO_REMOTE_MCP) throw remotePathError(opts.input)
-  if (!info.contentType) {
-    throw new Error(
-      `Unsupported file type for "${opts.input}". Supported extensions: ${SUPPORTED_EXTENSIONS}`,
-    )
-  }
   const data = await opts.fs.readFile(opts.input)
   // Uint8Array.from copies into a fresh ArrayBuffer-backed array. Both Buffer
   // and @types/node's TextEncoder.encode are typed Uint8Array<ArrayBufferLike>,
@@ -112,47 +126,39 @@ export async function uploadMedia(opts: {
 
   opts.log(`Uploading ${info.filename} (${(bytes.byteLength / 1024).toFixed(1)} KB)...`)
 
-  // Raw-bytes upload: the typed client only speaks JSON, so this one call
-  // uses plain fetch against the same proxy route.
-  const apiKey = await resolveApiKey({ apiKey: opts.apiKey, fs: opts.fs, env: opts.env })
-  if (!apiKey) {
-    throw new Error('No API key found. Run `akarso auth login` or `akarso auth set --key <key>` first.')
-  }
-  const url = new URL('/api/v1/media/upload', resolveBaseUrl(opts.env))
-  url.searchParams.set('filename', info.filename)
-  const response = await fetch(url, {
+  const presigned = await opts.client('/api/v2/media/upload', {
     method: 'POST',
+    body: { filename: info.filename, mimeType: info.contentType },
+  })
+  if (presigned instanceof Error) throw presigned
+
+  // PUT the raw bytes directly to storage. The Content-Type header must
+  // match the mimeType the presigned URL was created with.
+  const response = await fetch(presigned.data.uploadUrl, {
+    method: 'PUT',
     body: bytes,
-    headers: {
-      'Content-Type': info.contentType,
-      ...(apiKey.startsWith('ak_')
-        ? { 'x-api-key': apiKey }
-        : { Authorization: `Bearer ${apiKey}` }),
-      ...(opts.env.AKARSO_PROFILE_ID
-        ? { 'x-akarso-profile-id': opts.env.AKARSO_PROFILE_ID }
-        : undefined),
-    },
+    headers: { 'Content-Type': info.contentType },
   })
   if (!response.ok) {
     throw new Error(`Upload failed: ${response.status} ${response.statusText}`)
   }
-  const upload = (await response.json()) as UploadedMedia
   opts.log('Upload complete.')
-  return upload
+  return { type: info.mediaType, url: presigned.data.publicUrl }
 }
 
-/** Resolve a media input (local path or https URL) to an upload ID for
- *  use in post `data.<PLATFORM>.uploadIds`. */
-export async function resolveMediaToUploadId(opts: {
-  input: string
+/** Resolve a comma-separated --media value to post-body media items. */
+export async function resolveMediaItems(opts: {
+  inputs: string
   client: AkarsoClient
-  apiKey?: string
   fs: GokeFs
   env: Record<string, string | undefined>
   log: (message: string) => void
-}): Promise<string> {
-  const uploaded = await uploadMedia(opts)
-  return uploaded.id
+}): Promise<MediaItem[]> {
+  const items: MediaItem[] = []
+  for (const input of opts.inputs.split(',').map((value) => value.trim()).filter(Boolean)) {
+    items.push(await resolveMediaItem({ ...opts, input }))
+  }
+  return items
 }
 
 const media = createGroup()
@@ -161,37 +167,31 @@ media
   .command(
     'media upload <fileOrUrl>',
     dedent`
-      Upload a media file or import a URL, returning an upload ID for use with \`posts create --media\`.
+      Upload a local media file, returning a public URL for use with \`posts create --media\`.
 
-      **Two input modes:**
-      - **Local file path:** the file is read from disk and uploaded as raw bytes through the proxy. Supported formats: jpg, png, webp, gif, mp4, mov, avi, webm, pdf.
-      - **https URL:** the URL is passed to the server which imports the media remotely. Any file type the server supports is accepted.
+      The file is uploaded directly to storage via a presigned URL. Supported formats: jpg, jpeg, png, webp, gif, mp4, mov.
 
-      The returned \`id\` can be passed to \`posts create --media\` to attach the upload to a post. You can also pass file paths and URLs directly to \`posts create --media\` without a separate upload step; they are resolved automatically.
+      Files already hosted at a public \`https\` URL don't need uploading — pass the URL straight to \`posts create --media\`. You can also pass local file paths directly to \`posts create --media\` without a separate upload step; they are uploaded automatically.
 
       **Limitation:** on the hosted MCP server, local file paths are not available. Use \`https\` URLs instead, or run Akarso locally with \`akarso mcp\` to access local files.
     `,
   )
   .example('akarso media upload ./photo.jpg')
-  .example('akarso media upload https://example.com/video.mp4')
+  .example('akarso posts create --text "Pic" --platforms x --media https://example.com/photo.jpg --publish-now')
   .action(async (fileOrUrl, options, { fs, console, process }) => {
     const client = await createClient({
       apiKey: options.apiKey,
       fs,
       env: process.env,
     })
-    const result = await uploadMedia({
+    const result = await resolveMediaItem({
       input: fileOrUrl,
       client,
-      apiKey: options.apiKey,
       fs,
       env: process.env,
       log: (message) => console.error(message),
     })
-    output(
-      { id: result.id, url: result.url, type: result.type },
-      { json: options.json, console },
-    )
+    output(result, { json: options.json, console })
   })
 
 export default media

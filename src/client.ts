@@ -15,7 +15,7 @@ const CONFIG_DIR = path.join(os.homedir(), '.akarso')
 const CONFIG_FILE = path.join(CONFIG_DIR, 'config.json')
 
 /** Default base URL for the Akarso API and website. Routes live under
- *  /api/v1/, which is part of each request path (not the base URL). */
+ *  /api/v2/, which is part of each request path (not the base URL). */
 export const DEFAULT_BASE_URL = 'https://akarso.co'
 
 export type AkarsoClient = SpiceflowFetch<ProxyApp>

@@ -1,11 +1,11 @@
 // Account commands: connect (browser OAuth via the website), list, get,
-// health checks, disconnect, and channel selection for platforms that
-// need a publishing target (Facebook Page, LinkedIn org, YouTube channel,
-// Google Business location). Accounts are addressed by platform name —
-// each workspace holds at most one account per platform.
+// disconnect, and Pinterest board listing. Accounts are addressed by
+// platform name — each workspace holds at most one account per platform.
+// Any account/page selection happens inside the hosted OAuth flow, so
+// there is no channel-selection step after connecting.
 import nodeProcess from 'node:process'
-import { z } from 'zod'
 import dedent from 'string-dedent'
+import { z } from 'zod'
 import { cancel, isCancel, select } from '@clack/prompts'
 import { isAgent, openInBrowser } from 'goke'
 import { createGroup, platforms, toApiPlatform, type Platform } from '../globals.ts'
@@ -20,11 +20,11 @@ accounts
     dedent`
       Connect a social media account via OAuth.
 
-      Starts an OAuth flow to authorize Akarso to post on your behalf. Each workspace (profile) holds **at most one account per platform**. Connecting the same platform again replaces the existing connection.
+      Starts an OAuth flow to authorize Akarso to post on your behalf. Each workspace (profile) holds **at most one account per platform**. Connecting the same platform again replaces the existing connection. Any account or page selection (Facebook Pages, LinkedIn organizations, YouTube channels) happens inside the OAuth flow itself.
 
-      The \`[platform]\` argument is required when called programmatically. Supported platforms: \`x\`, \`twitter\`, \`instagram\`, \`facebook\`, \`linkedin\`, \`tiktok\`, \`youtube\`, \`threads\`, \`reddit\`, \`pinterest\`, \`bluesky\`, \`googlebusiness\`, \`mastodon\`, \`discord\`, \`slack\`.
+      The \`[platform]\` argument is required when called programmatically. Supported platforms: \`x\`, \`twitter\`, \`instagram\`, \`facebook\`, \`linkedin\`, \`tiktok\`, \`youtube\`, \`threads\`, \`pinterest\`, \`bluesky\`, \`googlebusiness\`.
 
-      **Important:** some platforms (facebook, instagram, linkedin, youtube, googlebusiness) require a channel selection after connecting. Use \`accounts get <platform>\` to see available channels, then \`accounts set-channel <platform> --channel-id <id>\` to pick one. Posting will fail until a channel is selected.
+      **Bluesky** connects with an app password instead of OAuth — the browser page shows a short form (generate an app password at https://bsky.app/settings/app-passwords).
     `,
   )
   .action(async (platformArg, options, { fs, console, process }) => {
@@ -54,7 +54,7 @@ accounts
     // The connect page authenticates in the browser and resolves the org
     // (personal org by default) server-side. When --profile is set, pass
     // it as a query param so the connect page targets the right workspace.
-    const url = new URL(`/connect/${platform}`, resolveBaseUrl(process.env))
+    const url = new URL(`/connect/${toApiPlatform(platform)}`, resolveBaseUrl(process.env))
     if (process.env.AKARSO_PROFILE_ID) {
       url.searchParams.set('profile', process.env.AKARSO_PROFILE_ID)
     }
@@ -71,7 +71,7 @@ accounts
     dedent`
       List all connected social accounts in the current workspace.
 
-      Returns each account's platform, connection status, username, and whether a publishing channel has been selected. Use this to see which platforms are ready for posting and which still need channel selection. Pass \`--profile\` to list accounts from a different profile.
+      Returns each account's ID, platform, and username. The account \`id\` is what posts target internally — the CLI resolves platform names to account IDs automatically, so you rarely need it directly. Pass \`--profile\` to list accounts from a different profile.
     `,
   )
   .action(async (options, { fs, console, process }) => {
@@ -80,7 +80,7 @@ accounts
       fs,
       env: process.env,
     })
-    const data = await client('/api/v1/accounts')
+    const data = await client('/api/v2/accounts')
     if (data instanceof Error) throw data
     output(data, { json: options.json, console })
   })
@@ -91,57 +91,25 @@ accounts
     dedent`
       Get detailed information about the connected account for a specific platform.
 
-      Returns account metadata, connection status, and the list of **selectable channels** (Facebook Pages, LinkedIn organizations, YouTube channels, Google Business locations). Use this before \`accounts set-channel\` to find the correct \`channel-id\`.
-
-      Returns a 404 error if no account is connected for the given platform.
+      Returns the account's ID, username, display name, and profile URL. Errors if no account is connected for the given platform.
     `,
   )
   .action(async (platformArg, options, { fs, console, process }) => {
-    const platform = platforms.schema.parse(platformArg)
+    const platform = toApiPlatform(platforms.schema.parse(platformArg))
     const client = await createClient({
       apiKey: options.apiKey,
       fs,
       env: process.env,
     })
-    const data = await client('/api/v1/accounts/:platform', {
-      params: { platform: toApiPlatform(platform) },
-    })
-    if (data instanceof Error) {
-      if (data.status === 404) {
-        console.error(`No ${platform} account connected. Run \`akarso accounts connect ${platform}\`.`)
-        process.exit(1)
-      }
-      throw data
-    }
-    output(data, { json: options.json, console })
-  })
-
-accounts
-  .command(
-    'accounts health',
-    dedent`
-      Check the connection health of all connected accounts, or a single platform with \`--platform\`.
-
-      Reports whether each account's OAuth token is still valid and the connection is functional. Use this to diagnose posting failures caused by expired or revoked tokens. Accounts with health issues need to be reconnected with \`accounts connect\`.
-    `,
-  )
-  .option(
-    '--platform [platform]',
-    platforms.schema.describe('Only check this platform'),
-  )
-  .action(async (options, { fs, console, process }) => {
-    const client = await createClient({
-      apiKey: options.apiKey,
-      fs,
-      env: process.env,
-    })
-    const data = await client('/api/v1/accounts/health', {
-      query: {
-        platform: options.platform ? toApiPlatform(options.platform) : undefined,
-      },
-    })
+    const data = await client('/api/v2/accounts')
     if (data instanceof Error) throw data
-    output(data, { json: options.json, console })
+    const account = data.accounts.find((entry) => entry.platform === platform)
+    if (!account) {
+      console.error(`No ${platform} account connected. Run \`akarso accounts connect ${platform}\`.`)
+      process.exit(1)
+      return
+    }
+    output(account, { json: options.json, console })
   })
 
 accounts
@@ -154,15 +122,23 @@ accounts
     `,
   )
   .action(async (platformArg, options, { fs, console, process }) => {
-    const platform = platforms.schema.parse(platformArg)
+    const platform = toApiPlatform(platforms.schema.parse(platformArg))
     const client = await createClient({
       apiKey: options.apiKey,
       fs,
       env: process.env,
     })
-    const data = await client('/api/v1/accounts/:platform', {
+    const list = await client('/api/v2/accounts')
+    if (list instanceof Error) throw list
+    const account = list.accounts.find((entry) => entry.platform === platform)
+    if (!account) {
+      console.error(`No ${platform} account connected.`)
+      process.exit(1)
+      return
+    }
+    const data = await client('/api/v2/accounts/:accountId', {
       method: 'DELETE',
-      params: { platform: toApiPlatform(platform) },
+      params: { accountId: account.id },
     })
     if (data instanceof Error) throw data
     output(data, { json: options.json, console })
@@ -170,30 +146,25 @@ accounts
 
 accounts
   .command(
-    'accounts set-channel <platform>',
+    'accounts pinterest-boards',
     dedent`
-      Select the publishing target for a connected account that requires channel selection.
+      List the boards of the connected Pinterest account.
 
-      Some platforms have multiple publishing destinations (e.g. a Facebook user manages several Pages, a LinkedIn user has personal profile vs company pages). This command picks which one to publish to.
-
-      **Platforms that require this:** \`facebook\`, \`instagram\` (via Facebook Page), \`linkedin\`, \`youtube\`, \`googlebusiness\`. Other platforms post directly to the connected account without channel selection.
-
-      **Posting will fail** if the account requires channel selection and none has been set. Run \`accounts get <platform>\` first to see the list of available channels and their IDs.
+      Use a board's \`id\` with \`posts create --pinterest-board <id>\` — Pinterest requires a target board on every pin.
     `,
   )
-  .example('akarso accounts set-channel facebook --channel-id page_123')
-  .option('--channel-id <id>', z.string().describe('Channel ID from `accounts get <platform>`'))
-  .action(async (platformArg, options, { fs, console, process }) => {
-    const platform = platforms.channelSelectSchema.parse(platformArg)
+  .option(
+    '--account-id [id]',
+    z.string().describe('Pinterest account ID (defaults to the workspace account)'),
+  )
+  .action(async (options, { fs, console, process }) => {
     const client = await createClient({
       apiKey: options.apiKey,
       fs,
       env: process.env,
     })
-    const data = await client('/api/v1/accounts/:platform/set-channel', {
-      method: 'POST',
-      params: { platform: toApiPlatform(platform) as 'FACEBOOK' },
-      body: { channelId: options.channelId },
+    const data = await client('/api/v2/pinterest/boards', {
+      query: { accountId: options.accountId || undefined },
     })
     if (data instanceof Error) throw data
     output(data, { json: options.json, console })
