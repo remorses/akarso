@@ -10,7 +10,7 @@
 ```sh
 npm install -g akarso
 akarso auth login
-akarso posts create --text "Hello world!" --platforms x --publish-now
+akarso posts create --text "Hello world!" --platforms x
 ```
 
 [Docs](https://akarso.co/docs/getting-started/quickstart) · [Dashboard](https://akarso.co/dashboard) · [npm](https://www.npmjs.com/package/akarso)
@@ -55,11 +55,10 @@ You can connect accounts before subscribing. Publishing requires a subscription.
 ```sh
 akarso posts create \
   --text "Hello from Akarso!" \
-  --platforms x \
-  --publish-now
+  --platforms x
 ```
 
-Pass `--scheduled-at 2h` to schedule, or omit both flags to save a draft.
+Pass `--scheduled-at 2h` to schedule, or `--draft` to save without publishing.
 
 ## Commands
 
@@ -92,8 +91,7 @@ All commands use **space-separated subcommands** (`akarso auth login`, not `auth
 akarso posts create \
   --text "Check this out!" \
   --platforms x,linkedin,instagram \
-  --media ./photo.jpg \
-  --publish-now
+  --media ./photo.jpg
 
 # Schedule for 2 hours from now
 akarso posts create \

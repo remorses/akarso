@@ -127,8 +127,8 @@ posts
       Create a social media post as a draft, publish it immediately, or schedule it for later.
 
       **Three modes:**
-      - No flag: saves as a **draft** (stored by Akarso, publish later with \`drafts publish\`)
-      - \`--publish-now\`: publishes immediately to all selected platforms
+      - No timing flag: publishes immediately to all selected platforms
+      - \`--draft\`: saves a draft (stored by Akarso, publish later with \`drafts publish\`)
       - \`--scheduled-at\`: schedules for a future time (accepts ISO dates like \`2026-03-15T14:00:00Z\`, or relative values: \`30m\`, \`2h\`, \`3d\`, \`1w\`)
 
       The same text and media are applied to every selected platform. Platforms are specified as a comma-separated list (e.g. \`--platforms x,linkedin,instagram\`). Run \`accounts list\` to see which platforms are connected in the current profile.
@@ -140,17 +140,18 @@ posts
       **Publishing requires an active subscription.** Returns 402 if no subscription exists (run \`akarso subscribe\` to start a free trial) and 403 if the org has hit its plan's monthly post limit or account limit. Drafts are free.
     `,
   )
-  .example('akarso posts create --text "Hello!" --platforms x --publish-now')
+  .example('akarso posts create --text "Hello!" --platforms x')
   .example('akarso posts create --text "Later" --platforms x,linkedin --scheduled-at 2h')
-  .example('akarso posts create --text "Pics" --platforms instagram --media ./photo.jpg,https://example.com/clip.mp4 --publish-now')
+  .example('akarso posts create --text "Idea" --platforms x --draft')
+  .example('akarso posts create --text "Pics" --platforms instagram --media ./photo.jpg,https://example.com/clip.mp4')
   .option('--text <content>', z.string().describe('Post text content, applied to every platform'))
   .option(
     '--platforms <list>',
     z.string().describe(`Comma-separated platforms to publish to (${platforms.schema.options.join(', ')})`),
   )
-  .option('--publish-now', 'Publish immediately')
+  .option('--draft', 'Save as a draft instead of publishing')
   .option(
-    '--scheduled-at <iso>',
+    '--scheduled-at [iso]',
     z.string().optional().describe('Schedule time: ISO date, 30m, 2h, 3d, or 1w'),
   )
   .option(
@@ -172,8 +173,8 @@ posts
       env: process.env,
     })
 
-    if (options.publishNow && options.scheduledAt) {
-      throw new Error('Choose either --publish-now or --scheduled-at, not both.')
+    if (options.draft && options.scheduledAt) {
+      throw new Error('Choose either --draft or --scheduled-at, not both.')
     }
 
     const selectedPlatforms = parsePlatformsList(options.platforms)
@@ -191,9 +192,9 @@ posts
       })
     }
 
-    // No timing flag → save a draft (stored by Akarso, free, no account
-    // resolution needed: accounts resolve at publish time).
-    if (!options.publishNow && !options.scheduledAt) {
+    // Drafts are stored by Akarso and are free. Account resolution is
+    // deferred until publish time so drafts survive account reconnects.
+    if (options.draft) {
       const draft = await client('/api/v2/drafts', {
         method: 'POST',
         body: {
@@ -239,7 +240,7 @@ posts
     dedent`
       List posts in the current workspace, with optional filters.
 
-      Returns posts sorted by creation date (newest first). Each post includes its status, content, per-platform results, and scheduled/published date. Drafts saved with \`posts create\` (no timing flag) live under \`drafts list\` instead.
+      Returns posts sorted by creation date (newest first). Each post includes its status, content, per-platform results, and scheduled/published date. Drafts saved with \`posts create --draft\` live under \`drafts list\` instead.
 
       **Statuses:** \`draft\`, \`pending\`, \`scheduled\`, \`publishing\`, \`published\`, \`failed\`, \`partial\`. Filter with \`--status\`.
 
@@ -428,7 +429,7 @@ posts
     dedent`
       List the drafts of the current workspace, newest first.
 
-      Drafts are created with \`posts create\` without \`--publish-now\` or \`--scheduled-at\`. Publish one with \`drafts publish <draftId>\`.
+      Drafts are created with \`posts create --draft\`. Publish one with \`drafts publish <draftId>\`.
     `,
   )
   .action(async (options, { fs, console, process }) => {
@@ -487,7 +488,7 @@ posts
 
       Platform targets without a pinned account resolve to the workspace's connected account per platform. On success the draft is deleted and the created post is returned.
 
-      **Requires an active subscription** (same as \`posts create --publish-now\`). Returns 402 without one.
+      **Requires an active subscription** (same as \`posts create\`). Returns 402 without one.
     `,
   )
   .example('akarso drafts publish 01JC3A --scheduled-at 2h')

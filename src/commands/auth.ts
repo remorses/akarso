@@ -188,7 +188,7 @@ auth
 
       You can now use the CLI:
         akarso accounts list
-        akarso posts create --text "Hello!" --platforms x --publish-now
+        akarso posts create --text "Hello!" --platforms x
     `)
   })
 

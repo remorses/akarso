@@ -177,7 +177,7 @@ media
     `,
   )
   .example('akarso media upload ./photo.jpg')
-  .example('akarso posts create --text "Pic" --platforms x --media https://example.com/photo.jpg --publish-now')
+  .example('akarso posts create --text "Pic" --platforms x --media https://example.com/photo.jpg')
   .action(async (fileOrUrl, options, { fs, console, process }) => {
     const client = await createClient({
       apiKey: options.apiKey,

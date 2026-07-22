@@ -8,7 +8,7 @@ import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js'
 import { addCliToolsToMcp } from '@goke/mcp'
 import { createCli, isRemoteMcpCommand } from './create-cli.ts'
 
-async function listToolNames(commandFilter?: (name: string) => boolean) {
+async function listTools(commandFilter?: (name: string) => boolean) {
   const cli = createCli()
   const server = new Server({ name: 'akarso', version: '0.0.0' }, { capabilities: {} })
   addCliToolsToMcp({ cli, server, commandFilter })
@@ -20,7 +20,11 @@ async function listToolNames(commandFilter?: (name: string) => boolean) {
   const { tools } = await client.listTools()
   await client.close()
   await server.close()
-  return tools.map((tool) => tool.name)
+  return tools
+}
+
+async function listToolNames(commandFilter?: (name: string) => boolean) {
+  return (await listTools(commandFilter)).map((tool) => tool.name)
 }
 
 describe('MCP tool surface', () => {
@@ -57,5 +61,13 @@ describe('MCP tool surface', () => {
     // media upload stays remote: it accepts https URLs; local paths are
     // rejected at runtime via AKARSO_REMOTE_MCP.
     expect(names).toContain('media_upload')
+  })
+
+  test('posts create publishes by default and exposes an explicit draft option', async () => {
+    const tools = await listTools(isRemoteMcpCommand)
+    const postsCreate = tools.find((tool) => tool.name === 'posts_create')
+    expect(postsCreate?.inputSchema.properties).toHaveProperty('draft')
+    expect(postsCreate?.inputSchema.properties).not.toHaveProperty('publishNow')
+    expect(postsCreate?.inputSchema.required).toEqual(['text', 'platforms'])
   })
 })

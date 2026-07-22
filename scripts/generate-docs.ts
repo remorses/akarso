@@ -50,7 +50,7 @@ const indexIntro = dedent`
   akarso profiles list
 
   # Post from a specific profile
-  akarso posts create --text "Hello!" --platforms x --publish-now --profile 01JXYZ...
+  akarso posts create --text "Hello!" --platforms x --profile 01JXYZ...
   ${'```'}
 
   For CI or headless environments, set the key directly:
