@@ -112,7 +112,7 @@ export function createCli({ version }: { version?: string } = {}) {
       dedent`
         Start Akarso as a local MCP (Model Context Protocol) server over stdio.
 
-        Exposes all commands as MCP tools with typed input schemas. AI agents (Claude, Cursor, etc.) can connect to this server to manage social media accounts, create posts, upload media, and moderate comments programmatically.
+        Exposes all commands as MCP tools with typed input schemas. AI agents (Claude, Cursor, etc.) can connect to this server to manage social media accounts, create posts, and upload media programmatically.
 
         Install into your MCP client with: \`npx @playwriter/install-mcp 'akarso mcp' --client claude-code\`
 
