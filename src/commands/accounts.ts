@@ -103,13 +103,18 @@ accounts
     })
     const data = await client('/api/v2/accounts')
     if (data instanceof Error) throw data
-    const account = data.accounts.find((entry) => entry.platform === platform)
-    if (!account) {
+    const matches = data.accounts.filter((entry) => entry.platform === platform)
+    if (matches.length === 0) {
       console.error(`No ${platform} account connected. Run \`akarso accounts connect ${platform}\`.`)
       process.exit(1)
       return
     }
-    output(account, { json: options.json, console })
+    if (matches.length > 1) {
+      console.error(
+        `Multiple ${platform} accounts are connected. Run \`akarso accounts connect ${platform}\` and choose which one to keep.`,
+      )
+    }
+    output(matches.length === 1 ? matches[0] : { accounts: matches }, { json: options.json, console })
   })
 
 accounts
@@ -130,18 +135,23 @@ accounts
     })
     const list = await client('/api/v2/accounts')
     if (list instanceof Error) throw list
-    const account = list.accounts.find((entry) => entry.platform === platform)
-    if (!account) {
+    // Duplicates can exist when one connect flow granted several pages at
+    // once — "disconnect <platform>" removes the whole platform
+    // connection, so every matching account is disconnected.
+    const matches = list.accounts.filter((entry) => entry.platform === platform)
+    if (matches.length === 0) {
       console.error(`No ${platform} account connected.`)
       process.exit(1)
       return
     }
-    const data = await client('/api/v2/accounts/:accountId', {
-      method: 'DELETE',
-      params: { accountId: account.id },
-    })
-    if (data instanceof Error) throw data
-    output(data, { json: options.json, console })
+    for (const account of matches) {
+      const data = await client('/api/v2/accounts/:accountId', {
+        method: 'DELETE',
+        params: { accountId: account.id },
+      })
+      if (data instanceof Error) throw data
+    }
+    output({ success: true, disconnected: matches.length }, { json: options.json, console })
   })
 
 accounts

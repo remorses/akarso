@@ -70,7 +70,16 @@ async function resolveTargets(opts: {
   const accounts = await opts.client('/api/v2/accounts')
   if (accounts instanceof Error) throw accounts
   return opts.platforms.map((platform) => {
-    const account = accounts.accounts.find((entry) => entry.platform === platform)
+    const matches = accounts.accounts.filter((entry) => entry.platform === platform)
+    if (matches.length > 1) {
+      // Several same-platform accounts can be attached when a connect
+      // flow granted multiple pages at once. Picking one arbitrarily
+      // could publish to the wrong page, so refuse instead.
+      throw new Error(
+        `Multiple ${platform} accounts are connected. Run \`akarso accounts connect ${platform}\` and choose which one to keep.`,
+      )
+    }
+    const account = matches[0]
     if (!account) {
       throw new Error(
         `No ${platform} account connected. Run \`akarso accounts connect ${platform}\`.`,
