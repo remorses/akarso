@@ -50,6 +50,38 @@ export function buildPostBody(opts: {
   }
 }
 
+/** Attach thread tweets to the X target, leaving every other platform
+ *  untouched.
+ *
+ *  The root tweet goes in the target's own `content` override rather than
+ *  the shared post `content`, because upstream uses the post content as
+ *  the root tweet: without the override, a cross-post would push the
+ *  ENTIRE thread text into the first tweet. Other platforms keep the
+ *  shared joined text and publish it as one normal post.
+ *
+ *  Media stays on the post body, so every attachment lands on the root
+ *  tweet. Upstream supports per-thread-item media; the CLI does not
+ *  expose it yet. */
+export function applyThread<
+  T extends { platform: string; platformSpecificData?: Record<string, unknown> | null },
+>(targets: T[], tweets: string[]): T[] {
+  if (tweets.length < 2) return targets
+  return targets.map((target) => {
+    if (target.platform !== 'twitter') return target
+    return {
+      ...target,
+      content: tweets[0],
+      platformSpecificData: {
+        ...target.platformSpecificData,
+        threadItems: tweets.slice(1).map((content) => ({ content })),
+      },
+      // Spreading a generic widens the result to `T & {...}`, which TS
+      // cannot prove is still `T`. The narrowing above guarantees this is
+      // the twitter member, and both fields exist on it.
+    } as T
+  })
+}
+
 /** Parse a comma-separated --platforms value into unique API platform
  *  names (x and twitter collapse into one). */
 export function parsePlatformsList(value: string): ApiPlatform[] {
@@ -104,12 +136,19 @@ async function resolveTargets(opts: {
   })
 }
 
-function exitOnBillingError(
-  error: Error & { status?: number | string; value?: { error?: string } },
+function exitOnApiError(
+  error: Error & { status?: number | string; value?: { error?: string; code?: string } },
   console: { error(message: string): void },
   process: { exit(code?: number): void },
 ) {
-  // SpiceflowFetchError carries the typed HTTP status and parsed error body
+  // SpiceflowFetchError carries the typed HTTP status and parsed error body.
+  // 400 with a machine-readable code is an actionable rejection the proxy
+  // wrote for humans (e.g. post_too_long → use a thread). The raw fetch
+  // error message is generic, so print the body message instead.
+  if (Number(error.status) === 400 && error.value?.code && error.value.error) {
+    console.error(error.value.error)
+    process.exit(1)
+  }
   // 402 Payment Required: subscription needed
   if (Number(error.status) === 402) {
     console.error('Subscription required to publish posts.')
@@ -142,7 +181,18 @@ posts
 
       The same text and media are applied to every selected platform. Platforms are specified as a comma-separated list (e.g. \`--platforms x,linkedin,instagram\`). Run \`accounts list\` to see which platforms are connected in the current profile.
 
-      **Media:** attach images or videos with \`--media\`. Accepts local file paths and \`https\` URLs, comma-separated. URLs are referenced directly; local files are uploaded first. Supported formats: jpg, png, webp, gif, mp4, mov.
+      **Threads (X only):** a single tweet is capped at 280 characters, so longer text must be published as a thread. Repeat \`--text\` once per tweet — the first value is the root tweet and each following one is chained as a reply:
+
+      \`\`\`sh
+      akarso posts create --platforms x \\
+        --text "First tweet." \\
+        --text "Second tweet." \\
+        --text "Third tweet."
+      \`\`\`
+
+      Every tweet in the thread must fit in 280 characters on its own. Only the X target is threaded; any other platform in the same command receives the tweets joined into one normal post.
+
+      **Media:** attach images or videos with \`--media\`. Accepts local file paths and \`https\` URLs, comma-separated. URLs are referenced directly; local files are uploaded first. Supported formats: jpg, png, webp, gif, mp4, mov. In a thread, all media is attached to the first tweet.
 
       **Pinterest:** requires \`--pinterest-board <boardId>\`. List board IDs with \`accounts pinterest-boards\`.
 
@@ -153,7 +203,15 @@ posts
   .example('akarso posts create --text "Later" --platforms x,linkedin --scheduled-at 2h')
   .example('akarso posts create --text "Idea" --platforms x --draft')
   .example('akarso posts create --text "Pics" --platforms instagram --media ./photo.jpg,https://example.com/clip.mp4')
-  .option('--text <content>', z.string().describe('Post text content, applied to every platform'))
+  .example('akarso posts create --platforms x --text "First tweet." --text "Second tweet." --text "Third tweet."')
+  .option(
+    '--text <content>',
+    z
+      .array(z.string())
+      .describe(
+        'Post text, applied to every platform. Repeat the flag to publish an X thread: the first value is the root tweet, each following one is chained as a reply.',
+      ),
+  )
   .option(
     '--platforms <list>',
     z.string().describe(`Comma-separated platforms to publish to (${platforms.schema.options.join(', ')})`),
@@ -188,6 +246,18 @@ posts
 
     const selectedPlatforms = parsePlatformsList(options.platforms)
 
+    // Repeating --text is what makes a thread. Only X supports threading,
+    // so every other platform receives the tweets joined back into one
+    // post body — which is also what the X root tweet is overridden from
+    // in applyThread.
+    const tweets = options.text
+    if (tweets.length > 1 && !selectedPlatforms.includes('twitter')) {
+      throw new Error(
+        'Repeating --text publishes an X thread. Add `x` to --platforms, or pass a single --text.',
+      )
+    }
+    const content = tweets.join('\n\n')
+
     // Resolve media inputs: https URLs pass through, local files upload
     // via presigned URLs.
     let mediaItems: MediaItem[] | undefined
@@ -207,14 +277,17 @@ posts
       const draft = await client('/api/v2/drafts', {
         method: 'POST',
         body: {
-          content: options.text,
+          content,
           ...(mediaItems?.length ? { mediaItems } : {}),
-          platforms: selectedPlatforms.map((platform) => ({
-            platform,
-            ...(platform === 'pinterest' && options.pinterestBoard
-              ? { platformSpecificData: { boardId: options.pinterestBoard } }
-              : {}),
-          })),
+          platforms: applyThread(
+            selectedPlatforms.map((platform) => ({
+              platform,
+              ...(platform === 'pinterest' && options.pinterestBoard
+                ? { platformSpecificData: { boardId: options.pinterestBoard } }
+                : {}),
+            })),
+            tweets,
+          ),
         },
       })
       if (draft instanceof Error) throw draft
@@ -229,15 +302,15 @@ posts
       pinterestBoard: options.pinterestBoard || undefined,
     })
     const body = buildPostBody({
-      text: options.text,
-      targets,
+      text: content,
+      targets: applyThread(targets, tweets),
       mediaItems,
       scheduledAt: options.scheduledAt || undefined,
     })
 
     const data = await client('/api/v2/posts', { method: 'POST', body })
     if (data instanceof Error) {
-      exitOnBillingError(data, console, process)
+      exitOnApiError(data, console, process)
       return
     }
     output(data, { json: options.json, console })
@@ -519,7 +592,7 @@ posts
         : { publishNow: true },
     })
     if (data instanceof Error) {
-      exitOnBillingError(data, console, process)
+      exitOnApiError(data, console, process)
       return
     }
     output(data, { json: options.json, console })

@@ -1,8 +1,8 @@
-// Tests the scheduling input parser and post body builder used by the
-// posts command.
+// Tests the scheduling input parser, the post body builder, and the X
+// thread wiring used by the posts command.
 import { describe, expect, test } from 'vitest'
 import { parseScheduledAt } from '../scheduling.ts'
-import { buildPostBody, parsePlatformsList } from './posts.ts'
+import { applyThread, buildPostBody, parsePlatformsList } from './posts.ts'
 
 const now = new Date('2026-04-27T12:00:00.000Z')
 
@@ -54,6 +54,66 @@ describe('parsePlatformsList', () => {
 
   test('rejects unknown platforms', () => {
     expect(() => parsePlatformsList('x,myspace')).toThrow()
+  })
+})
+
+describe('applyThread', () => {
+  test('threads only the X target and overrides its root content', () => {
+    expect(
+      applyThread(
+        [
+          { platform: 'twitter', accountId: 'acc_tw' },
+          { platform: 'linkedin', accountId: 'acc_li' },
+        ],
+        ['Root tweet.', 'Second.', 'Third.'],
+      ),
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "accountId": "acc_tw",
+          "content": "Root tweet.",
+          "platform": "twitter",
+          "platformSpecificData": {
+            "threadItems": [
+              {
+                "content": "Second.",
+              },
+              {
+                "content": "Third.",
+              },
+            ],
+          },
+        },
+        {
+          "accountId": "acc_li",
+          "platform": "linkedin",
+        },
+      ]
+    `)
+  })
+
+  test('preserves existing platform options, and a single tweet is not a thread', () => {
+    const targets = [
+      { platform: 'twitter', accountId: 'acc_tw', platformSpecificData: { replyToTweetId: '42' } },
+    ]
+    expect(applyThread(targets, ['Root.', 'Reply.'])).toMatchInlineSnapshot(`
+      [
+        {
+          "accountId": "acc_tw",
+          "content": "Root.",
+          "platform": "twitter",
+          "platformSpecificData": {
+            "replyToTweetId": "42",
+            "threadItems": [
+              {
+                "content": "Reply.",
+              },
+            ],
+          },
+        },
+      ]
+    `)
+    expect(applyThread(targets, ['Only one tweet.'])).toBe(targets)
   })
 })
 
