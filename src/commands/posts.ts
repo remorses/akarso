@@ -137,16 +137,19 @@ async function resolveTargets(opts: {
 }
 
 function exitOnApiError(
-  error: Error & { status?: number | string; value?: { error?: string; code?: string } },
+  error: Error & { status?: number | string; value?: { code?: string } },
   console: { error(message: string): void },
   process: { exit(code?: number): void },
 ) {
-  // SpiceflowFetchError carries the typed HTTP status and parsed error body.
+  // SpiceflowFetchError carries the typed HTTP status and the parsed error
+  // body on .value. The API puts its human text in the body's `message` field,
+  // which is where the fetch client reads error.message from — so the message
+  // is always ready to print and only the `code` needs unwrapping.
+  //
   // 400 with a machine-readable code is an actionable rejection the proxy
-  // wrote for humans (e.g. post_too_long → use a thread). The raw fetch
-  // error message is generic, so print the body message instead.
-  if (Number(error.status) === 400 && error.value?.code && error.value.error) {
-    console.error(error.value.error)
+  // wrote for humans (e.g. post_too_long → use a thread).
+  if (Number(error.status) === 400 && error.value?.code) {
+    console.error(error.message)
     process.exit(1)
   }
   // 402 Payment Required: subscription needed
@@ -160,7 +163,7 @@ function exitOnApiError(
   }
   // 403 with plan limit errors: show upgrade message
   if (Number(error.status) === 403) {
-    console.error(error.value?.error || error.message)
+    console.error(error.message)
     process.exit(1)
   }
   throw error
