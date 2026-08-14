@@ -199,7 +199,7 @@ posts
 
       **Pinterest:** requires \`--pinterest-board <boardId>\`. List board IDs with \`accounts pinterest-boards\`.
 
-      **Publishing requires an active subscription.** Returns 402 if no subscription exists (run \`akarso subscribe\` to start a free trial) and 403 if the org has hit its plan's monthly post limit or account limit. Drafts are free.
+      **Publishing requires an active subscription.** Returns 402 if no subscription exists (run \`akarso subscribe\` to start a free trial) and 403 if the org has hit its plan's monthly post limit or account limit. Each platform counts as one post toward the monthly limit. Drafts are free.
     `,
   )
   .example('akarso posts create --text "Hello!" --platforms x')
