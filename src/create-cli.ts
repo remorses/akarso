@@ -16,6 +16,8 @@ import profiles from './commands/profiles.ts'
 import accounts from './commands/accounts.ts'
 import posts from './commands/posts.ts'
 import media from './commands/media.ts'
+import analytics from './commands/analytics.ts'
+import engagement from './commands/engagement.ts'
 
 /** Commands that never make sense as MCP tools, local or remote:
  *  interactive browser flows and shell-integration helpers. */
@@ -103,6 +105,8 @@ export function createCli({ version }: { version?: string } = {}) {
   cli.use(accounts)
   cli.use(posts)
   cli.use(media)
+  cli.use(analytics)
+  cli.use(engagement)
 
   // Expose the CLI as an MCP server over stdio. Every command becomes an
   // MCP tool with a typed input schema derived from the Zod options.

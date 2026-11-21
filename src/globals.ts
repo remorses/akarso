@@ -21,10 +21,8 @@ export type Platform = (typeof platformValues)[number]
 
 /** API platform name for a CLI platform name (x → twitter, everything
  *  else passes through unchanged). */
-export function toApiPlatform(platform: string) {
-  return (platform === 'x' ? 'twitter' : platform) as
-    | 'twitter' | 'instagram' | 'facebook' | 'linkedin' | 'tiktok'
-    | 'youtube' | 'threads' | 'pinterest' | 'bluesky' | 'googlebusiness'
+export function toApiPlatform<P extends Platform>(platform: P) {
+  return (platform === 'x' ? 'twitter' : platform) as Exclude<P, 'x'> | (P extends 'x' ? 'twitter' : never)
 }
 
 export const platforms = {

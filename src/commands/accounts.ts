@@ -1,6 +1,8 @@
 // Account commands: connect (browser OAuth via the website), list, get,
-// disconnect, and Pinterest board listing. Accounts are addressed by
-// platform name — each workspace holds at most one account per platform.
+// disconnect, and per-platform helpers (Pinterest boards, YouTube
+// playlists, Instagram audio, LinkedIn company lookup). Accounts are
+// addressed by platform name — each workspace holds at most one account
+// per platform.
 // Any account/page selection happens inside the hosted OAuth flow, so
 // there is no channel-selection step after connecting.
 import nodeProcess from 'node:process'
@@ -71,7 +73,7 @@ accounts
     dedent`
       List all connected social accounts in the current workspace.
 
-      Returns each account's ID, platform, and username. The account \`id\` is what posts target internally — the CLI resolves platform names to account IDs automatically, so you rarely need it directly. Pass \`--profile\` to list accounts from a different profile.
+      Returns each account's ID, platform, and username. The account \`id\` is what posts target internally — platform names resolve to account IDs automatically, so you rarely need it directly. Pass \`--profile\` to list accounts from a different profile.
     `,
   )
   .action(async (options, { fs, console, process }) => {
@@ -176,6 +178,68 @@ accounts
     const data = await client('/api/v2/pinterest/boards', {
       query: { accountId: options.accountId || undefined },
     })
+    if (data instanceof Error) throw data
+    output(data, { json: options.json, console })
+  })
+
+accounts
+  .command(
+    'accounts youtube-playlists',
+    dedent`
+      List the playlists of the connected YouTube channel.
+
+      Use a playlist's \`id\` as \`platformSpecificData.playlistId\` in the API to add a published video to that playlist.
+    `,
+  )
+  .action(async (options, { fs, console, process }) => {
+    const client = await createClient({ apiKey: options.apiKey, fs, env: process.env })
+    const data = await client('/api/v2/youtube/playlists', { query: {} })
+    if (data instanceof Error) throw data
+    output(data, { json: options.json, console })
+  })
+
+accounts
+  .command(
+    'accounts instagram-audio',
+    dedent`
+      Search the music catalog of the connected Instagram account, for Reels.
+
+      Omit \`--query\` for trending audio. Use a track's \`audioId\` in \`platformSpecificData.audioConfiguration\` in the API to add it to a single-video Reel. Catalog audio needs an account connected with Facebook Login, and availability depends on the account and region.
+    `,
+  )
+  .example('akarso accounts instagram-audio --query summer')
+  .option('--query [text]', z.string().describe('Search text (omit for trending audio)'))
+  .option(
+    '--type [type]',
+    z.enum(['music', 'original_sound']).optional().describe('Kind of audio to search'),
+  )
+  .option('--audio-id [id]', z.string().describe('Refresh the details of one saved track instead of searching'))
+  .action(async (options, { fs, console, process }) => {
+    const client = await createClient({ apiKey: options.apiKey, fs, env: process.env })
+    const data = await client('/api/v2/instagram/audio', {
+      query: {
+        q: options.query || undefined,
+        audioType: options.type || undefined,
+        audioId: options.audioId || undefined,
+      },
+    })
+    if (data instanceof Error) throw data
+    output(data, { json: options.json, console })
+  })
+
+accounts
+  .command(
+    'accounts linkedin-lookup <company>',
+    dedent`
+      Find a LinkedIn company page's ID and URN from its URL or vanity name.
+
+      Uses the connected LinkedIn account. The URN is what the API's \`platformSpecificData.mentions\` needs to mention a company in a LinkedIn post.
+    `,
+  )
+  .example('akarso accounts linkedin-lookup https://www.linkedin.com/company/linkedin')
+  .action(async (company, options, { fs, console, process }) => {
+    const client = await createClient({ apiKey: options.apiKey, fs, env: process.env })
+    const data = await client('/api/v2/linkedin/organization-lookup', { query: { company } })
     if (data instanceof Error) throw data
     output(data, { json: options.json, console })
   })

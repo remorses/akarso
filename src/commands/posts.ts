@@ -1,15 +1,15 @@
 // Post commands: create (publish now / schedule / draft), list, get,
-// delete, reschedule, cancel — plus the draft commands (drafts are stored
-// by Akarso and published later). Posts target platforms by name; the CLI
-// resolves each platform to the workspace's connected account.
+// delete, reschedule, cancel, retry — plus the draft commands (drafts are
+// stored by Akarso and published later). Posts target platforms by name;
+// the server resolves each platform to the workspace's connected account.
 import nodeProcess from 'node:process'
 import { z } from 'zod'
 import dedent from 'string-dedent'
 import { confirm, isCancel } from '@clack/prompts'
 import { isAgent } from 'goke'
 import { createGroup, platforms, toApiPlatform } from '../globals.ts'
-import { createClient, type AkarsoClient } from '../client.ts'
-import { output } from '../output.ts'
+import { createClient } from '../client.ts'
+import { exitOnApiError, output } from '../output.ts'
 import { parseScheduledAt } from '../scheduling.ts'
 import { resolveMediaItems, type MediaItem } from './media.ts'
 // Type-only import of the server request schema so post targets carry the
@@ -24,7 +24,7 @@ const POST_STATUSES = [
 type ApiPlatform = ReturnType<typeof toApiPlatform>
 
 /** One post target, typed by the server schema (discriminated union of
- *  platform + accountId + per-platform options). */
+ *  platform + optional accountId + per-platform options). */
 type PostTarget = z.input<typeof CreatePostRequest>['platforms'][number]
 
 /** Build the create-post request body. The same text and media apply to
@@ -37,6 +37,7 @@ export function buildPostBody(opts: {
   targets: PostTarget[]
   mediaItems?: MediaItem[]
   scheduledAt?: string
+  idempotencyKey?: string
   now?: Date
 }) {
   const now = opts.now ?? new Date()
@@ -47,6 +48,7 @@ export function buildPostBody(opts: {
     ...(opts.scheduledAt
       ? { scheduledFor: parseScheduledAt(opts.scheduledAt, now) }
       : { publishNow: true as const }),
+    ...(opts.idempotencyKey ? { idempotencyKey: opts.idempotencyKey } : undefined),
   }
 }
 
@@ -111,81 +113,23 @@ export function parsePlatformsList(value: string): ApiPlatform[] {
   return [...new Set(parsed)]
 }
 
-/** Resolve platform names to the workspace's connected accounts. Errors
- *  with a connect hint when a platform has no account. */
-async function resolveTargets(opts: {
-  client: AkarsoClient
-  platforms: ApiPlatform[]
-  pinterestBoard?: string
-}): Promise<PostTarget[]> {
-  const accounts = await opts.client('/api/v2/accounts')
-  if (accounts instanceof Error) throw accounts
+/** One target per platform. The server resolves each platform to the
+ *  workspace's connected account (one per platform), so no account id is
+ *  sent. Pinterest needs a board on every pin. */
+export function buildTargets(opts: { platforms: ApiPlatform[]; pinterestBoard?: string }): PostTarget[] {
   return opts.platforms.map((platform) => {
-    const matches = accounts.accounts.filter((entry) => entry.platform === platform)
-    if (matches.length > 1) {
-      // Several same-platform accounts can be attached when a connect
-      // flow granted multiple pages at once. Picking one arbitrarily
-      // could publish to the wrong page, so refuse instead.
+    if (platform !== 'pinterest') {
+      // `platform` is the full union here, so the literal is not narrowed
+      // to one union member; the cast re-attaches the discriminated type.
+      return { platform } as PostTarget
+    }
+    if (!opts.pinterestBoard) {
       throw new Error(
-        `Multiple ${platform} accounts are connected. Run \`akarso accounts connect ${platform}\` and choose which one to keep.`,
+        'Pinterest requires a board. Pass --pinterest-board <boardId> (list boards with `akarso accounts pinterest-boards`).',
       )
     }
-    const account = matches[0]
-    if (!account) {
-      throw new Error(
-        `No ${platform} account connected. Run \`akarso accounts connect ${platform}\`.`,
-      )
-    }
-    if (platform === 'pinterest') {
-      if (!opts.pinterestBoard) {
-        throw new Error(
-          'Pinterest requires a board. Pass --pinterest-board <boardId> (list boards with `akarso accounts pinterest-boards`).',
-        )
-      }
-      return {
-        platform,
-        accountId: account.id,
-        platformSpecificData: { boardId: opts.pinterestBoard },
-      }
-    }
-    // `platform` is the full union here, so the object literal is not
-    // distributively narrowed to one union member — the cast re-attaches
-    // the discriminated type (platform is a valid member by construction).
-    return { platform, accountId: account.id } as PostTarget
+    return { platform, platformSpecificData: { boardId: opts.pinterestBoard } }
   })
-}
-
-function exitOnApiError(
-  error: Error & { status?: number | string; value?: { code?: string } },
-  console: { error(message: string): void },
-  process: { exit(code?: number): void },
-) {
-  // SpiceflowFetchError carries the typed HTTP status and the parsed error
-  // body on .value. The API puts its human text in the body's `message` field,
-  // which is where the fetch client reads error.message from — so the message
-  // is always ready to print and only the `code` needs unwrapping.
-  //
-  // 400 with a machine-readable code is an actionable rejection the proxy
-  // wrote for humans (e.g. post_too_long → use a thread).
-  if (Number(error.status) === 400 && error.value?.code) {
-    console.error(error.message)
-    process.exit(1)
-  }
-  // 402 Payment Required: subscription needed
-  if (Number(error.status) === 402) {
-    console.error('Subscription required to publish posts.')
-    console.error('Start a 7-day free trial by running:')
-    console.error('')
-    console.error('  akarso subscribe')
-    console.error('')
-    process.exit(1)
-  }
-  // 403 with plan limit errors: show upgrade message
-  if (Number(error.status) === 403) {
-    console.error(error.message)
-    process.exit(1)
-  }
-  throw error
 }
 
 const posts = createGroup()
@@ -219,6 +163,8 @@ posts
       **Media in a thread:** a single \`--media\` attaches to the first tweet. To give each tweet its own media, repeat \`--media\` once per \`--text\`, in the same order; pass \`''\` for a tweet without media. Other platforms in the same command get only the first tweet's media.
 
       **Pinterest:** requires \`--pinterest-board <boardId>\`. List board IDs with \`accounts pinterest-boards\`.
+
+      **Safe retries:** pass \`--idempotency-key <key>\` (any unique string, e.g. a UUID). If the command fails with a timeout or connection error, run it again with the same key: it returns the original post when it was created, and never publishes or bills twice.
 
       **Publishing requires an active subscription.** Returns 402 if no subscription exists (run \`akarso subscribe\` to start a free trial) and 403 if the org has hit its plan's monthly post limit or account limit. Each platform counts as one post toward the monthly limit. Drafts are free.
     `,
@@ -259,6 +205,13 @@ posts
     '--pinterest-board [id]',
     z.string().describe('Pinterest board ID to pin to (required when posting to pinterest)'),
   )
+  .option(
+    '--idempotency-key [key]',
+    z
+      .string()
+      .max(200)
+      .describe('Unique key (e.g. a UUID) that makes retrying safe: running the command again with the same key returns the original post instead of publishing twice, and is not billed again'),
+  )
   .action(async (options, { fs, console, process }) => {
     const client = await createClient({
       apiKey: options.apiKey,
@@ -268,6 +221,9 @@ posts
 
     if (options.draft && options.scheduledAt) {
       throw new Error('Choose either --draft or --scheduled-at, not both.')
+    }
+    if (options.draft && options.idempotencyKey) {
+      throw new Error('--idempotency-key only applies when publishing or scheduling. Drop it with --draft.')
     }
 
     const selectedPlatforms = parsePlatformsList(options.platforms)
@@ -320,8 +276,7 @@ posts
       return
     }
 
-    const targets = await resolveTargets({
-      client,
+    const targets = buildTargets({
       platforms: selectedPlatforms,
       pinterestBoard: options.pinterestBoard || undefined,
     })
@@ -330,13 +285,11 @@ posts
       targets: applyThread(targets, tweets, replyMedia),
       mediaItems,
       scheduledAt: options.scheduledAt || undefined,
+      idempotencyKey: options.idempotencyKey || undefined,
     })
 
     const data = await client('/api/v2/posts', { method: 'POST', body })
-    if (data instanceof Error) {
-      exitOnApiError(data, console, process)
-      return
-    }
+    if (data instanceof Error) exitOnApiError({ error: data, console, process })
     output(data, { json: options.json, console })
   })
 
@@ -524,6 +477,38 @@ posts
     output(data, { json: options.json, console })
   })
 
+posts
+  .command(
+    'posts retry <postId>',
+    dedent`
+      Retry the platforms that failed on a post.
+
+      Re-publishes only the failed platforms, with the original text, media, and options. Platforms that already published are never posted again. Pass \`--scheduled-at\` to schedule the retry instead of running it now.
+
+      **Requires an active subscription.** Each retried platform counts as one post toward the monthly limit.
+    `,
+  )
+  .example('akarso posts retry 665f1a2b3c')
+  .example('akarso posts retry 665f1a2b3c --scheduled-at 1h')
+  .option(
+    '--scheduled-at [iso]',
+    z.string().optional().describe('Schedule the retry: ISO date, 30m, 2h, 3d, or 1w. Omit to retry now.'),
+  )
+  .action(async (postId, options, { fs, console, process }) => {
+    const client = await createClient({
+      apiKey: options.apiKey,
+      fs,
+      env: process.env,
+    })
+    const data = await client('/api/v2/posts/:postId/retry', {
+      method: 'POST',
+      params: { postId },
+      body: options.scheduledAt ? { scheduledFor: parseScheduledAt(options.scheduledAt, new Date()) } : {},
+    })
+    if (data instanceof Error) exitOnApiError({ error: data, console, process })
+    output(data, { json: options.json, console })
+  })
+
 // ── Drafts ──────────────────────────────────────────────────────────
 // Drafts are stored by Akarso (create them with `posts create` without a
 // timing flag). They are free — no subscription, no quota — until
@@ -615,10 +600,7 @@ posts
         ? { scheduledFor: parseScheduledAt(options.scheduledAt, new Date()) }
         : { publishNow: true },
     })
-    if (data instanceof Error) {
-      exitOnApiError(data, console, process)
-      return
-    }
+    if (data instanceof Error) exitOnApiError({ error: data, console, process })
     output(data, { json: options.json, console })
   })
 

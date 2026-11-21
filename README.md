@@ -109,6 +109,30 @@ akarso posts create \
 | `accounts get <platform>` | Account details |
 | `accounts disconnect <platform>` | Disconnect a platform |
 | `accounts pinterest-boards` | List Pinterest board IDs for `--pinterest-board` |
+| `accounts youtube-playlists` | List YouTube playlist IDs |
+| `accounts instagram-audio` | Search Instagram Reels music |
+| `accounts linkedin-lookup <company>` | Find a LinkedIn company page ID and URN |
+
+### Comments, messages, reviews
+
+```sh
+akarso comments list --platform instagram --post-id 17895695668004550
+akarso comments create --platform instagram --comment-id 17858893269000001 --text "Thank you!"
+akarso messages list --platform instagram
+akarso messages send --platform instagram --to 17841400000000000 --text "Hi!"
+akarso reviews list
+akarso reviews reply <reviewId> --text "Thanks for visiting!"
+```
+
+Each comment, message, and review reply counts as one post toward the monthly limit.
+
+### Analytics
+
+```sh
+akarso analytics followers instagram
+akarso analytics instagram-insights --metrics reach,views
+akarso analytics googlebusiness-performance --days 28
+```
 
 ### Profiles (workspaces)
 
