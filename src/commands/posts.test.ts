@@ -2,7 +2,7 @@
 // thread wiring used by the posts command.
 import { describe, expect, test } from 'vitest'
 import { parseScheduledAt } from '../scheduling.ts'
-import { applyThread, buildPostBody, parsePlatformsList } from './posts.ts'
+import { applyThread, buildPostBody, mediaPerTweet, parsePlatformsList } from './posts.ts'
 
 const now = new Date('2026-04-27T12:00:00.000Z')
 
@@ -114,6 +114,49 @@ describe('applyThread', () => {
       ]
     `)
     expect(applyThread(targets, ['Only one tweet.'])).toBe(targets)
+  })
+
+  test('attaches per-reply media to its thread item', () => {
+    const image = { type: 'image' as const, url: 'https://cdn.example.com/a.png' }
+    expect(applyThread([{ platform: 'twitter', accountId: 'acc_tw' }], ['Root.', 'Two.', 'Three.'], [[], [image]]))
+      .toMatchInlineSnapshot(`
+        [
+          {
+            "accountId": "acc_tw",
+            "content": "Root.",
+            "platform": "twitter",
+            "platformSpecificData": {
+              "threadItems": [
+                {
+                  "content": "Two.",
+                },
+                {
+                  "content": "Three.",
+                  "mediaItems": [
+                    {
+                      "type": "image",
+                      "url": "https://cdn.example.com/a.png",
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        ]
+      `)
+  })
+})
+
+describe('mediaPerTweet', () => {
+  test('one flag goes on the root, one flag per tweet maps in order', () => {
+    expect(mediaPerTweet({ tweets: 3, media: [] })).toEqual([''])
+    expect(mediaPerTweet({ tweets: 3, media: ['a.mp4,b.png'] })).toEqual(['a.mp4,b.png'])
+    expect(mediaPerTweet({ tweets: 3, media: ['a.mp4', '', 'c.png'] })).toEqual(['a.mp4', '', 'c.png'])
+  })
+
+  test('rejects a flag count that does not match the tweets', () => {
+    expect(() => mediaPerTweet({ tweets: 3, media: ['a', 'b'] })).toThrowErrorMatchingInlineSnapshot(`[Error: Got 2 --media flags for 3 tweets. Pass one --media per --text, using '' for tweets without media.]`)
+    expect(() => mediaPerTweet({ tweets: 1, media: ['a', 'b'] })).toThrowErrorMatchingInlineSnapshot(`[Error: Repeat --media only in a thread. For one post, pass a comma-separated list to a single --media.]`)
   })
 })
 

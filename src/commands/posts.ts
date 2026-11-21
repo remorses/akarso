@@ -59,12 +59,11 @@ export function buildPostBody(opts: {
  *  ENTIRE thread text into the first tweet. Other platforms keep the
  *  shared joined text and publish it as one normal post.
  *
- *  Media stays on the post body, so every attachment lands on the root
- *  tweet. Upstream supports per-thread-item media; the CLI does not
- *  expose it yet. */
+ *  Root tweet media stays on the post body. `replyMedia[i]` attaches to
+ *  reply i (tweet i + 1) as that thread item's own mediaItems. */
 export function applyThread<
   T extends { platform: string; platformSpecificData?: Record<string, unknown> | null },
->(targets: T[], tweets: string[]): T[] {
+>(targets: T[], tweets: string[], replyMedia: MediaItem[][] = []): T[] {
   if (tweets.length < 2) return targets
   return targets.map((target) => {
     if (target.platform !== 'twitter') return target
@@ -73,13 +72,33 @@ export function applyThread<
       content: tweets[0],
       platformSpecificData: {
         ...target.platformSpecificData,
-        threadItems: tweets.slice(1).map((content) => ({ content })),
+        threadItems: tweets.slice(1).map((content, i) => ({
+          content,
+          ...(replyMedia[i]?.length ? { mediaItems: replyMedia[i] } : {}),
+        })),
       },
       // Spreading a generic widens the result to `T & {...}`, which TS
       // cannot prove is still `T`. The narrowing above guarantees this is
       // the twitter member, and both fields exist on it.
     } as T
   })
+}
+
+/** Split repeated --media flags into one comma list per tweet.
+ *  - one --media: everything goes on the root tweet (or the single post)
+ *  - in a thread, one --media per --text: the Nth flag goes on the Nth
+ *    tweet, an empty value ('') skips that tweet */
+export function mediaPerTweet(opts: { tweets: number; media: string[] }): string[] {
+  if (opts.media.length <= 1) return [opts.media[0] ?? '']
+  if (opts.tweets < 2) {
+    throw new Error('Repeat --media only in a thread. For one post, pass a comma-separated list to a single --media.')
+  }
+  if (opts.media.length !== opts.tweets) {
+    throw new Error(
+      `Got ${opts.media.length} --media flags for ${opts.tweets} tweets. Pass one --media per --text, using '' for tweets without media.`,
+    )
+  }
+  return opts.media
 }
 
 /** Parse a comma-separated --platforms value into unique API platform
@@ -195,7 +214,9 @@ posts
 
       Every tweet in the thread must fit in 280 characters on its own. Only the X target is threaded; any other platform in the same command receives the tweets joined into one normal post.
 
-      **Media:** attach images or videos with \`--media\`. Accepts local file paths and \`https\` URLs, comma-separated. URLs are referenced directly; local files are uploaded first. Supported formats: jpg, png, webp, gif, mp4, mov. In a thread, all media is attached to the first tweet.
+      **Media:** attach images or videos with \`--media\`. Accepts local file paths and \`https\` URLs, comma-separated. URLs are referenced directly; local files are uploaded first. Supported formats: jpg, png, webp, gif, mp4, mov.
+
+      **Media in a thread:** a single \`--media\` attaches to the first tweet. To give each tweet its own media, repeat \`--media\` once per \`--text\`, in the same order; pass \`''\` for a tweet without media. Other platforms in the same command get only the first tweet's media.
 
       **Pinterest:** requires \`--pinterest-board <boardId>\`. List board IDs with \`accounts pinterest-boards\`.
 
@@ -207,6 +228,7 @@ posts
   .example('akarso posts create --text "Idea" --platforms x --draft')
   .example('akarso posts create --text "Pics" --platforms instagram --media ./photo.jpg,https://example.com/clip.mp4')
   .example('akarso posts create --platforms x --text "First tweet." --text "Second tweet." --text "Third tweet."')
+  .example("akarso posts create --platforms x --text 'Intro' --media ./demo.mp4 --text 'How it works' --media ./diagram.png --text 'Repo link' --media ''")
   .option(
     '--text <content>',
     z
@@ -227,9 +249,10 @@ posts
   .option(
     '--media [items]',
     z
-      .string()
+      .array(z.string())
+      .optional()
       .describe(
-        'Comma-separated media items: local file paths or `https` URLs. URLs are referenced directly; local files are uploaded (not available on the hosted MCP server, use URLs there).',
+        "Comma-separated media items: local file paths or `https` URLs. URLs are referenced directly; local files are uploaded (not available on the hosted MCP server, use URLs there). In a thread, repeat once per --text to give each tweet its own media ('' for none).",
       ),
   )
   .option(
@@ -263,16 +286,13 @@ posts
 
     // Resolve media inputs: https URLs pass through, local files upload
     // via presigned URLs.
-    let mediaItems: MediaItem[] | undefined
-    if (options.media) {
-      mediaItems = await resolveMediaItems({
-        inputs: options.media,
-        client,
-        fs,
-        env: process.env,
-        log: (message) => console.error(message),
-      })
+    const perTweet: MediaItem[][] = []
+    for (const inputs of mediaPerTweet({ tweets: tweets.length, media: options.media ?? [] })) {
+      perTweet.push(
+        await resolveMediaItems({ inputs, client, fs, env: process.env, log: (message) => console.error(message) }),
+      )
     }
+    const [mediaItems, ...replyMedia] = perTweet
 
     // Drafts are stored by Akarso and are free. Account resolution is
     // deferred until publish time so drafts survive account reconnects.
@@ -290,6 +310,7 @@ posts
                 : {}),
             })),
             tweets,
+            replyMedia,
           ),
         },
       })
@@ -306,7 +327,7 @@ posts
     })
     const body = buildPostBody({
       text: content,
-      targets: applyThread(targets, tweets),
+      targets: applyThread(targets, tweets, replyMedia),
       mediaItems,
       scheduledAt: options.scheduledAt || undefined,
     })
