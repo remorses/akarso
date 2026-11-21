@@ -1,5 +1,59 @@
 # akarso
 
+## 0.4.0
+
+1. **X threads** — repeat `--text` to publish a thread, one tweet per flag. Repeat `--media` once per `--text` to give each tweet its own media (`''` for none):
+
+   ```bash
+   akarso posts create --platforms x \
+     --text 'Intro' --media ./demo.mp4 \
+     --text 'How it works' --media ./diagram.png \
+     --text 'Repo link' --media ''
+   ```
+
+   A single `--media` still goes on the first tweet. Every tweet must fit in 280 characters.
+
+2. **Comments, direct messages and reviews** — read and answer engagement on your connected accounts:
+
+   ```bash
+   akarso comments list --platform instagram --post-id <id>
+   akarso comments create --platform youtube --comment-id <id> --text 'Thanks!'
+   akarso comments hide <commentId> --platform instagram
+   akarso messages list --platform instagram
+   akarso messages send --platform x --to <userId> --text 'Hi'
+   akarso reviews list
+   akarso reviews reply <reviewId> --text 'Thank you for the visit'
+   ```
+
+   Comments, messages and review replies count toward your monthly posts like a post on that platform.
+
+3. **Retry failed posts** — publish again only the platforms that failed, now or later:
+
+   ```bash
+   akarso posts retry <postId>
+   akarso posts retry <postId> --scheduled-at 2h
+   ```
+
+4. **Account analytics** — follower counts, Instagram insights and demographics, Google Business performance and search keywords:
+
+   ```bash
+   akarso analytics followers instagram
+   akarso analytics instagram-demographics
+   akarso analytics googlebusiness-keywords
+   ```
+
+5. **Safe retries with `--idempotency-key`** — sending the same key again returns the original post instead of publishing twice:
+
+   ```bash
+   akarso posts create --text 'Hello' --platforms x --idempotency-key launch-1
+   ```
+
+6. **Lookup helpers for post options** — `accounts youtube-playlists`, `accounts instagram-audio` (Reels music) and `accounts linkedin-lookup <company>` (company URN for mentions).
+
+7. **Platforms without account IDs** — posts and drafts target platforms by name; the API picks the workspace account. A platform with several connected accounts now gives a clear error instead of publishing to a random one.
+
+8. **Clearer limits and errors** — `posts create` help says each platform counts as one monthly post, and API errors show their message directly.
+
 ## 0.3.0
 
 1. **Posts publish immediately by default** — `posts create` with no timing flag now publishes right away. The `--publish-now` flag is gone; use `--draft` to save without publishing or `--scheduled-at` to schedule:
